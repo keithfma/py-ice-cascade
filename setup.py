@@ -15,5 +15,7 @@ setup(
 		'License :: OSI Approved :: MIT License'],
 	packages=['py_ice_cascade'],
 	package_data={'py_ice_cascade' : ['data/*']},
-	install_requires=[]
+	install_requires=[],
+	entry_points={'console_scripts' : [
+		'run_hillslope = py_ice_cascade.run_hillslope:run']}
 )
