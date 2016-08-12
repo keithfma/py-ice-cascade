@@ -7,13 +7,13 @@ References:
     Systems: Lecture Notes for USC GEOL557 (1.1.4)
 """
 
-# TODO: How to treat wet or icy points?
+#  TODO: How to treat wet or icy points? Mask? Spatially variable kappa?
 
 import numpy as np
 import matplotlib.pyplot as plt
 import time
 
-class diffuse_ftcs_open():
+class ftcs_openbnd():
     """
     Hillslope diffusion model using forward-time center-space (FTCS) finite
     diffence scheme with "open" boundary conditions. 
@@ -24,13 +24,12 @@ class diffuse_ftcs_open():
     is equal. In other words, material is allowed to pass through the boundary
     node. This condition means dq/dx = 0, and the boundary-normal component of
     the diffusion equation goes to 0 as well. Note that boundary-parallel flux
-    gradients are not necessarily 0, and so boundary heights are not constant. 
+    gradients are not necessarily 0, and so boundary heights may not be
+    constant. 
     """
 
     def __init__(self, height, delta, kappa):
         """
-        Initialize new model object
-
         Arguments:
             height = 2D Numpy array, surface elevation in model domain, [m]
             delta = Scalar double, grid spacing, assumed square, [m]
@@ -90,7 +89,7 @@ if __name__ == '__main__':
     h0[-1,:] = np.double(0.0)
     dd = np.double(1.0)
     kk = np.double(1.0)
-    model = diffuse_ftcs_open(h0, dd, kk)
+    model = ftcs_openbnd(h0, dd, kk)
     # # update and plot model
     plt.imshow(model.get_height(), interpolation='nearest', clim=(-0.5,0.5))
     plt.colorbar()
