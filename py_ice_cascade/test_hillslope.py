@@ -42,50 +42,51 @@ class ftcs_openbnd_TestCase(unittest.TestCase):
         dh_error = np.abs(dh_observed-dh_expected)
         self.assertTrue(np.all(dh_error < epsilon))
 
-    def test_steady_2d(self):
-        """2D fixed unequal boundaries, converge to solution in ref (1)"""
-        
-        # define parameters
-        nx = 100
-        ny = 50
-        lx = 1.0
-        h1 = 1.0
-        h2 = 0.0
-        kappa = 1.0
-        epsilon = 0.001 # arbitrary tolerance
+    # # NOTE: Exact solution is working, but this solution requires Dirichlet
+    # #   boundary conditions which are not yet implemented
+    # def test_steady_2d(self):
+    #     """2D fixed unequal boundaries, converge to solution in ref (1)"""
+    #     
+    #     # define parameters
+    #     nx = 100
+    #     ny = 50
+    #     lx = 1.0
+    #     h1 = 1.0
+    #     h2 = 0.0
+    #     kappa = 1.0
+    #     epsilon = 0.001 # arbitrary tolerance
 
-        # init and run model
-        delta = lx/(nx-1)
-        ly = delta*(ny-1)
-        height = np.random.rand(ny, nx).astype(np.double)
-        height[ :, 0] = h1
-        height[ :,-1] = h1
-        height[ 0, :] = h1
-        height[-1, :] = h2
-        model = py_ice_cascade.hillslope.ftcs_openbnd(height, delta, kappa)
-        model.run(0.01)
+    #     # init and run model
+    #     delta = lx/(nx-1)
+    #     ly = delta*(ny-1)
+    #     height = np.random.rand(ny, nx).astype(np.double)
+    #     height[ :, 0] = h1
+    #     height[ :,-1] = h1
+    #     height[ 0, :] = h1
+    #     height[-1, :] = h2
+    #     model = py_ice_cascade.hillslope.ftcs_openbnd(height, delta, kappa)
+    #     model.run(0.01)
 
-        # compute solution
-        xx = np.linspace(0, lx, nx, dtype=np.double).reshape(( 1,nx))
-        yy = np.linspace(0, ly, ny, dtype=np.double).reshape((ny, 1))
-        total = np.zeros((ny,nx), dtype=np.double)
-        for nn in range(1,400,2): # note: becomes unstable as nn->inf, why?
-            total += (np.power(-1.0, nn+1)+1.0)/nn * \
-                np.sin(nn*np.pi*xx/lx) * \
-                np.sinh(nn*np.pi*yy/lx) / \
-                np.sinh(nn*np.pi*ly/lx)
-        height_exact = h1 + 2.0*(h2-h1)/np.pi*total
+    #     # compute solution
+    #     xx = np.linspace(0, lx, nx, dtype=np.double).reshape(( 1,nx))
+    #     yy = np.linspace(0, ly, ny, dtype=np.double).reshape((ny, 1))
+    #     total = np.zeros((ny,nx), dtype=np.double)
+    #     for nn in range(1,400,2): # note: becomes unstable as nn->inf, why?
+    #         total += (np.power(-1.0, nn+1)+1.0)/nn * \
+    #             np.sin(nn*np.pi*xx/lx) * \
+    #             np.sinh(nn*np.pi*yy/lx) / \
+    #             np.sinh(nn*np.pi*ly/lx)
+    #     height_exact = h1 + 2.0*(h2-h1)/np.pi*total
 
-        # check results
+    #     # check results
 
-        # debug
-        plt.imshow(height, interpolation='nearest')
-        plt.colorbar()
-        plt.show()
-        plt.imshow(model.get_height(), interpolation='nearest')
-        plt.colorbar()
-        plt.show()
-
+    #     # debug
+    #     plt.imshow(height, interpolation='nearest')
+    #     plt.colorbar()
+    #     plt.show()
+    #     plt.imshow(model.get_height(), interpolation='nearest')
+    #     plt.colorbar()
+    #     plt.show()
 
     def test_transient_1d(self):
         pass
