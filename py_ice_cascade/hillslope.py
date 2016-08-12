@@ -10,6 +10,8 @@ References:
 # TODO: How to treat wet or icy points?
 
 import numpy as np
+import matplotlib.pyplot as plt
+import time
 
 class diffuse_ftcs_open():
     """
@@ -61,7 +63,7 @@ class diffuse_ftcs_open():
         
         run_time = np.double(run_time)
         time = np.double(0.0)    
-        max_step = 0.5*self.delta*self.delta/self.kappa # stable time step, see ref (1)
+        max_step = 0.95*self.delta*self.delta/(4.0*self.kappa) # stable time step, note ref (1) has error
         ddhx = np.zeros(self.height.shape) # arrays for 2nd derivative terms
         ddhy = np.zeros(self.height.shape)
 
@@ -69,16 +71,34 @@ class diffuse_ftcs_open():
             step = min(run_time-time, max_step)
             ddhx[:,1:-1] = self.height[:,2:] - 2.0*self.height[:,1:-1] + self.height[:,:-2]
             ddhy[1:-1,:] = self.height[2:,:] - 2.0*self.height[1:-1,:] + self.height[:-2,:]
-            cc = self.kappa*step/self.delta/self.delta
-            self.height += cc*(ddhx+ddhy) 
+            coeff = step*self.kappa/self.delta/self.delta
+            self.height += coeff*(ddhx+ddhy)
             time += step
 
-# basic usage example 
 if __name__ == '__main__':
     
-    hh = np.ones((100,100), dtype=np.double)
-    dd = np.double(10.0)
+    # basic usage example and "smell test": relaxation to height==0 steady state
+    # # initialize model
+    nx = 100
+    ny = 100
+    max_time = 5.0
+    time_step = 0.05
+    h0 = np.random.rand(nx, ny).astype(np.double)-0.5
+    h0[:,0] = np.double(0.0) # constant values are compatible with "open" BC treatment
+    h0[:,-1] = np.double(0.0)
+    h0[0,:] = np.double(0.0)
+    h0[-1,:] = np.double(0.0)
+    dd = np.double(1.0)
     kk = np.double(1.0)
-
-    model = diffuse_ftcs_open(hh, dd, kk)
-    model.run(100)
+    model = diffuse_ftcs_open(h0, dd, kk)
+    # # update and plot model
+    plt.imshow(model.get_height(), interpolation='nearest', clim=(-0.5,0.5))
+    plt.colorbar()
+    plt.ion()
+    time = 0.0
+    while time < max_time: 
+        model.run(time_step)
+        time += time_step
+        plt.imshow(model.get_height(), interpolation='nearest', clim=(-0.5,0.5))
+        plt.title("TIME = {:.2f}".format(time))
+        plt.pause(0.05)
