@@ -39,30 +39,17 @@ class diffuse_ftcs_open():
         self.height = None # elevation grid
         self.delta = None  # grid spacing
         self.kappa = None  # diffusion parameter
-        self.solver = None # numerical solver name
         
         # set attributes
+        self.delta = np.double(delta)
+        self.kappa = np.double(kappa) 
         self.set_height(height) 
-        self.set_delta(delta)
-        self.set_kappa(kappa)
         
     def set_height(self, new):
-        self.height = np.atleast_2d(np.array(new_height, dtype=np.double))
-
-    def set_delta(self, new):
-        self.delta = np.double(new)
-
-    def set_kappa(self, new):
-        self.kappa = np.double(new_kappa) 
+        self.height = np.atleast_2d(np.array(new, dtype=np.double))
 
     def get_height(self):
         return self.height
-
-    def get_delta(self):
-        return self.delta
-
-    def get_kappa(self):
-        return self.kappa
 
     def run(self, run_time):
         """
@@ -71,4 +58,27 @@ class diffuse_ftcs_open():
         Arguments:
             run_time = Scalar double, model run time, [a]
         """
-        pass
+        
+        run_time = np.double(run_time)
+        time = np.double(0.0)    
+        max_step = 0.5*self.delta*self.delta/self.kappa # stable time step, see ref (1)
+        ddhx = np.zeros(self.height.shape) # arrays for 2nd derivative terms
+        ddhy = np.zeros(self.height.shape)
+
+        while time < run_time:
+            step = min(run_time-time, max_step)
+            ddhx[:,1:-1] = self.height[:,2:] - 2.0*self.height[:,1:-1] + self.height[:,:-2]
+            ddhy[1:-1,:] = self.height[2:,:] - 2.0*self.height[1:-1,:] + self.height[:-2,:]
+            cc = self.kappa*step/self.delta/self.delta
+            self.height += cc*(ddhx+ddhy) 
+            time += step
+
+# basic usage example 
+if __name__ == '__main__':
+    
+    hh = np.ones((100,100), dtype=np.double)
+    dd = np.double(10.0)
+    kk = np.double(1.0)
+
+    model = diffuse_ftcs_open(hh, dd, kk)
+    model.run(100)
