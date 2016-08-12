@@ -51,6 +51,8 @@ class ftcs_openbnd_TestCase(unittest.TestCase):
         lx = 1.0
         h1 = 1.0
         h2 = 0.0
+        kappa = 1.0
+        epsilon = 0.001 # arbitrary tolerance
 
         # init and run model
         delta = lx/(nx-1)
@@ -60,6 +62,8 @@ class ftcs_openbnd_TestCase(unittest.TestCase):
         height[ :,-1] = h1
         height[ 0, :] = h1
         height[-1, :] = h2
+        model = py_ice_cascade.hillslope.ftcs_openbnd(height, delta, kappa)
+        model.run(0.01)
 
         # compute solution
         xx = np.linspace(0, lx, nx, dtype=np.double).reshape(( 1,nx))
@@ -75,7 +79,10 @@ class ftcs_openbnd_TestCase(unittest.TestCase):
         # check results
 
         # debug
-        plt.imshow(height_exact, interpolation='nearest')
+        plt.imshow(height, interpolation='nearest')
+        plt.colorbar()
+        plt.show()
+        plt.imshow(model.get_height(), interpolation='nearest')
         plt.colorbar()
         plt.show()
 
