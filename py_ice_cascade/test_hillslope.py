@@ -12,7 +12,7 @@ import py_ice_cascade
 
 import matplotlib.pyplot as plt # debug only
 
-class ftcs_openbnd_TestCase(unittest.TestCase):
+class ftcs_TestCase(unittest.TestCase):
     """Tests for ftcs_openbnd model component"""
 
     def test_steady_1d(self):
@@ -28,10 +28,11 @@ class ftcs_openbnd_TestCase(unittest.TestCase):
         
         # init and run model
         delta = lx/(npts-1)
-        height = np.random.rand(npts)
+        height = np.random.rand(1,npts)
         height[ 0] = h0
         height[-1] = h1
-        model = py_ice_cascade.hillslope.ftcs_openbnd(height, delta, kappa)
+        kappa = kappa*np.ones((1,npts))
+        model = py_ice_cascade.hillslope.ftcs(height, delta, kappa, ['constant']*4)
         model.run(1)
         
         # compute solution
@@ -93,3 +94,7 @@ class ftcs_openbnd_TestCase(unittest.TestCase):
 
     def test_transient_2d(self):
         pass
+
+if __name__ == '__main__':
+    unittest.main()
+
