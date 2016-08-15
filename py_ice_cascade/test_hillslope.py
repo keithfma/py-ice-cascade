@@ -15,33 +15,6 @@ import matplotlib.pyplot as plt # debug only
 class ftcs_TestCase(unittest.TestCase):
     """Tests for ftcs_openbnd model component"""
 
-    def test_steady_1d(self):
-        """1D fixed boundaries, converge to constant gradient"""
-        
-        # define parameters
-        lx = 1.0
-        npts = 100
-        h0 = 0.0
-        h1 = 1.0
-        kappa = 1.0
-        epsilon = 0.001 # arbitrary tolerance
-        
-        # init and run model
-        delta = lx/(npts-1)
-        height = np.random.rand(1,npts)
-        height[ 0] = h0
-        height[-1] = h1
-        kappa = kappa*np.ones((1,npts))
-        model = py_ice_cascade.hillslope.ftcs(height, delta, kappa, ['constant']*4)
-        model.run(1)
-        
-        # compute solution
-        dh_expected = (h1-h0)/(npts-1)
-
-        # check results
-        dh_observed = model.get_height()[0,1:]-model.get_height()[0,:-1]
-        dh_error = np.abs(dh_observed-dh_expected)
-        self.assertTrue(np.all(dh_error < epsilon))
 
     # # NOTE: Exact solution is working, but this solution requires Dirichlet
     # #   boundary conditions which are not yet implemented
