@@ -79,11 +79,11 @@ class ftcs():
         # for the general case where some diagonals may wrap around.
         
         # declare coefficient arrays
-        i_j   = np.zeros((self._ny, self._nx), dtype = np.double)
-        im1_j = np.zeros((self._ny, self._nx), dtype = np.double)
-        ip1_j = np.zeros((self._ny, self._nx), dtype = np.double)
-        i_jm1 = np.zeros((self._ny, self._nx), dtype = np.double)
-        i_jp1 = np.zeros((self._ny, self._nx), dtype = np.double)
+        i_j   = 10.0+np.zeros((self._ny, self._nx), dtype = np.double)
+        im1_j = 10.0+np.zeros((self._ny, self._nx), dtype = np.double)
+        ip1_j = 10.0+np.zeros((self._ny, self._nx), dtype = np.double)
+        i_jm1 = 10.0+np.zeros((self._ny, self._nx), dtype = np.double)
+        i_jp1 = 10.0+np.zeros((self._ny, self._nx), dtype = np.double)
 
         # populate coefficients for interior points
         inv2delta2 = 1.0/(2.0*self._delta*self._delta)
@@ -99,12 +99,34 @@ class ftcs():
         i_jm1[1:-1,1:-1] = inv2delta2*(kappa_i_j + kappa_i_jm1)
         i_jp1[1:-1,1:-1] = inv2delta2*(kappa_i_j + kappa_i_jp1)
 
-        # debug 
-        self.i_j = i_j
-        self.ip1_j = ip1_j
-        self.im1_j = im1_j
-        self.i_jp1 = i_jp1
-        self.i_jm1 = i_jm1
+        # NOTE: leaving boundary coefficients as 0 is equivalent to a constant
+        # boundary condition. I leave this for now and move on to test the
+        # whole pipeline.
+
+        # construct coefficient matrix: be inefficient and clear
+
+        i_j = np.ravel(i_j, order='C')
+        ip1_j = np.ravel(ip1_j, order='C')
+        im1_j = np.ravel(im1_j, order='C')
+        i_jp1 = np.ravel(i_jp1, order='C')
+        i_jm1 = np.ravel(i_jm1, order='C')
+        
+        A  = np.diag(i_j       , k=0) 
+
+        A += np.diag(i_jp1[:-1], k=1) # upper diagonal, last element wraps to first
+        A += np.diag(i_jp1[-1:], k=-self._ny*self._nx+1)  
+        
+        A += np.diag(i_jm1[1:], k=-1) # lower diagonal, first element wraps to last
+        A += np.diag(i_jm1[:1], k=self._ny*self._nx-1)
+
+        A += np.diag(ip1_j[0:-self._nx], k=self._nx) # outer upper diagonal, last nx wrap to first
+        A += np.diag(ip1_j[-self._nx:], k=-self._ny*self._nx+self._nx)
+
+        A += np.diag(im1_j[self._nx:], k=-self._nx) # outer lower diagonal, first nx wrap to last
+        A += np.diag(im1_j[:self._nx], k=self._ny*self._nx-self._nx)
+
+        self._A = scipy.sparse.csr_matrix(A)
+
 
     def run(self, run_time):
         """
