@@ -7,8 +7,6 @@ References:
     Systems: Lecture Notes for USC GEOL557 (1.1.4)
 """
 
-#  TODO: How to treat wet or icy points? Mask? Spatially variable kappa?
-
 import numpy as np
 import matplotlib.pyplot as plt
 import time
@@ -98,6 +96,7 @@ if __name__ == '__main__':
     while time < max_time: 
         model.run(time_step)
         time += time_step
+        plt.cla()
         plt.imshow(model.get_height(), interpolation='nearest', clim=(-0.5,0.5))
         plt.title("TIME = {:.2f}".format(time))
         plt.pause(0.05)
