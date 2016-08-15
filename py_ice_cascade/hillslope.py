@@ -15,27 +15,32 @@ import scipy.sparse
 class ftcs():
     """
     Hillslope diffusion model using forward-time center-space (FTCS) finite
-    diffence scheme with "open" boundary conditions. 
+    diffence scheme. 
     
     For an overview of FTCS see reference (1). 
+
+    Supported boundary conditions are:
     
-    At the "open" boundaries, incoming and outgoing flux normal to the boundary
-    is equal. In other words, material is allowed to pass through the boundary
-    node. This condition means dq/dx = 0, and the boundary-normal component of
-    the diffusion equation goes to 0 as well. Note that boundary-parallel flux
-    gradients are not necessarily 0, and so boundary heights may not be
-    constant. 
+        constant: height is constant in time at the given value 
+        
+        open: incoming and outgoing flux normal to the boundary is equal. In other
+        words, material is allowed to pass through the boundary node. This
+        condition means dq/dx = 0, and the boundary-normal component of the
+        diffusion equation goes to 0 as well. Note that boundary-parallel flux
+        gradients are not necessarily 0, and so boundary heights may not be
+        constant. 
     """
 
     # NOTE: attributes and methods with the "_" prefix are considered private,
     #       use outside the object at your own risk
 
-    def __init__(self, height, delta, kappa):
+    def __init__(self, height, delta, kappa, bcs):
         """
         Arguments:
             height = 2D Numpy array, surface elevation in model domain, [m]
             delta = Scalar double, grid spacing, assumed square, [m]
             kappa = Scalar double, diffusion coefficient, [m**2/a]
+            bcs = List of boundary conditions names for [x=0, x=end, y=0, y=end]
         """
 
         self._height = None
@@ -43,10 +48,16 @@ class ftcs():
         self._kappa = None
         self._nx = None
         self._ny = None
+        self._bc_x0 = None
+        self._bc_x1 = None
+        self._bc_y0 = None
+        self._bc_y1 = None
+        self._valid_bcs = set(['constant'])
 
         self.set_height(height)
         self.set_diffusivity(kappa)
         self._delta = np.double(delta)
+        self._set_bcs(bcs)
         self._set_coeff_matrix() # TODO: use BC names to adapt boundary coefficients
 
     def set_height(self, new):
@@ -70,6 +81,17 @@ class ftcs():
             print("hillslope: diffusivity is not a 2D array"); sys.exit()
         if self._kappa.shape != (self._ny, self._nx):
             print("hillslope: diffusitity grid dims do not match height grid"); sys.exit()
+
+    def _set_bcs(self, bcs):
+        """Check and store BC names"""
+        if len(bcs) != 4:
+            print("hillslope: incorrect number of boundary conditions supplied"); sys.exit()
+        if not set(bcs).issubset(self._valid_bcs):
+            print("hillslope: invalid boundary condition name"); sys.exit()
+        self._bc_x0 = bcs[0]  
+        self._bc_x1 = bcs[1] 
+        self._bc_y0 = bcs[2] 
+        self._bc_y1 = bcs[3] 
 
     def _set_coeff_matrix(self):
         """Define sparse coefficient matrix for dHdt stencil"""
@@ -99,6 +121,22 @@ class ftcs():
         ip1_j[1:-1,1:-1] = inv2delta2*(kappa_i_j + kappa_ip1_j)
         i_jm1[1:-1,1:-1] = inv2delta2*(kappa_i_j + kappa_i_jm1)
         i_jp1[1:-1,1:-1] = inv2delta2*(kappa_i_j + kappa_i_jp1)
+
+        # populate coeff for boundary at y=0
+        if self._bc_x0 == 'constant':
+            pass
+
+        # populate coeff for boundary at y=end
+        if self._bc_x1 == 'constant':
+            pass
+
+        # populate coeff for boundary at x=0
+        if self._bc_y0 == 'constant':
+            pass
+
+        # populate coeff for boundary at x=max
+        if self._bc_y1 == 'constant':
+            pass
 
         # convert coeffs to vectors
         i_j = np.ravel(i_j, order='C')
@@ -130,24 +168,6 @@ class ftcs():
         # # construct compressed-row matrix from diagonals 
         self._A = scipy.sparse.diags(dd, offsets=kk, format="csr", dtype=np.double)
 
-        # # backup: inefficient, clear, working
-        # A  = np.diag(i_j       , k=0) 
-        #
-        # A += np.diag(i_jp1[:-1], k=1) # upper diagonal, last element wraps to first
-        # A += np.diag(i_jp1[-1:], k=-self._ny*self._nx+1)  
-        # 
-        # A += np.diag(i_jm1[1:], k=-1) # lower diagonal, first element wraps to last
-        # A += np.diag(i_jm1[:1], k=self._ny*self._nx-1)
-        #
-        # A += np.diag(ip1_j[0:-self._nx], k=self._nx) # outer upper diagonal, last nx wrap to first
-        # A += np.diag(ip1_j[-self._nx:], k=-self._ny*self._nx+self._nx)
-        #
-        # A += np.diag(im1_j[self._nx:], k=-self._nx) # outer lower diagonal, first nx wrap to last
-        # A += np.diag(im1_j[:self._nx], k=self._ny*self._nx-self._nx)
-        #
-        # self._A = scipy.sparse.csr_matrix(A)
-
-
     def run(self, run_time):
         """
         Run numerical integration for specified time period
@@ -174,13 +194,14 @@ if __name__ == '__main__':
     max_time = 5.0
     time_step = 0.05
     h0 = np.random.rand(ny, nx).astype(np.double)-0.5
-    h0[:,0] = np.double(0.0) # constant values are compatible with "open" BC treatment
+    h0[:,0] = np.double(0.0) 
     h0[:,-1] = np.double(0.0)
     h0[0,:] = np.double(0.0)
     h0[-1,:] = np.double(0.0)
     dd = np.double(1.0)
     kk = np.ones((ny, nx), dtype=np.double)
-    model = ftcs(h0, dd, kk)
+    bcs = ['constant', 'constant', 'constant', 'constant']
+    model = ftcs(h0, dd, kk, bcs)
 
     # # update and plot model
     plt.imshow(model.get_height(), interpolation='nearest', clim=(-0.5,0.5))
