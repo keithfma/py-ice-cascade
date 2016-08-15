@@ -10,6 +10,7 @@ References:
 import numpy as np
 import matplotlib.pyplot as plt
 import time
+import scipy.sparse
 
 class ftcs():
     """
@@ -79,11 +80,11 @@ class ftcs():
         # for the general case where some diagonals may wrap around.
         
         # declare coefficient arrays
-        i_j   = 10.0+np.zeros((self._ny, self._nx), dtype = np.double)
-        im1_j = 10.0+np.zeros((self._ny, self._nx), dtype = np.double)
-        ip1_j = 10.0+np.zeros((self._ny, self._nx), dtype = np.double)
-        i_jm1 = 10.0+np.zeros((self._ny, self._nx), dtype = np.double)
-        i_jp1 = 10.0+np.zeros((self._ny, self._nx), dtype = np.double)
+        i_j   = np.zeros((self._ny, self._nx), dtype = np.double)
+        im1_j = np.zeros((self._ny, self._nx), dtype = np.double)
+        ip1_j = np.zeros((self._ny, self._nx), dtype = np.double)
+        i_jm1 = np.zeros((self._ny, self._nx), dtype = np.double)
+        i_jp1 = np.zeros((self._ny, self._nx), dtype = np.double)
 
         # populate coefficients for interior points
         inv2delta2 = 1.0/(2.0*self._delta*self._delta)
@@ -138,16 +139,11 @@ class ftcs():
         
         run_time = np.double(run_time)
         time = np.double(0.0)    
-        max_step = 0.95*self.delta*self.delta/(4.0*self.kappa) # stable time step, note ref (1) has error
-        ddhx = np.zeros(self.height.shape) # arrays for 2nd derivative terms
-        ddhy = np.zeros(self.height.shape)
+        max_step = 0.95*self._delta*self._delta/(4.0*np.max(self._kappa)) # stable time step, note ref (1) has error
 
         while time < run_time:
             step = min(run_time-time, max_step)
-            ddhx[:,1:-1] = self.height[:,2:] - 2.0*self.height[:,1:-1] + self.height[:,:-2]
-            ddhy[1:-1,:] = self.height[2:,:] - 2.0*self.height[1:-1,:] + self.height[:-2,:]
-            coeff = step*self.kappa/self.delta/self.delta
-            self.height += coeff*(ddhx+ddhy)
+            self._height += step*self._A.dot(self._height)
             time += step
 
 if __name__ == '__main__':
@@ -167,17 +163,15 @@ if __name__ == '__main__':
     kk = np.ones((ny, nx), dtype=np.double)
     model = ftcs(h0, dd, kk)
 
-
-
-    # # # update and plot model
-    # plt.imshow(model.get_height(), interpolation='nearest', clim=(-0.5,0.5))
-    # plt.colorbar()
-    # plt.ion()
-    # time = 0.0
-    # while time < max_time: 
-    #     model.run(time_step)
-    #     time += time_step
-    #     plt.cla()
-    #     plt.imshow(model.get_height(), interpolation='nearest', clim=(-0.5,0.5))
-    #     plt.title("TIME = {:.2f}".format(time))
-    #     plt.pause(0.05)
+    # # update and plot model
+    plt.imshow(model.get_height(), interpolation='nearest', clim=(-0.5,0.5))
+    plt.colorbar()
+    plt.ion()
+    time = 0.0
+    while time < max_time: 
+        model.run(time_step)
+        time += time_step
+        plt.cla()
+        plt.imshow(model.get_height(), interpolation='nearest', clim=(-0.5,0.5))
+        plt.title("TIME = {:.2f}".format(time))
+        plt.pause(0.05)
