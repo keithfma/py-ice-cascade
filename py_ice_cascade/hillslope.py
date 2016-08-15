@@ -112,22 +112,24 @@ class ftcs():
         # whole pipeline.
 
         # construct sparse coefficient matrix
-        self._A = scipy.sparse.csr_matrix((self._ny*self._nx, self._ny*self._nx), dtype=np.double)
+        dd = [];                       kk = [] 
         # # center diagonal 
-        self._A.setdiag(i_j, k=0)
+        dd.append(i_j);                kk.append(0)
         # # upper diagonal, last element wraps
-        self._A.setdiag(i_jp1[:-1], k=1) 
-        self._A.setdiag(i_jp1[-1:], k=-self._ny*self._nx+1)  
+        dd.append(i_jp1[:-1]);         kk.append(1) 
+        dd.append(i_jp1[-1:]);         kk.append(-self._ny*self._nx+1)  
         # # lower diagonal, first element wraps
-        self._A.setdiag(i_jm1[1:], k=-1) 
-        self._A.setdiag(i_jm1[:1], k=self._ny*self._nx-1)
+        dd.append(i_jm1[1:]);          kk.append(-1) 
+        dd.append(i_jm1[:1]);          kk.append(self._ny*self._nx-1)
         # # outer upper diagonal, last nx elements wrap
-        self._A.setdiag(ip1_j[0:-self._nx], k=self._nx)
-        self._A.setdiag(ip1_j[-self._nx:], k=-self._ny*self._nx+self._nx)
+        dd.append(ip1_j[0:-self._nx]); kk.append(self._nx)
+        dd.append(ip1_j[-self._nx:]);  kk.append(-self._ny*self._nx+self._nx)
         # # outer lower diagonal, first nx elements wrap 
-        self._A.setdiag(im1_j[self._nx:], k=-self._nx)
-        self._A.setdiag(im1_j[:self._nx], k=self._ny*self._nx-self._nx)
-        
+        dd.append(im1_j[self._nx:]);   kk.append(-self._nx)
+        dd.append(im1_j[:self._nx]);   kk.append(self._ny*self._nx-self._nx)
+        # # construct compressed-row matrix from diagonals 
+        self._A = scipy.sparse.diags(dd, offsets=kk, format="csr", dtype=np.double)
+
         # # backup: inefficient, clear, working
         # A  = np.diag(i_j       , k=0) 
         #
