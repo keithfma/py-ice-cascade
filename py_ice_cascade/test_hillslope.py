@@ -13,60 +13,38 @@ import py_ice_cascade
 import matplotlib.pyplot as plt # debug only
 
 class ftcs_TestCase(unittest.TestCase):
-    """Tests for ftcs_openbnd model component"""
+    """Tests for hillslope ftcs model component"""
 
+    def test_steady_dirichlet(self):
+        """
+        Compare against exact solution for laplace equation with sinusoid at
+        y=max and zero at other boundaries
+        """
+        
+        # parameters
+        h0 = 1.0
+        nx = 100
+        ny = 50
+        lx = 1.0
+        delta = lx/(nx-1)
+        ly = delta*(ny-1)
 
-    # # NOTE: Exact solution is working, but this solution requires Dirichlet
-    # #   boundary conditions which are not yet implemented
-    # def test_steady_2d(self):
-    #     """2D fixed unequal boundaries, converge to solution in ref (1)"""
-    #     
-    #     # define parameters
-    #     nx = 100
-    #     ny = 50
-    #     lx = 1.0
-    #     h1 = 1.0
-    #     h2 = 0.0
-    #     kappa = 1.0
-    #     epsilon = 0.001 # arbitrary tolerance
+        # exact solution
+        xx = np.linspace(0, lx, nx, dtype=np.double).reshape(( 1,nx))
+        yy = np.linspace(0, ly, ny, dtype=np.double).reshape((ny, 1))
+        h_exact = h0/np.sinh(np.pi*ly/lx)*np.sin(np.pi*xx/lx)*np.sinh(np.pi*yy/lx)
 
-    #     # init and run model
-    #     delta = lx/(nx-1)
-    #     ly = delta*(ny-1)
-    #     height = np.random.rand(ny, nx).astype(np.double)
-    #     height[ :, 0] = h1
-    #     height[ :,-1] = h1
-    #     height[ 0, :] = h1
-    #     height[-1, :] = h2
-    #     model = py_ice_cascade.hillslope.ftcs_openbnd(height, delta, kappa)
-    #     model.run(0.01)
+        # numerical solution
+        h_init = np.zeros((ny, nx))
+        h_init[-1,:] = h0*np.sin(np.pi*xx/lx)
+        kappa = np.ones((ny,nx))
+        bcs = ['constant']*4
+        model = py_ice_cascade.hillslope.ftcs(h_init, delta, kappa, bcs)
+        model.run(0.25)
 
-    #     # compute solution
-    #     xx = np.linspace(0, lx, nx, dtype=np.double).reshape(( 1,nx))
-    #     yy = np.linspace(0, ly, ny, dtype=np.double).reshape((ny, 1))
-    #     total = np.zeros((ny,nx), dtype=np.double)
-    #     for nn in range(1,400,2): # note: becomes unstable as nn->inf, why?
-    #         total += (np.power(-1.0, nn+1)+1.0)/nn * \
-    #             np.sin(nn*np.pi*xx/lx) * \
-    #             np.sinh(nn*np.pi*yy/lx) / \
-    #             np.sinh(nn*np.pi*ly/lx)
-    #     height_exact = h1 + 2.0*(h2-h1)/np.pi*total
-
-    #     # check results
-
-    #     # debug
-    #     plt.imshow(height, interpolation='nearest')
-    #     plt.colorbar()
-    #     plt.show()
-    #     plt.imshow(model.get_height(), interpolation='nearest')
-    #     plt.colorbar()
-    #     plt.show()
-
-    def test_transient_1d(self):
-        pass
-
-    def test_transient_2d(self):
-        pass
+        # check errors
+        h_error = np.abs(model.get_height()-h_exact)
+        self.assertTrue(np.max(h_error) < 0.0001)
 
 if __name__ == '__main__':
     unittest.main()
