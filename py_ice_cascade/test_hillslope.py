@@ -15,9 +15,9 @@ import matplotlib.pyplot as plt # debug only
 class ftcs_TestCase(unittest.TestCase):
     """Tests for hillslope ftcs model component"""
 
-    def test_steady_dirichlet(self):
+    def test_steady_bc_constant(self):
         """
-        Compare against exact solution for laplace equation with sinusoid at
+        Compare against exact solution for Laplace equation with sinusoid at
         y=max and zero at other boundaries
         """
         
@@ -45,6 +45,25 @@ class ftcs_TestCase(unittest.TestCase):
         # check errors
         h_error = np.abs(model.get_height()-h_exact)
         self.assertTrue(np.max(h_error) < 0.0001)
+
+    def test_steady_layered_kappa(self):
+        """Compare against exact solution for diffusion in layered material"""
+
+        # parameters
+        lratio = 0.5 
+        nx = 100;
+        nx0 = 50; h0 = 1.0; k0 = 1.0
+        nx1 = 50; h1 = 0.0; k1 = 0.5
+        ny = 50
+        lx = 1.0
+        delta = lx/(nx0+nx1-1)
+        ly = delta*(ny-1)
+
+        # exact solution
+        x0 = np.linspace(0, lx, nx, dtype=np.double).reshape(( 1,nx))
+        h_exact = np.zeros((ny, nx0+nx1), dtype=np.double)
+        h_exact
+
 
 if __name__ == '__main__':
     unittest.main()
