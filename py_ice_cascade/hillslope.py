@@ -56,13 +56,13 @@ class ftcs():
 
         self.set_height(height)
         self.set_diffusivity(kappa)
-        self._delta = np.double(delta)
+        self._delta = np.copy(np.double(delta))
         self._set_bcs(bcs)
         self._set_coeff_matrix() # TODO: use BC names to adapt boundary coefficients
 
     def set_height(self, new):
         """Set height grid internal attribute"""
-        new_array = np.double(new)
+        new_array = np.copy(np.double(new))
         if new_array.ndim != 2:
             print("hillslope: height is not a 2D array"); sys.exit()
         if (self._height != None) and (new_array.shape != (self._ny, self._nx)):
@@ -72,11 +72,11 @@ class ftcs():
 
     def get_height(self):
         """Return height grid as 2D numpy array"""
-        return self._height.reshape((self._ny, self._nx), order='C')
+        return np.copy(self._height.reshape((self._ny, self._nx), order='C'))
 
     def set_diffusivity(self, new):
         """Set diffusivity grid internal attribute"""
-        self._kappa = np.double(new)
+        self._kappa = np.copy(np.double(new))
         if self._kappa.ndim != 2:
             print("hillslope: diffusivity is not a 2D array"); sys.exit()
         if self._kappa.shape != (self._ny, self._nx):
