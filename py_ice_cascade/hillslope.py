@@ -9,8 +9,8 @@ References:
 
 import numpy as np
 import matplotlib.pyplot as plt
-import time
 import scipy.sparse
+import sys
 
 class ftcs():
     """
@@ -34,13 +34,13 @@ class ftcs():
     # NOTE: attributes and methods with the "_" prefix are considered private,
     #       use outside the object at your own risk
 
-    def __init__(self, height, delta, kappa, bcs):
+    def __init__(self, height, delta, kappa, bc):
         """
         Arguments:
-            height = 2D Numpy array, surface elevation in model domain, [m]
+            height = 2D numpy array, surface elevation in model domain, [m]
             delta = Scalar double, grid spacing, assumed square, [m]
-            kappa = Scalar double, diffusion coefficient, [m**2/a]
-            bcs = List of boundary conditions names for [x=0, x=end, y=0, y=end]
+            kappa = 2D numpy array, diffusion coefficient, [m**2/a]
+            bc = List of boundary conditions names for [y=0, y=end, x=0, x=end]
         """
 
         self._height = None
@@ -52,13 +52,13 @@ class ftcs():
         self._bc_x1 = None
         self._bc_y0 = None
         self._bc_y1 = None
-        self._valid_bcs = set(['constant'])
+        self._valid_bcs = set(['constant', 'closed', 'open', 'cyclic', 'mirror'])
 
         self.set_height(height)
         self.set_diffusivity(kappa)
         self._delta = np.copy(np.double(delta))
-        self._set_bcs(bcs)
-        self._set_coeff_matrix() # TODO: use BC names to adapt boundary coefficients
+        self._bc = list(bc)
+        self._set_coeff_matrix()
 
     def set_height(self, new):
         """Set height grid internal attribute"""
@@ -82,17 +82,6 @@ class ftcs():
         if self._kappa.shape != (self._ny, self._nx):
             print("hillslope: diffusitity grid dims do not match height grid"); sys.exit()
 
-    def _set_bcs(self, bcs):
-        """Check and store BC names"""
-        if len(bcs) != 4:
-            print("hillslope: incorrect number of boundary conditions supplied"); sys.exit()
-        if not set(bcs).issubset(self._valid_bcs):
-            print("hillslope: invalid boundary condition name"); sys.exit()
-        self._bc_x0 = bcs[0]  
-        self._bc_x1 = bcs[1] 
-        self._bc_y0 = bcs[2] 
-        self._bc_y1 = bcs[3] 
-
     def _set_coeff_matrix(self):
         """Define sparse coefficient matrix for dHdt stencil"""
         # NOTE: FTCS is a 5-point stencil, since diffusivity is a grid, all
@@ -113,29 +102,75 @@ class ftcs():
                 A[k(i,j), k(i  ,j-1)] = c*(kappa[i,j]+kappa[i  ,j-1]) 
                 A[k(i,j), k(i  ,j+1)] = c*(kappa[i,j]+kappa[i  ,j+1])
 
+        self._valid_bcs = set(['constant', 'closed', 'open', 'cyclic', 'mirror'])
+
         # populate boundary at y=0
+        name = self._bc[0] 
         i = 0
         for j in range(0,self._nx):
-            if self._bc_y0 == 'constant':
+            if name == 'constant':
                 pass # dhdt = 0 
+            elif name  == 'closed':
+                print("hillslope: BC not implemented"); sys.exit()
+            elif name == 'open':
+                print("hillslope: BC not implemented"); sys.exit()
+            elif name == 'cyclic':
+                print("hillslope: BC not implemented"); sys.exit()
+            elif name  == 'mirror':
+                print("hillslope: BC not implemented"); sys.exit()
+            else:
+                print("hillslope: invalid boundary condition at y=0"); sys.exit()
 
         # populate boundary at y=end
+        name = self._bc[1] 
         i = self._ny-1
         for j in range(0,self._nx):
-            if self._bc_y1 == 'constant':
+            if name == 'constant':
                 pass # dhdt = 0 
+            elif name  == 'closed':
+                print("hillslope: BC not implemented"); sys.exit()
+            elif name == 'open':
+                print("hillslope: BC not implemented"); sys.exit()
+            elif name == 'cyclic':
+                print("hillslope: BC not implemented"); sys.exit()
+            elif name  == 'mirror':
+                print("hillslope: BC not implemented"); sys.exit()
+            else:
+                print("hillslope: invalid boundary condition at y=end"); sys.exit()
 
         # populate boundary at x=0
+        name = self._bc[2] 
         j = 0
-        for j in range(0,self._ny):
-            if self._bc_x0 == 'constant':
+        for i in range(0,self._ny):
+            if name == 'constant':
                 pass # dhdt = 0 
+            elif name  == 'closed':
+                print("hillslope: BC not implemented"); sys.exit()
+            elif name == 'open':
+                print("hillslope: BC not implemented"); sys.exit()
+            elif name == 'cyclic':
+                print("hillslope: BC not implemented"); sys.exit()
+            elif name  == 'mirror':
+                print("hillslope: BC not implemented"); sys.exit()
+            else:
+                print("hillslope: invalid boundary condition at x=0"); sys.exit()
 
-        # populate boundary at x=max
+        # populate boundary at x=end
+        name = self._bc[3] 
         j = self._nx-1
-        for j in range(0,self._ny):
-            if self._bc_x1 == 'constant':
+        for i in range(0,self._ny):
+            if name == 'constant':
                 pass # dhdt = 0 
+            elif name  == 'closed':
+                print("hillslope: BC not implemented"); sys.exit()
+            elif name == 'open':
+                print("hillslope: BC not implemented"); sys.exit()
+            elif name == 'cyclic':
+                print("hillslope: BC not implemented"); sys.exit()
+            elif name  == 'mirror':
+                print("hillslope: BC not implemented"); sys.exit()
+            else:
+                print("hillslope: invalid boundary condition at x=end"); sys.exit()
 
         # store results in effcient format for matrix*vector product
         self._A = A.tocsr()
