@@ -44,22 +44,25 @@ class ftcs_TestCase(unittest.TestCase):
 
         # check errors
         h_error = np.abs(model.get_height()-h_exact)
-        self.assertTrue(np.max(h_error) < 0.0001)
+        self.assertTrue(np.max(h_error) < 0.001)
 
     def test_steady_layered_kappa(self):
         """Compare against exact solution for diffusion in 2 layered material"""
 
         # parameters
-        l0 = 0.25
-        l1 = 0.75
-        lx = l0+l1
         nx = 100
-        ny = 50
+        ny = 5 
+        lx = 1.0
         delta = lx/(nx-1)
+        xx = np.linspace(0, lx, nx, dtype=np.double).reshape((1,nx))*np.ones((ny,1))
+        l0 = 0.5*(xx[0,50]+xx[0,51]) # transition at midpoint
+        l1 = lx-l0
         h0 = 1.0
         h1 = 0.0
         k0 = 1.0
         k1 = 0.5
+        t_end = 1.5
+        epsilon = 0.001
 
         # exact solution (resistance = l/k in series) 
         qq = (h0-h1)/(l0/k0+l1/k1)
@@ -72,13 +75,13 @@ class ftcs_TestCase(unittest.TestCase):
         h_init[:,0] = h0
         h_init[:,-1] = h1
         kappa = np.where(xx <= l0, k0, k1)
-        bcs = ['constant']*4 # TODO: must be no-flux at steady state 
+        bcs = ['closed', 'closed', 'constant', 'constant'] # TODO: must be no-flux at steady state 
         model = py_ice_cascade.hillslope.ftcs(h_init, delta, kappa, bcs)
-        model.run(0.25)
+        model.run(t_end)
 
-        plt.imshow(model.get_height(), interpolation='nearest')
-        plt.colorbar()
-        plt.show()
+        # check errors
+        h_error = np.abs(model.get_height()-h_exact)
+        self.assertTrue(np.max(h_error) < epsilon)
 
 if __name__ == '__main__':
     unittest.main()

@@ -104,14 +104,19 @@ class ftcs():
 
         self._valid_bcs = set(['constant', 'closed', 'open', 'cyclic', 'mirror'])
 
+        # TODO: corners?
+
         # populate boundary at y=0
         name = self._bc[0] 
         i = 0
-        for j in range(0,self._nx):
+        for j in range(1,self._nx-1):
             if name == 'constant':
                 pass # dhdt = 0 
             elif name  == 'closed':
-                print("hillslope: BC not implemented"); sys.exit()
+                A[k(i,j), k(i,j)] = -c*(3.0*kappa[i,j]+kappa[i+1,j]+kappa[i,j-1]+kappa[i,j+1])
+                A[k(i,j), k(i+1,j  )] = c*(kappa[i,j]+kappa[i+1,j  ])
+                A[k(i,j), k(i  ,j-1)] = c*(kappa[i,j]+kappa[i  ,j-1]) 
+                A[k(i,j), k(i  ,j+1)] = c*(kappa[i,j]+kappa[i  ,j+1])
             elif name == 'open':
                 print("hillslope: BC not implemented"); sys.exit()
             elif name == 'cyclic':
@@ -124,11 +129,14 @@ class ftcs():
         # populate boundary at y=end
         name = self._bc[1] 
         i = self._ny-1
-        for j in range(0,self._nx):
+        for j in range(1,self._nx-1):
             if name == 'constant':
                 pass # dhdt = 0 
             elif name  == 'closed':
-                print("hillslope: BC not implemented"); sys.exit()
+                A[k(i,j), k(i  ,j  )] = -c*(3.0*kappa[i,j]+kappa[i-1,j]+kappa[i,j-1]+kappa[i,j+1])
+                A[k(i,j), k(i-1,j  )] = c*(kappa[i,j]+kappa[i-1,j  ]) 
+                A[k(i,j), k(i  ,j-1)] = c*(kappa[i,j]+kappa[i  ,j-1]) 
+                A[k(i,j), k(i  ,j+1)] = c*(kappa[i,j]+kappa[i  ,j+1])
             elif name == 'open':
                 print("hillslope: BC not implemented"); sys.exit()
             elif name == 'cyclic':
@@ -209,7 +217,6 @@ if __name__ == '__main__':
     kk = np.ones((ny, nx), dtype=np.double)
     bcs = ['constant', 'constant', 'constant', 'constant']
     model = ftcs(h0, dd, kk, bcs)
-
     # # update and plot model
     plt.imshow(model.get_height(), interpolation='nearest', clim=(-0.5,0.5))
     plt.colorbar()
