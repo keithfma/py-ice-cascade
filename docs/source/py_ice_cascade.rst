@@ -12,18 +12,10 @@ py_ice_cascade.hillslope module
     :undoc-members:
     :show-inheritance:
 
-py_ice_cascade.run_hillslope module
------------------------------------
+py_ice_cascade.run module
+-------------------------
 
-.. automodule:: py_ice_cascade.run_hillslope
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-py_ice_cascade.test_hillslope module
-------------------------------------
-
-.. automodule:: py_ice_cascade.test_hillslope
+.. automodule:: py_ice_cascade.run
     :members:
     :undoc-members:
     :show-inheritance:

@@ -26,16 +26,20 @@ class ftcs():
 
     Supported boundary conditions are:
     
-        constant: height is constant in time at the given value 
-        closed: flux out of the boundary is set to 0 (i.e. q_{i +/- 0.5} -> 0)
-        open: incoming and outgoing flux normal to the boundary is equal. In other
-            words, material is allowed to pass through the boundary node. This
-            condition means dq/dx = 0, and the boundary-normal component of the
-            diffusion equation goes to 0 as well. Note that boundary-parallel
-            flux gradients are not necessarily 0, and so boundary heights may
-            not be constant. 
-        cyclic:
-        mirror:
+    constant: height is constant in time at the given value 
+    
+    closed: flux out of the boundary is set to 0 (i.e. q_{i +/- 0.5} -> 0)
+    
+    open: incoming and outgoing flux normal to the boundary is equal. In other
+    words, material is allowed to pass through the boundary node. This
+    condition means dq/dx = 0, and the boundary-normal component of the
+    diffusion equation goes to 0 as well. Note that boundary-parallel flux
+    gradients are not necessarily 0, and so boundary heights may not be
+    constant. 
+
+    cyclic:
+
+    mirror:
     """
 
     # NOTE: attributes and methods with the "_" prefix are considered private,
