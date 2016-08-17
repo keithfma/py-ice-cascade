@@ -152,6 +152,7 @@ class ftcs():
 
     def _set_coeff_matrix(self):
         """Define sparse coefficient matrix for dHdt stencil"""
+
         # NOTE: FTCS is a 5-point stencil, since diffusivity is a grid, all
         # coefficients are potentially unique. 
 
@@ -170,7 +171,9 @@ class ftcs():
                 A[k(i,j), k(i  ,j-1)] = c*(kappa[i,j]+kappa[i  ,j-1]) 
                 A[k(i,j), k(i  ,j+1)] = c*(kappa[i,j]+kappa[i  ,j+1])
 
-        self._valid_bcs = set(['constant', 'closed', 'open', 'cyclic', 'mirror'])
+        # NOTE: BC treatment handles corners by adding the dqx/dx and dqy/dy
+        # terms separately. This makes it possible for *one* BC to be applied
+        # at edge points, and *both* BCs to be applied at corner points.
 
         # populate boundary at y=0
         i = 0
@@ -185,7 +188,10 @@ class ftcs():
                 A[k(i,j), k(i,j-1)] +=  c*(kappa[i,j]+kappa[i  ,j-1]) 
                 A[k(i,j), k(i,j+1)] +=  c*(kappa[i,j]+kappa[i  ,j+1])
         elif self._bc[0] == 'open':
-            print("hillslope: open BC not implemented"); sys.exit()
+            for j in range(1,self._nx-1): # dqx/dx term only
+                A[k(i,j), k(i,j  )] += -c*(2.0*kappa[i,j]+kappa[i,j-1]+kappa[i,j+1])
+                A[k(i,j), k(i,j-1)] +=  c*(kappa[i,j]+kappa[i  ,j-1]) 
+                A[k(i,j), k(i,j+1)] +=  c*(kappa[i,j]+kappa[i  ,j+1])
         elif self._bc[0] == 'cyclic':
             print("hillslope: cyclic BC not implemented"); sys.exit()
         elif self._bc[0] == 'mirror':
@@ -206,7 +212,10 @@ class ftcs():
                 A[k(i,j), k(i,j-1)] +=  c*(kappa[i,j]+kappa[i,j-1]) 
                 A[k(i,j), k(i,j+1)] +=  c*(kappa[i,j]+kappa[i,j+1])
         elif self._bc[1] == 'open':
-            print("hillslope: open BC not implemented"); sys.exit()
+            for j in range(1,self._nx-1): # dqx/dx term only
+                A[k(i,j), k(i,j  )] += -c*(2.0*kappa[i,j]+kappa[i,j-1]+kappa[i,j+1])
+                A[k(i,j), k(i,j-1)] +=  c*(kappa[i,j]+kappa[i,j-1]) 
+                A[k(i,j), k(i,j+1)] +=  c*(kappa[i,j]+kappa[i,j+1])
         elif self._bc[1] == 'cyclic':
             print("hillslope: cyclic BC not implemented"); sys.exit()
         elif self._bc[1]  == 'mirror':
@@ -227,7 +236,10 @@ class ftcs():
                 A[k(i,j), k(i-1,j)] +=  c*(kappa[i,j]+kappa[i-1,j]) 
                 A[k(i,j), k(i+1,j)] +=  c*(kappa[i,j]+kappa[i+1,j])
         elif self._bc[2] == 'open':
-            print("hillslope: open BC not implemented"); sys.exit()
+            for i in range(1,self._ny-1): # dqy/dy term only
+                A[k(i,j), k(i  ,j)] += -c*(2.0*kappa[i,j]+kappa[i-1,j]+kappa[i+1,j])
+                A[k(i,j), k(i-1,j)] +=  c*(kappa[i,j]+kappa[i-1,j]) 
+                A[k(i,j), k(i+1,j)] +=  c*(kappa[i,j]+kappa[i+1,j])
         elif self._bc[2] == 'cyclic':
             print("hillslope: cyclic BC not implemented"); sys.exit()
         elif self._bc[2]  == 'mirror':
@@ -248,7 +260,10 @@ class ftcs():
                 A[k(i,j), k(i-1,j)] +=  c*(kappa[i,j]+kappa[i-1,j]) 
                 A[k(i,j), k(i+1,j)] +=  c*(kappa[i,j]+kappa[i+1,j])
         elif self._bc[3] == 'open':
-            print("hillslope: open BC not implemented"); sys.exit()
+            for i in range(1,self._ny-1): # dqy/dy term only
+                A[k(i,j), k(i  ,j)] += -c*(2.0*kappa[i,j]+kappa[i-1,j]+kappa[i+1,j])
+                A[k(i,j), k(i-1,j)] +=  c*(kappa[i,j]+kappa[i-1,j]) 
+                A[k(i,j), k(i+1,j)] +=  c*(kappa[i,j]+kappa[i+1,j])
         elif self._bc[3] == 'cyclic':
             print("hillslope: cyclic BC not implemented"); sys.exit()
         elif self._bc[3]  == 'mirror':
@@ -282,16 +297,16 @@ if __name__ == '__main__':
     # # initialize model
     nx = 100
     ny = 100
-    max_time = 5.0
-    time_step = 0.05
-    h0 = np.random.rand(ny, nx).astype(np.double)-0.5
+    max_time = 50.0
+    time_step = 0.5
+    h0 = np.random.rand(ny, nx).astype(np.double)
     h0[:,0] = np.double(0.0) 
-    h0[:,-1] = np.double(0.0)
-    h0[0,:] = np.double(0.0)
-    h0[-1,:] = np.double(0.0)
+    h0[:,-1] = np.double(0.5)
+    h0[0,:] = np.double(0.5)
+    h0[-1,:] = np.double(0.5)
     dd = np.double(1.0)
     kk = np.ones((ny, nx), dtype=np.double)
-    bcs = ['constant', 'constant', 'constant', 'constant']
+    bcs = ['open', 'constant', 'constant', 'constant']
     model = ftcs(h0, dd, kk, bcs)
     # # update and plot model
     plt.imshow(model.get_height(), interpolation='nearest', clim=(-0.5,0.5))
