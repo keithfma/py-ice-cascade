@@ -168,6 +168,24 @@ class ftcs():
         # # construct compressed-row matrix from diagonals 
         self._A = scipy.sparse.diags(dd, offsets=kk, format="csr", dtype=np.double)
 
+
+        # TEST: populate matrix using for loops instead, this may be more clear and maintainable
+        A = scipy.sparse.lil_matrix((self._ny*self._nx, self._ny*self._nx), dtype=np.double) # lil format is fast to populate
+        c = 1.0/(2.0*self._delta*self._delta)
+        kappa = self._kappa # alias for convenience 
+        k = lambda row, col: row*self._nx+col # sub2ind
+
+        # interior points
+        for i in range(1,self._ny-1):
+            for j in range(1,self._nx-1):
+                A[k(i,j), k(i  ,j  )] = -c*(4.0*kappa[i,j]+kappa[i-1,j]+kappa[i+1,j]+kappa[i,j-1]+kappa[i,j+1])
+                A[k(i,j), k(i-1,j  )] = c*(kappa[i,j]+kappa[i-1,j  ]) 
+                A[k(i,j), k(i+1,j  )] = c*(kappa[i,j]+kappa[i+1,j  ])
+                A[k(i,j), k(i  ,j-1)] = c*(kappa[i,j]+kappa[i  ,j-1]) 
+                A[k(i,j), k(i  ,j+1)] = c*(kappa[i,j]+kappa[i  ,j+1])
+
+        self._A = A.tocsr() # csr format is fast for matrix*vector
+
     def run(self, run_time):
         """
         Run numerical integration for specified time period

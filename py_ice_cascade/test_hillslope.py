@@ -80,8 +80,6 @@ class ftcs_TestCase(unittest.TestCase):
         plt.colorbar()
         plt.show()
 
-
-
 if __name__ == '__main__':
     unittest.main()
 
