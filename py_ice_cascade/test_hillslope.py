@@ -28,23 +28,37 @@ class ftcs_TestCase(unittest.TestCase):
         lx = 1.0
         delta = lx/(nx-1)
         ly = delta*(ny-1)
+        t_end = 0.25
+        epsilon = 0.001
 
-        # exact solution
+        # Case 1:
+        # # exact solution
         xx = np.linspace(0, lx, nx, dtype=np.double).reshape(( 1,nx))
         yy = np.linspace(0, ly, ny, dtype=np.double).reshape((ny, 1))
         h_exact = h0/np.sinh(np.pi*ly/lx)*np.sin(np.pi*xx/lx)*np.sinh(np.pi*yy/lx)
-
-        # numerical solution
+        # # numerical solution
         h_init = np.zeros((ny, nx))
         h_init[-1,:] = h0*np.sin(np.pi*xx/lx)
         kappa = np.ones((ny,nx))
         bcs = ['constant']*4
         model = py_ice_cascade.hillslope.ftcs(h_init, delta, kappa, bcs)
-        model.run(0.25)
-
-        # check errors
+        model.run(t_end)
+        # # check errors
         h_error = np.abs(model.get_height()-h_exact)
-        self.assertTrue(np.max(h_error) < 0.001)
+        self.assertTrue(np.max(h_error) < epsilon)
+
+        # Case 2: rotate 90 degrees
+        # # exact solution
+        h_exact = np.rot90(h_exact)
+        # # numerical solution
+        h_init = np.rot90(h_init)
+        kappa = np.rot90(kappa)
+        bcs = ['constant']*4
+        model = py_ice_cascade.hillslope.ftcs(h_init, delta, kappa, bcs)
+        model.run(t_end)
+        # # check errors
+        h_error = np.abs(model.get_height()-h_exact)
+        self.assertTrue(np.max(h_error) < epsilon)
 
     def test_steady_layered_kappa(self):
         """Compare against exact solution for diffusion in 2 layered material"""
