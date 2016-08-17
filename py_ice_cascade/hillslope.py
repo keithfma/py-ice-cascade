@@ -20,8 +20,9 @@ class ftcs():
     Hillslope diffusion model using forward-time center-space (FTCS) finite
     diffence scheme. 
     
-    For an overview of FTCS see reference (1) and (2), the latter includes
-    spatially-variable diffusivity. 
+    Overview of FTCS scheme (see reference (1) and (2):  
+    
+    (TBD: use latex to render properly)
 
     Supported boundary conditions are:
     
