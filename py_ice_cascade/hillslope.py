@@ -5,6 +5,9 @@ References:
 
     (1) Becker, T. W., & Kaus, B. J. P. (2016). Numerical Modeling of Earth
     Systems: Lecture Notes for USC GEOL557 (1.1.4)
+
+    (2) Spiegelman, M. (2000). Myths & Methods in Modeling. Columbia University
+    Course Lecture Notes, 202. http://doi.org/10.1007/BF00763500
 """
 
 import numpy as np
@@ -17,18 +20,21 @@ class ftcs():
     Hillslope diffusion model using forward-time center-space (FTCS) finite
     diffence scheme. 
     
-    For an overview of FTCS see reference (1). 
+    For an overview of FTCS see reference (1) and (2), the latter includes
+    spatially-variable diffusivity. 
 
     Supported boundary conditions are:
     
         constant: height is constant in time at the given value 
-        
+        closed: flux out of the boundary is set to 0 (i.e. q_{i +/- 0.5} -> 0)
         open: incoming and outgoing flux normal to the boundary is equal. In other
-        words, material is allowed to pass through the boundary node. This
-        condition means dq/dx = 0, and the boundary-normal component of the
-        diffusion equation goes to 0 as well. Note that boundary-parallel flux
-        gradients are not necessarily 0, and so boundary heights may not be
-        constant. 
+            words, material is allowed to pass through the boundary node. This
+            condition means dq/dx = 0, and the boundary-normal component of the
+            diffusion equation goes to 0 as well. Note that boundary-parallel
+            flux gradients are not necessarily 0, and so boundary heights may
+            not be constant. 
+        cyclic:
+        mirror:
     """
 
     # NOTE: attributes and methods with the "_" prefix are considered private,
@@ -118,11 +124,11 @@ class ftcs():
                 A[k(i,j), k(i  ,j-1)] = c*(kappa[i,j]+kappa[i  ,j-1]) 
                 A[k(i,j), k(i  ,j+1)] = c*(kappa[i,j]+kappa[i  ,j+1])
             elif name == 'open':
-                print("hillslope: BC not implemented"); sys.exit()
+                print("hillslope: open BC not implemented"); sys.exit()
             elif name == 'cyclic':
-                print("hillslope: BC not implemented"); sys.exit()
+                print("hillslope: cyclic BC not implemented"); sys.exit()
             elif name  == 'mirror':
-                print("hillslope: BC not implemented"); sys.exit()
+                print("hillslope: mirror BC not implemented"); sys.exit()
             else:
                 print("hillslope: invalid boundary condition at y=0"); sys.exit()
 
@@ -138,45 +144,51 @@ class ftcs():
                 A[k(i,j), k(i  ,j-1)] = c*(kappa[i,j]+kappa[i  ,j-1]) 
                 A[k(i,j), k(i  ,j+1)] = c*(kappa[i,j]+kappa[i  ,j+1])
             elif name == 'open':
-                print("hillslope: BC not implemented"); sys.exit()
+                print("hillslope: open BC not implemented"); sys.exit()
             elif name == 'cyclic':
-                print("hillslope: BC not implemented"); sys.exit()
+                print("hillslope: cyclic BC not implemented"); sys.exit()
             elif name  == 'mirror':
-                print("hillslope: BC not implemented"); sys.exit()
+                print("hillslope: mirror BC not implemented"); sys.exit()
             else:
                 print("hillslope: invalid boundary condition at y=end"); sys.exit()
 
         # populate boundary at x=0
         name = self._bc[2] 
         j = 0
-        for i in range(0,self._ny):
+        for i in range(1,self._ny-1):
             if name == 'constant':
                 pass # dhdt = 0 
             elif name  == 'closed':
-                print("hillslope: BC not implemented"); sys.exit()
+                A[k(i,j), k(i  ,j  )] = -c*(3.0*kappa[i,j]+kappa[i-1,j]+kappa[i+1,j]+kappa[i,j+1])
+                A[k(i,j), k(i-1,j  )] = c*(kappa[i,j]+kappa[i-1,j  ]) 
+                A[k(i,j), k(i+1,j  )] = c*(kappa[i,j]+kappa[i+1,j  ])
+                A[k(i,j), k(i  ,j+1)] = c*(kappa[i,j]+kappa[i  ,j+1])
             elif name == 'open':
-                print("hillslope: BC not implemented"); sys.exit()
+                print("hillslope: open BC not implemented"); sys.exit()
             elif name == 'cyclic':
-                print("hillslope: BC not implemented"); sys.exit()
+                print("hillslope: cyclic BC not implemented"); sys.exit()
             elif name  == 'mirror':
-                print("hillslope: BC not implemented"); sys.exit()
+                print("hillslope: mirror BC not implemented"); sys.exit()
             else:
                 print("hillslope: invalid boundary condition at x=0"); sys.exit()
 
         # populate boundary at x=end
         name = self._bc[3] 
         j = self._nx-1
-        for i in range(0,self._ny):
+        for i in range(1,self._ny-1):
             if name == 'constant':
                 pass # dhdt = 0 
             elif name  == 'closed':
-                print("hillslope: BC not implemented"); sys.exit()
+                A[k(i,j), k(i  ,j  )] = -c*(3.0*kappa[i,j]+kappa[i-1,j]+kappa[i+1,j]+kappa[i,j-1])
+                A[k(i,j), k(i-1,j  )] = c*(kappa[i,j]+kappa[i-1,j  ]) 
+                A[k(i,j), k(i+1,j  )] = c*(kappa[i,j]+kappa[i+1,j  ])
+                A[k(i,j), k(i  ,j-1)] = c*(kappa[i,j]+kappa[i  ,j-1]) 
             elif name == 'open':
-                print("hillslope: BC not implemented"); sys.exit()
+                print("hillslope: open BC not implemented"); sys.exit()
             elif name == 'cyclic':
-                print("hillslope: BC not implemented"); sys.exit()
+                print("hillslope: cyclic BC not implemented"); sys.exit()
             elif name  == 'mirror':
-                print("hillslope: BC not implemented"); sys.exit()
+                print("hillslope: mirror BC not implemented"); sys.exit()
             else:
                 print("hillslope: invalid boundary condition at x=end"); sys.exit()
 

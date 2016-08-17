@@ -69,17 +69,27 @@ class ftcs_TestCase(unittest.TestCase):
         hb = h0-qq*l0/k0 # or: hb = qq*l1/k1-h1 
         xx = np.linspace(0, lx, nx, dtype=np.double).reshape((1,nx))*np.ones((ny,1))
         h_exact = np.where(xx <= l0, h0+(hb-h0)/l0*xx, hb+(h1-hb)/l1*(xx-l0))
-
-        # numerical solution
+        
+        # test model
         h_init = np.zeros((ny, nx))
         h_init[:,0] = h0
         h_init[:,-1] = h1
         kappa = np.where(xx <= l0, k0, k1)
-        bcs = ['closed', 'closed', 'constant', 'constant'] # TODO: must be no-flux at steady state 
+        bcs = ['closed', 'closed', 'constant', 'constant'] 
         model = py_ice_cascade.hillslope.ftcs(h_init, delta, kappa, bcs)
         model.run(t_end)
 
-        # check errors
+        h_error = np.abs(model.get_height()-h_exact)
+        self.assertTrue(np.max(h_error) < epsilon)
+
+        # rotate, and repeat test
+        h_exact = np.rot90(h_exact)
+        h_init = np.rot90(h_init)
+        kappa = np.rot90(kappa)
+        bcs = ['constant', 'constant', 'closed', 'closed']
+        model = py_ice_cascade.hillslope.ftcs(h_init, delta, kappa, bcs)
+        model.run(t_end)
+
         h_error = np.abs(model.get_height()-h_exact)
         self.assertTrue(np.max(h_error) < epsilon)
 
