@@ -16,30 +16,79 @@ import scipy.sparse
 import sys
 
 class ftcs():
-    """
+    r"""
     Hillslope diffusion model using forward-time center-space (FTCS) finite
     diffence scheme. 
     
-    Overview of FTCS scheme (see reference (1) and (2):  
+    Overview of FTCS scheme with spatially variable diffusivity (see reference
+    (1) and (2)). Starting with the basic diffusion equation:  
     
-    (TBD: use latex to render properly)
+    .. math::
+       \frac{\partial H}{\partial t} = \nabla \cdot q
 
-    Supported boundary conditions are:
+    Discretize derivative terms using FTCS scheme:
     
-    constant: height is constant in time at the given value 
-    
-    closed: flux out of the boundary is set to 0 (i.e. q_{i +/- 0.5} -> 0)
-    
-    open: incoming and outgoing flux normal to the boundary is equal. In other
-    words, material is allowed to pass through the boundary node. This
-    condition means dq/dx = 0, and the boundary-normal component of the
-    diffusion equation goes to 0 as well. Note that boundary-parallel flux
-    gradients are not necessarily 0, and so boundary heights may not be
-    constant. 
+    .. math::
+       \frac{H^{n+1}_{i,j} - H^{n}_{i,j}}{\Delta_t} = 
+           \frac{(q_x)^{n}_{i,j+1/2} - (q_x)^{n}_{i,j-1/2}}{\Delta_x} + 
+           \frac{(q_y)^{n}_{i+1/2,j} - (q_y)^{n}_{i-1/2,j}}{\Delta_y} 
 
-    cyclic:
+    Expand the fluxes in terms of height gradient:
+    
+    .. math::
+       \frac{1}{\Delta_t} \left( H^{n+1}_{i,j} - H^{n}_{i,j} \right) = 
+           \frac{1}{\Delta_x} \left[ 
+           \kappa_{i,j+1/2} \frac{H^{n}_{i,j+1}-H^{n}_{i,j}}{\Delta_x} - 
+           \kappa_{i,j-1/2} \frac{H^{n}_{i,j}-H^{n}_{i,j-1}}{\Delta_x}
+           \right] + \\
+           \frac{1}{\Delta_y} \left[ 
+           \kappa_{i+1/2,j} \frac{H^{n}_{i+1,j}-H^{n}_{i,j}}{\Delta_y} - 
+           \kappa_{i-1/2,j} \frac{H^{n}_{i,j}-H^{n}_{i-1,j}}{\Delta_y}
+           \right]
 
-    mirror:
+    Use the mean diffusivity at midpoints:
+
+    .. math::
+       \frac{1}{\Delta_t} \left( H^{n+1}_{i,j} - H^{n}_{i,j} \right) = 
+           \frac{1}{\Delta_x} \left[ 
+           \frac{\kappa_{i,j+1} + \kappa_{i,j}}{2} \frac{H^{n}_{i,j+1}-H^{n}_{i,j}}{\Delta_x} - 
+           \frac{\kappa_{i,j} + \kappa_{i,j-1}}{2} \frac{H^{n}_{i,j}-H^{n}_{i,j-1}}{\Delta_x}
+           \right] + \\
+           \frac{1}{\Delta_y} \left[ 
+           \frac{\kappa_{i+1,j} + \kappa_{i,j}}{2} \frac{H^{n}_{i+1,j}-H^{n}_{i,j}}{\Delta_y} - 
+           \frac{\kappa_{i,j} + \kappa_{i-1,j}}{2} \frac{H^{n}_{i,j}-H^{n}_{i-1,j}}{\Delta_y}
+           \right]
+
+    Assume equal x- and y- grid spacing and collect coefficients:
+        
+    .. math::
+       \frac{1}{\Delta_t} \left( H^{n+1}_{i,j} - H^{n}_{i,j} \right) = 
+           \frac{1}{2 \Delta_{xy}^2} \left[ 
+           (\kappa_{i,j+1} + \kappa_{i,j}) (H^{n}_{i,j+1}-H^{n}_{i,j}) - 
+           (\kappa_{i,j} + \kappa_{i,j-1}) (H^{n}_{i,j}-H^{n}_{i,j-1}) + \\
+           (\kappa_{i+1,j} + \kappa_{i,j}) (H^{n}_{i+1,j}-H^{n}_{i,j}) - 
+           (\kappa_{i,j} + \kappa_{i-1,j}) (H^{n}_{i,j}-H^{n}_{i-1,j})
+           \right]
+
+    Expand and collect terms:
+
+    .. math::
+       H^{n+1}_{i,j} =  H^{n}_{i,j} + \frac{\Delta_t}{2 \Delta_{xy}^2} \left[ 
+       H^{n}_{i,j+1} (\kappa_{i,j+1} + \kappa_{i,j}) +  
+       H^{n}_{i,j-1} (\kappa_{i,j} + \kappa_{i,j-1}) +
+       H^{n}_{i+1,j} (\kappa_{i+1,j} + \kappa_{i,j}) + \\ 
+       H^{n}_{i-1,j} (\kappa_{i,j} + \kappa_{i-1,j}) - 
+       H^{n}_{i,j} (4 \kappa_{i,j} + \kappa_{i,j+1} + \kappa_{i,j-1} + \kappa_{i+1,j} + \kappa_{i-1,j})
+       \right]
+
+    The above scheme is modified at boundary points. Supported boundary conditions are:
+    
+    * *constant*: :math:`\frac{\partial H}{\partial t} = 0`
+    * *closed*: no flux out of boundary (e.g. :math:`(q_x)_{i,j+1/2} = 0` at :math:`x_{max}`)
+    * *open*: no flux gradient normal to boundary, material passes through (e.g. :math:`\frac{\partial q_x}{\partial x} = 0` at :math:`x_{max}`)
+    * *cyclic*: flux at opposing boundaries is equal (e.g. :math:`(q_x)_{i,-1/2} = (q_x)_{i,\text{end}+1/2}`)
+    * *mirror*: boundary flux is equal and opposite incoming flux (e.g. :math:`(q_x)_{i,j+1/2} = -(q_x)_{i,j-1/2}` at :math:`x_{max}`)
+
     """
 
     # NOTE: attributes and methods with the "_" prefix are considered private,

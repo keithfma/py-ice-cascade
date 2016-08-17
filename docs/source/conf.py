@@ -38,7 +38,8 @@ sys.path.insert(0, os.path.abspath(os.path.join('..', '..')))
 extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.viewcode',
-	'sphinx.ext.napoleon'
+	'sphinx.ext.napoleon',
+    'sphinx.ext.mathjax'
 ]
 
 # Add any paths that contain templates here, relative to this directory.
