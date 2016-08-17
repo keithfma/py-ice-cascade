@@ -64,13 +64,13 @@ class ftcs_TestCase(unittest.TestCase):
         t_end = 1.5
         epsilon = 0.001
 
-        # exact solution (resistance = l/k in series) 
+        # Case 1:
+        # # exact solution (resistance = l/k in series) 
         qq = (h0-h1)/(l0/k0+l1/k1)
         hb = h0-qq*l0/k0 # or: hb = qq*l1/k1-h1 
         xx = np.linspace(0, lx, nx, dtype=np.double).reshape((1,nx))*np.ones((ny,1))
         h_exact = np.where(xx <= l0, h0+(hb-h0)/l0*xx, hb+(h1-hb)/l1*(xx-l0))
-        
-        # test model
+        # # numerical solution
         h_init = np.zeros((ny, nx))
         h_init[:,0] = h0
         h_init[:,-1] = h1
@@ -78,18 +78,20 @@ class ftcs_TestCase(unittest.TestCase):
         bcs = ['closed', 'closed', 'constant', 'constant'] 
         model = py_ice_cascade.hillslope.ftcs(h_init, delta, kappa, bcs)
         model.run(t_end)
-
+        # # check errors
         h_error = np.abs(model.get_height()-h_exact)
         self.assertTrue(np.max(h_error) < epsilon)
 
-        # rotate, and repeat test
+        # Case 2: rotate 90 degrees
+        # # exact solution
         h_exact = np.rot90(h_exact)
+        # # numerical solution
         h_init = np.rot90(h_init)
         kappa = np.rot90(kappa)
         bcs = ['constant', 'constant', 'closed', 'closed']
         model = py_ice_cascade.hillslope.ftcs(h_init, delta, kappa, bcs)
         model.run(t_end)
-
+        # # check errors
         h_error = np.abs(model.get_height()-h_exact)
         self.assertTrue(np.max(h_error) < epsilon)
 
