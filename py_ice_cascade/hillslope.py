@@ -195,7 +195,13 @@ class ftcs():
         elif self._bc[0] == 'cyclic':
             print("hillslope: cyclic BC not implemented"); sys.exit()
         elif self._bc[0] == 'mirror':
-            print("hillslope: mirror BC not implemented"); sys.exit()
+            for j in range(0,self._nx): # dqy/dy term
+                A[k(i,j), k(i  ,j)] += -2.0*c*(kappa[i,j]+kappa[i+1,j])
+                A[k(i,j), k(i+1,j)] +=  2.0*c*(kappa[i,j]+kappa[i+1,j])
+            for j in range(1,self._nx-1): # dqx/dx term
+                A[k(i,j), k(i,j  )] += -c*(2.0*kappa[i,j]+kappa[i,j-1]+kappa[i,j+1])
+                A[k(i,j), k(i,j-1)] +=  c*(kappa[i,j]+kappa[i  ,j-1]) 
+                A[k(i,j), k(i,j+1)] +=  c*(kappa[i,j]+kappa[i  ,j+1])
         else:
             print("hillslope: invalid boundary condition at y=0"); sys.exit()
 
@@ -219,7 +225,13 @@ class ftcs():
         elif self._bc[1] == 'cyclic':
             print("hillslope: cyclic BC not implemented"); sys.exit()
         elif self._bc[1]  == 'mirror':
-            print("hillslope: mirror BC not implemented"); sys.exit()
+            for j in range(0,self._nx): # dqy/dy term
+                A[k(i,j), k(i  ,j  )] += -2.0*c*(kappa[i,j]+kappa[i-1,j])
+                A[k(i,j), k(i-1,j  )] +=  2.0*c*(kappa[i,j]+kappa[i-1,j]) 
+            for j in range(1,self._nx-1): # dqx/dx term
+                A[k(i,j), k(i,j  )] += -c*(2.0*kappa[i,j]+kappa[i,j-1]+kappa[i,j+1])
+                A[k(i,j), k(i,j-1)] +=  c*(kappa[i,j]+kappa[i,j-1]) 
+                A[k(i,j), k(i,j+1)] +=  c*(kappa[i,j]+kappa[i,j+1])
         else:
             print("hillslope: invalid boundary condition at y=end"); sys.exit()
 
@@ -243,7 +255,13 @@ class ftcs():
         elif self._bc[2] == 'cyclic':
             print("hillslope: cyclic BC not implemented"); sys.exit()
         elif self._bc[2]  == 'mirror':
-            print("hillslope: mirror BC not implemented"); sys.exit()
+            for i in range(0,self._ny): # dqx/dx term
+                A[k(i,j), k(i,j  )] += -2.0*c*(kappa[i,j]+kappa[i,j+1])
+                A[k(i,j), k(i,j+1)] +=  2.0*c*(kappa[i,j]+kappa[i,j+1])
+            for i in range(1,self._ny-1): # dqy/dy term
+                A[k(i,j), k(i  ,j)] += -c*(2.0*kappa[i,j]+kappa[i-1,j]+kappa[i+1,j])
+                A[k(i,j), k(i-1,j)] +=  c*(kappa[i,j]+kappa[i-1,j]) 
+                A[k(i,j), k(i+1,j)] +=  c*(kappa[i,j]+kappa[i+1,j])
         else:
             print("hillslope: invalid boundary condition at x=0"); sys.exit()
 
@@ -267,7 +285,13 @@ class ftcs():
         elif self._bc[3] == 'cyclic':
             print("hillslope: cyclic BC not implemented"); sys.exit()
         elif self._bc[3]  == 'mirror':
-            print("hillslope: mirror BC not implemented"); sys.exit()
+            for i in range(0,self._ny): # dqx/dx term
+                A[k(i,j), k(i,j  )] += -2.0*c*(kappa[i,j]+kappa[i,j-1])
+                A[k(i,j), k(i,j-1)] +=  2.0*c*(kappa[i,j]+kappa[i,j-1]) 
+            for i in range(1,self._ny-1): # dqy/dy term
+                A[k(i,j), k(i  ,j)] += -c*(2.0*kappa[i,j]+kappa[i-1,j]+kappa[i+1,j])
+                A[k(i,j), k(i-1,j)] +=  c*(kappa[i,j]+kappa[i-1,j]) 
+                A[k(i,j), k(i+1,j)] +=  c*(kappa[i,j]+kappa[i+1,j])
         else:
             print("hillslope: invalid boundary condition at x=end"); sys.exit()
 
@@ -297,16 +321,16 @@ if __name__ == '__main__':
     # # initialize model
     nx = 100
     ny = 100
-    max_time = 5.0
-    time_step = 0.05
+    max_time = 50.0
+    time_step = 0.5
     h0 = np.random.rand(ny, nx).astype(np.double)-0.5
     h0[:,0] = np.double(0.0) 
-    h0[:,-1] = np.double(0.0)
-    h0[0,:] = np.double(0.0)
+    h0[:,-1] = np.double(-1.0)
+    h0[0,:] = np.double(-1.0)
     h0[-1,:] = np.double(0.0)
     dd = np.double(1.0)
     kk = np.ones((ny, nx), dtype=np.double)
-    bcs = ['constant', 'constant', 'constant', 'constant']
+    bcs = ['mirror', 'constant', 'constant', 'closed']
     model = ftcs(h0, dd, kk, bcs)
     # # update and plot model
     plt.imshow(model.get_height(), interpolation='nearest', clim=(-0.5,0.5))
