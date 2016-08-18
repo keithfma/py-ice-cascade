@@ -114,17 +114,32 @@ class ftcs():
         self._height = None
         self._delta = None
         self._kappa = None
+        self._bc = None
+        self._A = None
         self._nx = None
         self._ny = None
 
+        self._delta = np.copy(np.double(delta))
+        self._set_bc(bc)
         self.set_height(height)
         self.set_diffusivity(kappa)
-        self._delta = np.copy(np.double(delta))
-        self._bc = list(bc)
-        self._set_coeff_matrix()
+
+    def _set_bc(self, new):
+        """Check and set boundary condition names"""
+        # NOTE: does not update coefficient matrix
+        self._bc = list(new)
+        if len(self._bc) != 4:
+            print("hillslope: invalid number of BCs"); sys.exit()
+        valid_bc = set(['constant', 'closed', 'open', 'cyclic', 'mirror'])
+        if not set(self._bc).issubset(valid_bc):
+            print("hillslope: invalid BC name"); sys.exit()
+        if (self._bc[0] == 'cyclic' or self._bc[1] == 'cyclic') and self._bc[0] != self.bc[1]:
+            print("hillslope: unmatched y-dir cyclic BC"); sys.exit() 
+        if (self._bc[2] == 'cyclic' or self._bc[3] == 'cyclic') and self._bc[2] != self.bc[3]:
+            print("hillslope: unmatched x-dir cyclic BC"); sys.exit() 
 
     def set_height(self, new):
-        """Set height grid internal attribute"""
+        """Set height grid"""
         new_array = np.copy(np.double(new))
         if new_array.ndim != 2:
             print("hillslope: height is not a 2D array"); sys.exit()
@@ -138,12 +153,13 @@ class ftcs():
         return np.copy(self._height.reshape((self._ny, self._nx), order='C'))
 
     def set_diffusivity(self, new):
-        """Set diffusivity grid internal attribute"""
+        """Set diffusivity grid and update dheight/dt coefficient matrix"""
         self._kappa = np.copy(np.double(new))
         if self._kappa.ndim != 2:
             print("hillslope: diffusivity is not a 2D array"); sys.exit()
         if self._kappa.shape != (self._ny, self._nx):
             print("hillslope: diffusitity grid dims do not match height grid"); sys.exit()
+        self._set_coeff_matrix()
 
     def _set_coeff_matrix(self):
         """Define sparse coefficient matrix for dHdt stencil"""
@@ -164,7 +180,7 @@ class ftcs():
         # populate interior points
         for i in range(1,self._ny-1): # add dqy/dy tern
             for j in range(0,self._nx):
-                A[k(i,j), k(i  ,j)] += -c*(kappa[i-1,j]+2*kappa[i,j]+kappa[i+1,j])
+                A[k(i,j),k(i  ,j)] += -c*(kappa[i-1,j]+2*kappa[i,j]+kappa[i+1,j])
                 A[k(i,j), k(i-1,j)] +=  c*(kappa[i-1,j]+kappa[i,j]) 
                 A[k(i,j), k(i+1,j)] +=  c*(kappa[i,j]+kappa[i+1,j])
         for i in range(0,self._ny): # add dqx/dx term
@@ -193,8 +209,6 @@ class ftcs():
             for j in range(0,self._nx): # dqy/dy term
                 A[k(i,j), k(i  ,j)] += -2.0*c*(kappa[i,j]+kappa[i+1,j])
                 A[k(i,j), k(i+1,j)] +=  2.0*c*(kappa[i,j]+kappa[i+1,j])
-        else:
-            print("hillslope: invalid boundary condition at y=0"); sys.exit()
 
         # populate boundary at y=end
         i = self._ny-1
@@ -216,8 +230,6 @@ class ftcs():
             for j in range(0,self._nx): # dqy/dy term
                 A[k(i,j), k(i  ,j  )] += -2.0*c*(kappa[i,j]+kappa[i-1,j])
                 A[k(i,j), k(i-1,j  )] +=  2.0*c*(kappa[i,j]+kappa[i-1,j]) 
-        else:
-            print("hillslope: invalid boundary condition at y=end"); sys.exit()
 
         # populate boundary at x=0
         j = 0
@@ -239,8 +251,6 @@ class ftcs():
             for i in range(0,self._ny): # dqx/dx term
                 A[k(i,j), k(i,j  )] += -2.0*c*(kappa[i,j]+kappa[i,j+1])
                 A[k(i,j), k(i,j+1)] +=  2.0*c*(kappa[i,j]+kappa[i,j+1])
-        else:
-            print("hillslope: invalid boundary condition at x=0"); sys.exit()
 
         # populate boundary at x=end
         j = self._nx-1
@@ -262,8 +272,6 @@ class ftcs():
             for i in range(0,self._ny): # dqx/dx term
                 A[k(i,j), k(i,j  )] += -2.0*c*(kappa[i,j]+kappa[i,j-1])
                 A[k(i,j), k(i,j-1)] +=  2.0*c*(kappa[i,j]+kappa[i,j-1]) 
-        else:
-            print("hillslope: invalid boundary condition at x=end"); sys.exit()
 
         # store results in effcient format for matrix*vector product
         self._A = A.tocsr()
