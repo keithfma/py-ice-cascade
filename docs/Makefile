@@ -33,7 +33,7 @@ clean:
 
 .PHONY: apidoc
 apidoc:
-	sphinx-apidoc -f -o ./source ../py_ice_cascade ../py_ice_cascade/test_*
+	sphinx-apidoc --private -f -o ./source ../py_ice_cascade ../py_ice_cascade/test_*
 
 .PHONY: html
 html:
