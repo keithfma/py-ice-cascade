@@ -16,7 +16,9 @@ def main():
     parser = argparse.ArgumentParser(description='Command-line front-end for '
         'Python ICE-CASCADE glacial-fluvial-hillslope landscape evolution model',
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    parser.add_argument('-o', '--output_file', type=str, default='model_out.nc',
+    parser.add_argument('-i', '--input_file', type=str, default='in.nc',
+        help='output netCDF file name')
+    parser.add_argument('-o', '--output_file', type=str, default='out.nc',
         help='output netCDF file name')
 
     # get command line arguments    
