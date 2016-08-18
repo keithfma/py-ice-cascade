@@ -116,11 +116,6 @@ class ftcs():
         self._kappa = None
         self._nx = None
         self._ny = None
-        self._bc_x0 = None
-        self._bc_x1 = None
-        self._bc_y0 = None
-        self._bc_y1 = None
-        self._valid_bcs = set(['constant', 'closed', 'open', 'cyclic', 'mirror'])
 
         self.set_height(height)
         self.set_diffusivity(kappa)
@@ -156,6 +151,10 @@ class ftcs():
         # NOTE: FTCS is a 5-point stencil, since diffusivity is a grid, all
         # coefficients are potentially unique. 
 
+        # NOTE: corners are handled corners by adding the dqx/dx and dqy/dy
+        # terms separately. This makes it possible for *one* BC to be applied
+        # at edge points, and *both* BCs to be applied at corner points.
+
         # init variables
         A = scipy.sparse.lil_matrix((self._ny*self._nx, self._ny*self._nx), dtype=np.double) # lil format is fast to populate
         c = 1.0/(2.0*self._delta*self._delta)
@@ -163,135 +162,94 @@ class ftcs():
         k = lambda row, col: row*self._nx+col # map subscripts (row, col) to linear index (k) in row-major order
 
         # populate interior points
-        for i in range(1,self._ny-1):
+        for i in range(1,self._ny-1): # add dqy/dy tern
+            for j in range(0,self._nx):
+                A[k(i,j), k(i  ,j)] += -c*(kappa[i-1,j]+2*kappa[i,j]+kappa[i+1,j])
+                A[k(i,j), k(i-1,j)] +=  c*(kappa[i-1,j]+kappa[i,j]) 
+                A[k(i,j), k(i+1,j)] +=  c*(kappa[i,j]+kappa[i+1,j])
+        for i in range(0,self._ny): # add dqx/dx term
             for j in range(1,self._nx-1):
-                A[k(i,j), k(i  ,j  )] = -c*(4.0*kappa[i,j]+kappa[i-1,j]+kappa[i+1,j]+kappa[i,j-1]+kappa[i,j+1])
-                A[k(i,j), k(i-1,j  )] = c*(kappa[i,j]+kappa[i-1,j  ]) 
-                A[k(i,j), k(i+1,j  )] = c*(kappa[i,j]+kappa[i+1,j  ])
-                A[k(i,j), k(i  ,j-1)] = c*(kappa[i,j]+kappa[i  ,j-1]) 
-                A[k(i,j), k(i  ,j+1)] = c*(kappa[i,j]+kappa[i  ,j+1])
-
-        # NOTE: BC treatment handles corners by adding the dqx/dx and dqy/dy
-        # terms separately. This makes it possible for *one* BC to be applied
-        # at edge points, and *both* BCs to be applied at corner points.
+                A[k(i,j), k(i,j  )] += -c*(kappa[i,j-1]+2*kappa[i,j]+kappa[i,j+1])
+                A[k(i,j), k(i,j-1)] +=  c*(kappa[i,j-1]+kappa[i,j]) 
+                A[k(i,j), k(i,j+1)] +=  c*(kappa[i,j]+kappa[i,j+1])
 
         # populate boundary at y=0
         i = 0
         if self._bc[0] == 'constant':
-            pass 
+            for j in range(0,self._nx): # all coeff -> 0
+                A[k(i,j),:] = 0
         elif self._bc[0]  == 'closed':
-            for j in range(0,self._nx): # dqy/dy term
+            for j in range(0,self._nx): # add qy/dy term
                 A[k(i,j), k(i  ,j)] += -c*(kappa[i,j]+kappa[i+1,j])
                 A[k(i,j), k(i+1,j)] +=  c*(kappa[i,j]+kappa[i+1,j])
-            for j in range(1,self._nx-1): # dqx/dx term
-                A[k(i,j), k(i,j  )] += -c*(2.0*kappa[i,j]+kappa[i,j-1]+kappa[i,j+1])
-                A[k(i,j), k(i,j-1)] +=  c*(kappa[i,j]+kappa[i  ,j-1]) 
-                A[k(i,j), k(i,j+1)] +=  c*(kappa[i,j]+kappa[i  ,j+1])
         elif self._bc[0] == 'open':
-            for j in range(1,self._nx-1): # dqx/dx term only
-                A[k(i,j), k(i,j  )] += -c*(2.0*kappa[i,j]+kappa[i,j-1]+kappa[i,j+1])
-                A[k(i,j), k(i,j-1)] +=  c*(kappa[i,j]+kappa[i  ,j-1]) 
-                A[k(i,j), k(i,j+1)] +=  c*(kappa[i,j]+kappa[i  ,j+1])
+            pass
         elif self._bc[0] == 'cyclic':
             print("hillslope: cyclic BC not implemented"); sys.exit()
         elif self._bc[0] == 'mirror':
             for j in range(0,self._nx): # dqy/dy term
                 A[k(i,j), k(i  ,j)] += -2.0*c*(kappa[i,j]+kappa[i+1,j])
                 A[k(i,j), k(i+1,j)] +=  2.0*c*(kappa[i,j]+kappa[i+1,j])
-            for j in range(1,self._nx-1): # dqx/dx term
-                A[k(i,j), k(i,j  )] += -c*(2.0*kappa[i,j]+kappa[i,j-1]+kappa[i,j+1])
-                A[k(i,j), k(i,j-1)] +=  c*(kappa[i,j]+kappa[i  ,j-1]) 
-                A[k(i,j), k(i,j+1)] +=  c*(kappa[i,j]+kappa[i  ,j+1])
         else:
             print("hillslope: invalid boundary condition at y=0"); sys.exit()
 
         # populate boundary at y=end
         i = self._ny-1
         if self._bc[1] == 'constant':
-            pass 
+            for j in range(0,self._nx): # all coeff -> 0
+                A[k(i,j),:] = 0
         elif self._bc[1]  == 'closed':
             for j in range(0,self._nx): # dqy/dy term
                 A[k(i,j), k(i  ,j  )] += -c*(kappa[i,j]+kappa[i-1,j])
                 A[k(i,j), k(i-1,j  )] +=  c*(kappa[i,j]+kappa[i-1,j]) 
-            for j in range(1,self._nx-1): # dqx/dx term
-                A[k(i,j), k(i,j  )] += -c*(2.0*kappa[i,j]+kappa[i,j-1]+kappa[i,j+1])
-                A[k(i,j), k(i,j-1)] +=  c*(kappa[i,j]+kappa[i,j-1]) 
-                A[k(i,j), k(i,j+1)] +=  c*(kappa[i,j]+kappa[i,j+1])
         elif self._bc[1] == 'open':
-            for j in range(1,self._nx-1): # dqx/dx term only
-                A[k(i,j), k(i,j  )] += -c*(2.0*kappa[i,j]+kappa[i,j-1]+kappa[i,j+1])
-                A[k(i,j), k(i,j-1)] +=  c*(kappa[i,j]+kappa[i,j-1]) 
-                A[k(i,j), k(i,j+1)] +=  c*(kappa[i,j]+kappa[i,j+1])
+            pass
         elif self._bc[1] == 'cyclic':
             print("hillslope: cyclic BC not implemented"); sys.exit()
         elif self._bc[1]  == 'mirror':
             for j in range(0,self._nx): # dqy/dy term
                 A[k(i,j), k(i  ,j  )] += -2.0*c*(kappa[i,j]+kappa[i-1,j])
                 A[k(i,j), k(i-1,j  )] +=  2.0*c*(kappa[i,j]+kappa[i-1,j]) 
-            for j in range(1,self._nx-1): # dqx/dx term
-                A[k(i,j), k(i,j  )] += -c*(2.0*kappa[i,j]+kappa[i,j-1]+kappa[i,j+1])
-                A[k(i,j), k(i,j-1)] +=  c*(kappa[i,j]+kappa[i,j-1]) 
-                A[k(i,j), k(i,j+1)] +=  c*(kappa[i,j]+kappa[i,j+1])
         else:
             print("hillslope: invalid boundary condition at y=end"); sys.exit()
 
         # populate boundary at x=0
         j = 0
         if self._bc[2] == 'constant':
-            pass 
+            for i in range(0,self._ny): # all coeff -> 0
+                A[k(i,j),:] = 0
         elif self._bc[2]  == 'closed':
             for i in range(0,self._ny): # dqx/dx term
                 A[k(i,j), k(i,j  )] += -c*(kappa[i,j]+kappa[i,j+1])
                 A[k(i,j), k(i,j+1)] +=  c*(kappa[i,j]+kappa[i,j+1])
-            for i in range(1,self._ny-1): # dqy/dy term
-                A[k(i,j), k(i  ,j)] += -c*(2.0*kappa[i,j]+kappa[i-1,j]+kappa[i+1,j])
-                A[k(i,j), k(i-1,j)] +=  c*(kappa[i,j]+kappa[i-1,j]) 
-                A[k(i,j), k(i+1,j)] +=  c*(kappa[i,j]+kappa[i+1,j])
         elif self._bc[2] == 'open':
-            for i in range(1,self._ny-1): # dqy/dy term only
-                A[k(i,j), k(i  ,j)] += -c*(2.0*kappa[i,j]+kappa[i-1,j]+kappa[i+1,j])
-                A[k(i,j), k(i-1,j)] +=  c*(kappa[i,j]+kappa[i-1,j]) 
-                A[k(i,j), k(i+1,j)] +=  c*(kappa[i,j]+kappa[i+1,j])
+            pass
         elif self._bc[2] == 'cyclic':
             print("hillslope: cyclic BC not implemented"); sys.exit()
         elif self._bc[2]  == 'mirror':
             for i in range(0,self._ny): # dqx/dx term
                 A[k(i,j), k(i,j  )] += -2.0*c*(kappa[i,j]+kappa[i,j+1])
                 A[k(i,j), k(i,j+1)] +=  2.0*c*(kappa[i,j]+kappa[i,j+1])
-            for i in range(1,self._ny-1): # dqy/dy term
-                A[k(i,j), k(i  ,j)] += -c*(2.0*kappa[i,j]+kappa[i-1,j]+kappa[i+1,j])
-                A[k(i,j), k(i-1,j)] +=  c*(kappa[i,j]+kappa[i-1,j]) 
-                A[k(i,j), k(i+1,j)] +=  c*(kappa[i,j]+kappa[i+1,j])
         else:
             print("hillslope: invalid boundary condition at x=0"); sys.exit()
 
         # populate boundary at x=end
         j = self._nx-1
         if self._bc[3] == 'constant':
-            pass 
+            for i in range(0,self._ny): # all coeff -> 0
+                A[k(i,j),:] = 0
         elif self._bc[3]  == 'closed':
             for i in range(0,self._ny): # dqx/dx term
                 A[k(i,j), k(i,j  )] += -c*(kappa[i,j]+kappa[i,j-1])
                 A[k(i,j), k(i,j-1)] +=  c*(kappa[i,j]+kappa[i,j-1]) 
-            for i in range(1,self._ny-1): # dqy/dy term
-                A[k(i,j), k(i  ,j)] += -c*(2.0*kappa[i,j]+kappa[i-1,j]+kappa[i+1,j])
-                A[k(i,j), k(i-1,j)] +=  c*(kappa[i,j]+kappa[i-1,j]) 
-                A[k(i,j), k(i+1,j)] +=  c*(kappa[i,j]+kappa[i+1,j])
         elif self._bc[3] == 'open':
-            for i in range(1,self._ny-1): # dqy/dy term only
-                A[k(i,j), k(i  ,j)] += -c*(2.0*kappa[i,j]+kappa[i-1,j]+kappa[i+1,j])
-                A[k(i,j), k(i-1,j)] +=  c*(kappa[i,j]+kappa[i-1,j]) 
-                A[k(i,j), k(i+1,j)] +=  c*(kappa[i,j]+kappa[i+1,j])
+            pass
         elif self._bc[3] == 'cyclic':
             print("hillslope: cyclic BC not implemented"); sys.exit()
         elif self._bc[3]  == 'mirror':
             for i in range(0,self._ny): # dqx/dx term
                 A[k(i,j), k(i,j  )] += -2.0*c*(kappa[i,j]+kappa[i,j-1])
                 A[k(i,j), k(i,j-1)] +=  2.0*c*(kappa[i,j]+kappa[i,j-1]) 
-            for i in range(1,self._ny-1): # dqy/dy term
-                A[k(i,j), k(i  ,j)] += -c*(2.0*kappa[i,j]+kappa[i-1,j]+kappa[i+1,j])
-                A[k(i,j), k(i-1,j)] +=  c*(kappa[i,j]+kappa[i-1,j]) 
-                A[k(i,j), k(i+1,j)] +=  c*(kappa[i,j]+kappa[i+1,j])
         else:
             print("hillslope: invalid boundary condition at x=end"); sys.exit()
 
@@ -322,7 +280,7 @@ if __name__ == '__main__':
     nx = 100
     ny = 100
     max_time = 5.0
-    time_step = 0.05
+    time_step = 0.1
     h0 = np.random.rand(ny, nx).astype(np.double)-0.5
     h0[:,0] = np.double(0.0) 
     h0[:,-1] = np.double(0.0)
@@ -343,4 +301,4 @@ if __name__ == '__main__':
         plt.cla()
         plt.imshow(model.get_height(), interpolation='nearest', clim=(-0.5,0.5))
         plt.title("TIME = {:.2f}".format(time))
-        plt.pause(0.05)
+        plt.pause(0.10)

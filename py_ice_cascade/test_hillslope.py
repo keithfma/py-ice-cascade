@@ -8,7 +8,7 @@ References:
 
 import unittest
 import numpy as np
-import py_ice_cascade
+import hillslope
 
 import matplotlib.pyplot as plt # debug only
 
@@ -41,7 +41,7 @@ class ftcs_TestCase(unittest.TestCase):
         h_init[-1,:] = h0*np.sin(np.pi*xx/lx)
         kappa = np.ones((ny,nx))
         bcs = ['constant']*4
-        model = py_ice_cascade.hillslope.ftcs(h_init, delta, kappa, bcs)
+        model = hillslope.ftcs(h_init, delta, kappa, bcs)
         model.run(t_end)
         # # check errors
         h_error = np.abs(model.get_height()-h_exact)
@@ -54,7 +54,7 @@ class ftcs_TestCase(unittest.TestCase):
         h_init = np.rot90(h_init)
         kappa = np.rot90(kappa)
         bcs = ['constant']*4
-        model = py_ice_cascade.hillslope.ftcs(h_init, delta, kappa, bcs)
+        model = hillslope.ftcs(h_init, delta, kappa, bcs)
         model.run(t_end)
         # # check errors
         h_error = np.abs(model.get_height()-h_exact)
@@ -90,7 +90,7 @@ class ftcs_TestCase(unittest.TestCase):
         h_init[:,-1] = h1
         kappa = np.where(xx <= l0, k0, k1)
         bcs = ['closed', 'closed', 'constant', 'constant'] 
-        model = py_ice_cascade.hillslope.ftcs(h_init, delta, kappa, bcs)
+        model = hillslope.ftcs(h_init, delta, kappa, bcs)
         model.run(t_end)
         # # check errors
         h_error = np.abs(model.get_height()-h_exact)
@@ -103,7 +103,7 @@ class ftcs_TestCase(unittest.TestCase):
         h_init = np.rot90(h_init)
         kappa = np.rot90(kappa)
         bcs = ['constant', 'constant', 'closed', 'closed']
-        model = py_ice_cascade.hillslope.ftcs(h_init, delta, kappa, bcs)
+        model = hillslope.ftcs(h_init, delta, kappa, bcs)
         model.run(t_end)
         # # check errors
         h_error = np.abs(model.get_height()-h_exact)
