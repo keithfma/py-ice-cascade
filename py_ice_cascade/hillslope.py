@@ -231,7 +231,10 @@ class ftcs():
         elif self._bc[2] == 'open':
             pass
         elif self._bc[2] == 'cyclic':
-            print("hillslope: cyclic BC not implemented"); sys.exit()
+            for i in range(0,self._ny): # dqx/dx term
+                A[k(i,j), k(i,j  )]        += -c*(kappa[i,self._nx-1]+2*kappa[i,j]+kappa[i,j+1])
+                A[k(i,j), k(i,self._nx-1)] +=  c*(kappa[i,j]+kappa[i,self._nx-1])
+                A[k(i,j), k(i,j+1)]        +=  c*(kappa[i,j]+kappa[i,j+1])
         elif self._bc[2]  == 'mirror':
             for i in range(0,self._ny): # dqx/dx term
                 A[k(i,j), k(i,j  )] += -2.0*c*(kappa[i,j]+kappa[i,j+1])
@@ -251,7 +254,10 @@ class ftcs():
         elif self._bc[3] == 'open':
             pass
         elif self._bc[3] == 'cyclic':
-            print("hillslope: cyclic BC not implemented"); sys.exit()
+            for i in range(0,self._ny): # dqx/dx term
+                A[k(i,j), k(i,j  )] += -c*(kappa[i,j-1]+2*kappa[i,j]+kappa[i,0])
+                A[k(i,j), k(i,j-1)] +=  c*(kappa[i,j-1]+kappa[i,j]) 
+                A[k(i,j), k(i,0)] +=  c*(kappa[i,j]+kappa[i,0])
         elif self._bc[3]  == 'mirror':
             for i in range(0,self._ny): # dqx/dx term
                 A[k(i,j), k(i,j  )] += -2.0*c*(kappa[i,j]+kappa[i,j-1])
@@ -288,13 +294,13 @@ if __name__ == '__main__':
     max_time = 2.5
     time_step = 0.01
     h0 = np.random.rand(ny, nx).astype(np.double)-0.5
-    h0[:,0] = np.double(0.0) 
+    h0[:,0] = np.double(1.0) 
     h0[:,-1] = np.double(0.0)
-    h0[0,:] = np.double(1.0)
+    h0[0,:] = np.double(0.0)
     h0[-1,:] = np.double(0.0)
     dd = np.double(1.0)
     kk = np.ones((ny, nx), dtype=np.double)
-    bcs = ['cyclic', 'cyclic', 'constant', 'constant']
+    bcs = ['constant', 'constant', 'cyclic', 'cyclic']
     model = ftcs(h0, dd, kk, bcs)
     # # update and plot model
     plt.imshow(model.get_height(), interpolation='nearest', clim=(-0.5,0.5))
