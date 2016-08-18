@@ -185,7 +185,10 @@ class ftcs():
         elif self._bc[0] == 'open':
             pass
         elif self._bc[0] == 'cyclic':
-            print("hillslope: cyclic BC not implemented"); sys.exit()
+            for j in range(0,self._nx): # add qy/dy term
+                A[k(i,j), k(i  ,j)]        += -c*(kappa[self._ny-1,j]+2*kappa[i,j]+kappa[i+1,j])
+                A[k(i,j), k(self._ny-1,j)] +=  c*(kappa[self._ny-1,j]+kappa[i,j]) 
+                A[k(i,j), k(i+1,j)]        +=  c*(kappa[i,j]+kappa[i+1,j])
         elif self._bc[0] == 'mirror':
             for j in range(0,self._nx): # dqy/dy term
                 A[k(i,j), k(i  ,j)] += -2.0*c*(kappa[i,j]+kappa[i+1,j])
@@ -204,8 +207,11 @@ class ftcs():
                 A[k(i,j), k(i-1,j  )] +=  c*(kappa[i,j]+kappa[i-1,j]) 
         elif self._bc[1] == 'open':
             pass
-        elif self._bc[1] == 'cyclic':
-            print("hillslope: cyclic BC not implemented"); sys.exit()
+        elif self._bc[1] == 'cyclic': # dqy/dy term
+            for j in range(0,self._nx):
+                A[k(i,j), k(i  ,j)] += -c*(kappa[i-1,j]+2*kappa[i,j]+kappa[0,j])
+                A[k(i,j), k(i-1,j)] +=  c*(kappa[i-1,j]+kappa[i,j]) 
+                A[k(i,j), k(0  ,j)] +=  c*(kappa[i,j]+kappa[0,j])
         elif self._bc[1]  == 'mirror':
             for j in range(0,self._nx): # dqy/dy term
                 A[k(i,j), k(i  ,j  )] += -2.0*c*(kappa[i,j]+kappa[i-1,j])
@@ -279,16 +285,16 @@ if __name__ == '__main__':
     # # initialize model
     nx = 100
     ny = 100
-    max_time = 5.0
-    time_step = 0.1
+    max_time = 2.5
+    time_step = 0.01
     h0 = np.random.rand(ny, nx).astype(np.double)-0.5
     h0[:,0] = np.double(0.0) 
     h0[:,-1] = np.double(0.0)
-    h0[0,:] = np.double(0.0)
+    h0[0,:] = np.double(1.0)
     h0[-1,:] = np.double(0.0)
     dd = np.double(1.0)
     kk = np.ones((ny, nx), dtype=np.double)
-    bcs = ['constant', 'constant', 'constant', 'constant']
+    bcs = ['cyclic', 'cyclic', 'constant', 'constant']
     model = ftcs(h0, dd, kk, bcs)
     # # update and plot model
     plt.imshow(model.get_height(), interpolation='nearest', clim=(-0.5,0.5))
