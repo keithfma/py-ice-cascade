@@ -16,10 +16,7 @@ class ftcs_TestCase(unittest.TestCase):
     """Tests for hillslope ftcs model component"""
 
     def test_steady_bc_constant(self):
-        """
-        Compare against exact solution for Laplace equation with sinusoid at
-        y=max and zero at other boundaries
-        """
+        """Compare against exact solution for sinusoid y=max and zero at other bnd"""
         
         # parameters
         h0 = 1.0
@@ -109,6 +106,40 @@ class ftcs_TestCase(unittest.TestCase):
         h_error = np.abs(model.get_height()-h_exact)
         self.assertTrue(np.max(h_error) < epsilon)
 
+    def test_mass_conservation(self):
+        """Confirm mass conservation with closed and cyclic BCs"""
+
+        # parameters
+        nx = ny = 100
+        delta = 1.0/(nx-1)
+        h_init = np.linspace(0.0, 1.0, nx).reshape(1,nx)*np.linspace(0.0, 1.0, ny).reshape(ny,1)
+        h_init += 0.1*(np.random.rand(ny, nx)-0.5)
+        kappa = np.random.rand(ny, nx)
+        t_end = 0.25
+        epsilon = 0.0001
+
+        # Case 1
+        # # exact solution
+        h_total = np.sum(h_init)
+        # # numerical solution
+        bcs = ['cyclic', 'cyclic', 'closed', 'closed']
+        model = hillslope.ftcs(h_init, delta, kappa, bcs)
+        model.run(t_end)
+        # # check error
+        h_error = np.abs(h_total-np.sum(model.get_height()))
+        self.assertTrue(h_error < epsilon)
+
+        # Case 2: rotate 90 deg
+        # # exact solution
+        # # numerical solution
+        h_init = np.rot90(h_init)
+        kappa = np.rot90(kappa)
+        bcs = ['closed', 'closed', 'cyclic', 'cyclic']
+        model = hillslope.ftcs(h_init, delta, kappa, bcs)
+        model.run(t_end)
+        # # check error
+        h_error = np.abs(h_total-np.sum(model.get_height()))
+        self.assertTrue(h_error < epsilon)
+
 if __name__ == '__main__':
     unittest.main()
-

@@ -292,15 +292,15 @@ if __name__ == '__main__':
     nx = 100
     ny = 100
     max_time = 2.5
-    time_step = 0.01
+    time_step = 0.1
     h0 = np.random.rand(ny, nx).astype(np.double)-0.5
-    h0[:,0] = np.double(1.0) 
+    h0[:,0] = np.double(0.0) 
     h0[:,-1] = np.double(0.0)
     h0[0,:] = np.double(0.0)
     h0[-1,:] = np.double(0.0)
     dd = np.double(1.0)
     kk = np.ones((ny, nx), dtype=np.double)
-    bcs = ['constant', 'constant', 'cyclic', 'cyclic']
+    bcs = ['constant', 'constant', 'constant', 'constant']
     model = ftcs(h0, dd, kk, bcs)
     # # update and plot model
     plt.imshow(model.get_height(), interpolation='nearest', clim=(-0.5,0.5))
