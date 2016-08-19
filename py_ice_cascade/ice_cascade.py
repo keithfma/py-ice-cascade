@@ -12,7 +12,7 @@ class model():
 
     # TODO: Document details of input file and output file formatting
 
-    def __init__(self, input_file, output_file):
+    def __init__(self, input_file, output_file, verbose=False):
         """
         Initialize model from netCDF file containing initial data and model
         parameters. See class docstring for input / output file format
@@ -32,7 +32,6 @@ class model():
         """Read initial data and model parameters from netCDF file"""
         print("READ INPUT: "+self._input_file)
 
-    def _create_output(self):
         """Create output netCDF file for model results"""
         print("CREATE OUTPUT: "+self._output_file)
 
@@ -63,8 +62,10 @@ def cli():
         help='input netCDF file name', required=True)
     parser.add_argument('-o', '--output_file', type=str, default='out.nc',
         help='output netCDF file name', required=True)
+    parser.add_argument('-v', '--verbose', action='store_true',
+        help='verbose progress messages')
     args = parser.parse_args()
 
     # init and run model
-    mod = model(args.input_file, args.output_file)
+    mod = model(args.input_file, args.output_file, verbose=args.verbose)
     mod.run()
