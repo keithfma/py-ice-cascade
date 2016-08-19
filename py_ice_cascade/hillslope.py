@@ -158,7 +158,7 @@ class ftcs():
         if self._kappa.ndim != 2:
             print("hillslope: diffusivity is not a 2D array"); sys.exit()
         if self._kappa.shape != (self._ny, self._nx):
-            print("hillslope: diffusitity grid dims do not match height grid"); sys.exit()
+            print("hillslope: diffusivity grid dims do not match height grid"); sys.exit()
         self._set_coeff_matrix()
 
     def _set_coeff_matrix(self):
