@@ -91,6 +91,7 @@ class model():
         for self._step in range(self._num_steps):
 
             # synchronize model components
+            self._model_hill.set_height(self._zrx)
 
             # run climate component simulations
 
@@ -161,4 +162,15 @@ def cli():
     # init and run model
     mod = model(args.input_file, args.output_file, verbose=args.verbose, 
         display=args.display)
+    mod.run()
+
+# example usage and "smell test"
+if __name__ == '__main__':
+
+    input_file = None
+    output_file = None
+    verbose = True
+    display = True
+
+    mod = model(input_file, output_file, verbose, display)
     mod.run()
