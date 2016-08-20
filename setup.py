@@ -18,5 +18,5 @@ setup(
 	install_requires=[],
 	entry_points={'console_scripts' : [
 		'ice-cascade = py_ice_cascade.ice_cascade:cli', 
-        'ice-cascade-create-example = py_ice_cascade.create_example:main']}
+        'ice-cascade-create-input = py_ice_cascade.create_input:cli']}
 )

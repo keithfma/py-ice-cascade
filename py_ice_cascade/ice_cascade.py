@@ -140,9 +140,9 @@ def cli():
     Command-line front-end for Python ICE-CASCADE glacial-fluvial-hillslope
     landscape evolution model. 
     
-    Parses command-line arguments and runs the
-    ICE-CASCADE model. Installed as a console-script called "ice-cascade".
-    Additional help can be accessed with the command `ice-cascade -h`.
+    Parses command-line arguments and runs the ICE-CASCADE model. Installed as
+    a console-script called *ice-cascade*.  Additional help can be accessed with
+    the command `ice-cascade -h`.
     """
 
     # get command line arguments
