@@ -22,6 +22,25 @@ class model():
     # advantage is the the IO formatting will ALL be contained in this model
     # class --- so orothogonal!
 
+    input_file = None
+    output_file = "junk.out.nc"
+    verbose = True
+    display = True
+    ny = 50
+    nx = 100
+    lx = 1.0
+    delta = lx/(nx-1) 
+    ly = delta*(ny-1)
+    x = np.linspace(0, lx, nx).reshape(1,nx)
+    y = np.linspace(0, ly, ny).reshape(ny, 1)
+    zrx = np.pad(np.random.rand(ny-2, nx-2), 1, 'constant', constant_values=0)
+    time_start = 0.0
+    time_step = 0.1
+    num_steps = 10 # must be >= 2
+    out_steps = [0,9] # must include 0
+    hill_kappa = 0.01*np.ones((ny, nx))
+    hill_bc = ['constant']*4
+
     def __init__(self, input_file, output_file, verbose=False, display=False):
         """
         Initialize model from netCDF file containing initial data and model
@@ -56,23 +75,6 @@ class model():
         if self._verbose:
             print("ice-cascade: read input file")
 
-        # DEBUG: test pipeline by setting attributes directly for now
-        # # common
-        self._ny = 50
-        self._nx = 100
-        lx = 1.0
-        self._delta = lx/(self._nx-1) 
-        ly = self._delta*(self._ny-1)
-        self._x = np.linspace(0, lx, self._nx).reshape(1,self._nx)
-        self._y = np.linspace(0, ly, self._ny).reshape(self._ny, 1)
-        self._zrx = np.pad(np.random.rand(self._ny-2, self._nx-2), 1, 'constant', constant_values=0)
-        self._time_start = 0.0
-        self._time_step = 0.1
-        self._num_steps = 10 # must be >= 2
-        self._out_steps = [0,9] # must include 0
-        # # hillslope
-        self._hill_kappa = 0.01*np.ones((self._ny, self._nx))
-        self._hill_bc = ['constant']*4
 
     def _create_output(self):
         """Create output netCDF file for model state/results"""
@@ -228,10 +230,32 @@ def cli():
 # example usage and "smell test"
 if __name__ == '__main__':
 
+    # parameters
     input_file = None
     output_file = "junk.out.nc"
     verbose = True
     display = True
+    ny = 50
+    nx = 100
+    lx = 1.0
+    delta = lx/(nx-1) 
+    ly = delta*(ny-1)
+    x = np.linspace(0, lx, nx).reshape(1,nx)
+    y = np.linspace(0, ly, ny).reshape(ny, 1)
+    zrx = np.pad(np.random.rand(ny-2, nx-2), 1, 'constant', constant_values=0)
+    time_start = 0.0
+    time_step = 0.1
+    num_steps = 10 # must be >= 2
+    out_steps = [0,9] # must include 0
+    hill_kappa = 0.01*np.ones((ny, nx))
+    hill_bc = ['constant']*4
+
+    # Example 1: init model directly and run
+    mod = model()
+
+    # Example 2: init model and generate input file
+
+    # Example 3: run model from input file
 
     mod = model(input_file, output_file, verbose, display)
     mod.run()
