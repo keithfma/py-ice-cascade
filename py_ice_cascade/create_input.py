@@ -7,6 +7,25 @@ import os
 import sys
 import netCDF4
 
+def template(filename, clobber=False):
+    """
+    Create a template input file for the Python ICE-CASCADE
+    landscape evolution model. The template defines the expected dimensions,
+    variables, and attributes.  
+    
+    To set up a model run, create a template file, then open it for editing and
+    populate the values. Using the netCDF4 package (http://unidata.github.io/netcdf4-python/):
+
+    .. code-block:: python
+       import py_ice_cascade
+       import netCDF4
+       import shutil
+       py_ice_cascade.create_input.template("my_experiment.in.nc", clobber=True)
+       rootgrp = netCDF4.Dataset("my_experiment.in.nc", mode="a")
+       # ...populate values here...
+       rootgrp.close()
+    """
+
 def hill_only(clobber):
     """Create input file for hillslope diffusion only example case"""
 
@@ -14,7 +33,11 @@ def hill_only(clobber):
     filename = 'hill_only.in.nc'
     rootgrp = netCDF4.Dataset(filename, "w", format="NETCDF4", clobber=clobber)
 
+    # create dimensions
+
+    # create variables
     
+    # create attributes
 
 
 def main():
