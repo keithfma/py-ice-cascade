@@ -3,6 +3,14 @@ Console script with options to create input files for example cases
 """
 
 import argparse
+import os
+import sys
+
+def no_clobber(filename):
+    """Abort overwriting existing files"""
+    if os.path.exists(filename):
+        print("create_example: file '{}' exists, aborting".format(filename))
+        sys.exit()  
 
 def hill_only(filename):
     """Create input file for hillslope diffusion only example case"""
@@ -22,6 +30,7 @@ def main():
     args = parser.parse_args()
 
     # create input file for selected example case
+    no_clobber(args.filename)
     if args.case == 'hill_only':
         hill_only(args.filename)
 
