@@ -15,6 +15,17 @@ import matplotlib.pyplot as plt
 import scipy.sparse
 import sys
 
+class null():
+    """Do-nothing class to be used for disabled hillslope component"""
+    def __init__():
+        pass
+    def set_height(self, new):
+        self._height = np.double(new) 
+    def set_diffusivity(self, new):
+        pass
+    def get_height(self):
+        return self._height
+
 class ftcs():
     r"""
     Hillslope diffusion model using forward-time center-space (FTCS) finite
@@ -143,7 +154,7 @@ class ftcs():
         new_array = np.copy(np.double(new))
         if new_array.ndim != 2:
             print("hillslope: height is not a 2D array"); sys.exit()
-        if (self._height != None) and (new_array.shape != (self._ny, self._nx)):
+        if type(self._height) is np.ndarray and new_array.shape != (self._ny, self._nx):
             print("hillslope: cannot change shape of height grid"); sys.exit()
         self._ny, self._nx = new_array.shape
         self._height = np.ravel(new_array, order='C')
