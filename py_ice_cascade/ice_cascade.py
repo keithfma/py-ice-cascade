@@ -6,6 +6,7 @@ import argparse
 import numpy as np
 import matplotlib.pyplot as plt
 import py_ice_cascade
+import netCDF4
 
 class model():
     """
@@ -14,6 +15,12 @@ class model():
     """
 
     # TODO: Document details of input file and output file formatting
+
+    # TODO: Make it possible to directly initialize the ice-cascade model from
+    # variables. In this way, the _create_output function (or some variant) can
+    # be used to create an input file by dumping the model state. The big
+    # advantage is the the IO formatting will ALL be contained in this model
+    # class --- so orothogonal!
 
     def __init__(self, input_file, output_file, verbose=False, display=False):
         """
@@ -61,20 +68,74 @@ class model():
         self._zrx = np.pad(np.random.rand(self._ny-2, self._nx-2), 1, 'constant', constant_values=0)
         self._time_start = 0.0
         self._time_step = 0.1
-        self._num_steps = 10
-        self._out_steps = [0,9]
+        self._num_steps = 10 # must be >= 2
+        self._out_steps = [0,9] # must include 0
         # # hillslope
         self._hill_kappa = 0.01*np.ones((self._ny, self._nx))
         self._hill_bc = ['constant']*4
 
     def _create_output(self):
-        """Create output netCDF file for model results"""
+        """Create output netCDF file for model state/results"""
 
         if self._verbose:
             print("ice-cascade: create output file")
+
+        # create file
+        nc = netCDF4.Dataset(self._output_file, "w", format="NETCDF4", clobber=False)
         
-        # NOTE: is there an easy way to print an overview of the output file,
-        # like ncdump -h? This would be a useful addition to verbose output
+        # create dimensions
+        dim_x    = nc.createDimension('x', size = self._nx)
+        dim_y    = nc.createDimension('y', size = self._ny)
+        dim_time = nc.createDimension('time', size = len(self._out_steps))
+
+        # create and populate variables
+        var_x = nc.createVariable('x', np.double, dimensions=('x'))
+        var_x.long_name = 'x coordinate'
+        var_x.units = 'm'
+        var_x[:] = self._x
+
+        var_y = nc.createVariable('y', np.double, dimensions=('y'))
+        var_y.long_name = 'y coordinate'
+        var_y.units = 'm'
+        var_y[:] = self._y
+
+        var_time = nc.createVariable('time', np.double, dimensions=('time'))
+        var_time.long_name = 'time coordinate'
+        var_time.units = 'a'
+        var_time.start = self._time_start
+        var_time.step = self._time_step
+        var_time.num_steps = self._num_steps
+        var_time.out_steps = self._out_steps 
+        var_time[0] = self._time_start
+    
+        var_zrx = nc.createVariable('zrx', np.double, dimensions=('y', 'x', 'time'))
+        var_zrx.long_name = 'bedrock surface elevation' 
+        var_zrx.units = 'm' 
+        var_zrx[:,:,0] = self._zrx 
+
+        var_hill_kappa = nc.createVariable('hill_kappa', np.double, dimensions=('y', 'x', 'time')) # scalar
+        var_hill_kappa.long_name = 'hillslope diffusivity'
+        var_hill_kappa.units = 'm^2 / a'
+        var_hill_kappa[:,:,0] = self._hill_kappa
+        
+        var_hill_bc_x0 = nc.createVariable('hill_bc_x0', str, dimensions=())
+        var_hill_bc_x0.long_name = 'hillslope boundary condition at x[0]' 
+        var_hill_bc_x0[...] = self._hill_bc[0]
+
+        var_hill_bc_x1 = nc.createVariable('hill_bc_x1', str, dimensions=())
+        var_hill_bc_x1.long_name = 'hillslope boundary condition at x[end]' 
+        var_hill_bc_x1[...] = self._hill_bc[1]
+        
+        var_hill_bc_y0 = nc.createVariable('hill_bc_y0', str, dimensions=())
+        var_hill_bc_y0.long_name = 'hillslope boundary condition at y[0]' 
+        var_hill_bc_y0[...] = self._hill_bc[2]
+
+        var_hill_bc_y1 = nc.createVariable('hill_bc_y1', str, dimensions=())
+        var_hill_bc_y1.long_name = 'hillslope boundary condition at y[end]' 
+        var_hill_bc_y1[...] = self._hill_bc[3]
+
+        # finalize
+        nc.close()
 
     def _write_output(self):
         """Write output step to file"""
@@ -168,7 +229,7 @@ def cli():
 if __name__ == '__main__':
 
     input_file = None
-    output_file = None
+    output_file = "junk.out.nc"
     verbose = True
     display = True
 
