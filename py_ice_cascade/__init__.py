@@ -11,4 +11,4 @@ _author_email = 'keithfma@gmail.com'
 # load modules
 import py_ice_cascade.ice_cascade as ice_cascade
 import py_ice_cascade.hillslope as hillslope
-import py_ice_cascade.create_input as create_input
+import py_ice_cascade.example as example
