@@ -122,14 +122,7 @@ class ftcs():
             bc = List of boundary conditions names for [y=0, y=end, x=0, x=end]
         """
 
-        self._height = None
-        self._delta = None
-        self._kappa = None
-        self._bc = None
-        self._A = None
-        self._nx = None
-        self._ny = None
-
+        self._valid_bc = set(['constant', 'closed', 'open', 'cyclic', 'mirror'])
         self._delta = np.copy(np.double(delta))
         self._set_bc(bc)
         self.set_height(height)
@@ -141,8 +134,7 @@ class ftcs():
         self._bc = list(new)
         if len(self._bc) != 4:
             raise ValueError("invalid number of BCs")
-        valid_bc = set(['constant', 'closed', 'open', 'cyclic', 'mirror'])
-        if not set(self._bc).issubset(valid_bc):
+        if not set(self._bc).issubset(self._valid_bc):
             raise ValueError("invalid BC name")
         if (self._bc[0] == 'cyclic' or self._bc[1] == 'cyclic') and self._bc[0] != self._bc[1]:
             raise ValueError(": unmatched y-dir cyclic BC")
@@ -154,8 +146,6 @@ class ftcs():
         new_array = np.copy(np.double(new))
         if new_array.ndim != 2:
             print("hillslope: height is not a 2D array"); sys.exit()
-        if type(self._height) is np.ndarray and new_array.shape != (self._ny, self._nx):
-            print("hillslope: cannot change shape of height grid"); sys.exit()
         self._ny, self._nx = new_array.shape
         self._height = np.ravel(new_array, order='C')
 
