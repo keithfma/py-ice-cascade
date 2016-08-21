@@ -144,9 +144,9 @@ class ftcs():
         valid_bc = set(['constant', 'closed', 'open', 'cyclic', 'mirror'])
         if not set(self._bc).issubset(valid_bc):
             print("hillslope: invalid BC name"); sys.exit()
-        if (self._bc[0] == 'cyclic' or self._bc[1] == 'cyclic') and self._bc[0] != self.bc[1]:
+        if (self._bc[0] == 'cyclic' or self._bc[1] == 'cyclic') and self._bc[0] != self._bc[1]:
             print("hillslope: unmatched y-dir cyclic BC"); sys.exit() 
-        if (self._bc[2] == 'cyclic' or self._bc[3] == 'cyclic') and self._bc[2] != self.bc[3]:
+        if (self._bc[2] == 'cyclic' or self._bc[3] == 'cyclic') and self._bc[2] != self._bc[3]:
             print("hillslope: unmatched x-dir cyclic BC"); sys.exit() 
 
     def set_height(self, new):
