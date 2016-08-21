@@ -18,9 +18,10 @@ class model():
     hillslope model components and handles input-output.
     """
 
-    def __init__(self, input_file=None, output_file=None, x=None, y=None, zrx=None,
-        time_start=None, time_step=None, num_steps=None, out_steps=None,
-        hill_on=None, hill_kappa=None, hill_bc=None, verbose=False, display=False):
+    def __init__(self, input_file=None, output_file=None, x=None, y=None, 
+        zrx=None, time_start=None, time_step=None, num_steps=None, 
+        out_steps=None, hill_on=None, hill_kappa=None, hill_bc=None, 
+        verbose=False, display=False):
         """
         Initialize model state and parameters from file and variables. The
         input file is parsed first, then overwritten by any supplied variables.
@@ -154,47 +155,35 @@ class model():
         nc.createVariable('x', np.double, dimensions=('x'))
         nc['x'].long_name = 'x coordinate'
         nc['x'].units = 'm'
-
         nc.createVariable('y', np.double, dimensions=('y'))
         nc['y'].long_name = 'y coordinate'
         nc['y'].units = 'm'
-
         nc.createVariable('time', np.double, dimensions=('time'))
         nc['time'].long_name = 'time coordinate'
         nc['time'].units = 'a'
-
         nc.createVariable('time_step', np.double, dimensions=())
         nc['time_step'].long_name = 'time step'
         nc['time_step'].units = 'a'
-        
         nc.createVariable('num_steps', np.int64, dimensions=())
         nc['num_steps'].long_name = 'number of time steps'
         nc['num_steps'].units = '1'
-        
         nc.createVariable('out_steps', np.int64, dimensions=('time'))
         nc['out_steps'].long_name = 'model ouput step indices'
         nc['out_steps'].units = '1'
-    
         nc.createVariable('zrx', np.double, dimensions=('time', 'y', 'x'))
         nc['zrx'].long_name = 'bedrock surface elevation' 
         nc['zrx'].units = 'm' 
-
         nc.createVariable('hill_on', np.int, dimensions=())
         nc['hill_on'].long_name = 'hillslope model on/off flag'
-
         nc.createVariable('hill_kappa', np.double, dimensions=('time', 'y', 'x')) # scalar
         nc['hill_kappa'].long_name = 'hillslope diffusivity'
         nc['hill_kappa'].units = 'm^2 / a'
-        
         nc.createVariable('hill_bc_y0', str, dimensions=())
         nc['hill_bc_y0'].long_name = 'hillslope boundary condition at y[0]' 
-
         nc.createVariable('hill_bc_y1', str, dimensions=())
         nc['hill_bc_y1'].long_name = 'hillslope boundary condition at y[end]' 
-
         nc.createVariable('hill_bc_x0', str, dimensions=())
         nc['hill_bc_x0'].long_name = 'hillslope boundary condition at x[0]' 
-
         nc.createVariable('hill_bc_x1', str, dimensions=())
         nc['hill_bc_x1'].long_name = 'hillslope boundary condition at x[end]' 
         
@@ -221,12 +210,26 @@ class model():
                 self._time, self._step))
 
         ii = list(self._out_steps).index(self._step) 
-        print(ii)
         nc = netCDF4.Dataset(self._output_file, "a")
         nc['time'][ii] = self._time
         nc['zrx'][ii,:,:] = self._zrx
         nc['hill_kappa'][ii,:,:] = self._hill_kappa
         nc.close()
+
+        # plot model state for debugging
+        if self._display:
+            plt.clf()
+            plt.ion()
+            plt.imshow(self._zrx, extent=[np.min(self._x), np.max(self._x), 
+                np.min(self._y), np.max(self._y)], interpolation='nearest', 
+                aspect='equal')
+            plt.colorbar()
+            plt.title('Bedrock elev, step = {}, time = {:.3f}'.format(
+                self._step, self._time))
+            plt.xlabel("X")
+            plt.ylabel("Y")
+            plt.show(block=False)
+            plt.waitforbuttonpress()
 
     def _from_netcdf(self):
         """Read model state and parameters from first time step in netCDF file"""
@@ -285,26 +288,9 @@ class model():
             # write output and/or display model state
             if self._step in self._out_steps:
                 self._to_netcdf()
-                if self._display:
-                    self._plot()
 
         if self._verbose:
             print("ice-cascade: simulation complete")
-    
-    def _plot(self):
-        """Plot model state for debugging and demonstration purposes"""
-        plt.clf()
-        plt.ion()
-        plt.imshow(self._zrx, extent=[np.min(self._x), np.max(self._x), 
-            np.min(self._y), np.max(self._y)], interpolation='nearest', 
-            aspect='equal')
-        plt.colorbar()
-        plt.title('Bedrock elev, step = {}, time = {:.3f}'.format(
-            self._step, self._time))
-        plt.xlabel("X")
-        plt.ylabel("Y")
-        plt.show(block=False)
-        plt.waitforbuttonpress()
 
 def cli():
     """
@@ -331,8 +317,8 @@ def cli():
     args = parser.parse_args()
 
     # init and run model
-    mod = model(args.input_file, args.output_file, verbose=args.verbose, 
-        display=args.display)
+    mod = model(input_file=args.input_file, output_file=args.output_file, 
+        verbose=args.verbose, display=args.display)
     mod.run()
 
 # example usage and "smell test"
@@ -373,5 +359,4 @@ if __name__ == '__main__':
     # # Example 3: run model from input file
     print('--- Example 3 ---')
     mod3 = model(input_file='ex2.out.nc', output_file='ex3.out.nc', verbose=True)
-    mod2.run()
-
+    mod3.run()
