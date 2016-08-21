@@ -145,53 +145,62 @@ class model():
         # create dimensions
         nc.createDimension('x', size = self._nx)
         nc.createDimension('y', size = self._ny)
-        nc.createDimension('time', size = None)
+        nc.createDimension('time', size = self._num_steps)
 
-        # create and populate variables
+        # create variables
         nc.createVariable('x', np.double, dimensions=('x'))
         nc['x'].long_name = 'x coordinate'
         nc['x'].units = 'm'
-        nc['x'][:] = self._x
 
-        var_y = nc.createVariable('y', np.double, dimensions=('y'))
-        var_y.long_name = 'y coordinate'
-        var_y.units = 'm'
-        var_y[:] = self._y
+        nc.createVariable('y', np.double, dimensions=('y'))
+        nc['y'].long_name = 'y coordinate'
+        nc['y'].units = 'm'
 
-        var_time = nc.createVariable('time', np.double, dimensions=('time'))
-        var_time.long_name = 'time coordinate'
-        var_time.units = 'a'
-        var_time.start = self._time_start
-        var_time.step = self._time_step
-        var_time.num_steps = self._num_steps
-        var_time.out_steps = self._out_steps 
-        var_time[0] = self._time_start
-    
-        var_zrx = nc.createVariable('zrx', np.double, dimensions=('y', 'x', 'time'))
-        var_zrx.long_name = 'bedrock surface elevation' 
-        var_zrx.units = 'm' 
-        var_zrx[:,:,0] = self._zrx 
+        nc.createVariable('time', np.double, dimensions=('time'))
+        nc['time'].long_name = 'time coordinate'
+        nc['time'].units = 'a'
 
-        var_hill_kappa = nc.createVariable('hill_kappa', np.double, dimensions=('y', 'x', 'time')) # scalar
-        var_hill_kappa.long_name = 'hillslope diffusivity'
-        var_hill_kappa.units = 'm^2 / a'
-        var_hill_kappa[:,:,0] = self._hill_kappa
+        nc.createVariable('time_step', np.double, dimensions=())
+        nc['time_step'].long_name = 'time step'
+        nc['time_step'].units = 'a'
         
-        var_hill_bc_y0 = nc.createVariable('hill_bc_y0', str, dimensions=())
-        var_hill_bc_y0.long_name = 'hillslope boundary condition at y[0]' 
-        var_hill_bc_y0[...] = self._hill_bc[0]
+        nc.createVariable('num_steps', np.int64, dimensions=())
+        nc['num_steps'].long_name = 'number of time steps'
+        nc['num_steps'].units = '1'
+        
+        nc.createVariable('step', np.int64, dimensions=('time'))
+        nc['step'].long_name = 'model step counter'
+        nc['step'].units = '1'
+    
+        nc.createVariable('zrx', np.double, dimensions=('y', 'x', 'time'))
+        nc['zrx'].long_name = 'bedrock surface elevation' 
+        nc['zrx'].units = 'm' 
 
-        var_hill_bc_y1 = nc.createVariable('hill_bc_y1', str, dimensions=())
-        var_hill_bc_y1.long_name = 'hillslope boundary condition at y[end]' 
-        var_hill_bc_y1[...] = self._hill_bc[1]
+        nc.createVariable('hill_kappa', np.double, dimensions=('y', 'x', 'time')) # scalar
+        nc['hill_kappa'].long_name = 'hillslope diffusivity'
+        nc['hill_kappa'].units = 'm^2 / a'
+        
+        nc.createVariable('hill_bc_y0', str, dimensions=())
+        nc['hill_bc_y0'].long_name = 'hillslope boundary condition at y[0]' 
 
-        var_hill_bc_x0 = nc.createVariable('hill_bc_x0', str, dimensions=())
-        var_hill_bc_x0.long_name = 'hillslope boundary condition at x[0]' 
-        var_hill_bc_x0[...] = self._hill_bc[2]
+        nc.createVariable('hill_bc_y1', str, dimensions=())
+        nc['hill_bc_y1'].long_name = 'hillslope boundary condition at y[end]' 
 
-        var_hill_bc_x1 = nc.createVariable('hill_bc_x1', str, dimensions=())
-        var_hill_bc_x1.long_name = 'hillslope boundary condition at x[end]' 
-        var_hill_bc_x1[...] = self._hill_bc[3]
+        nc.createVariable('hill_bc_x0', str, dimensions=())
+        nc['hill_bc_x0'].long_name = 'hillslope boundary condition at x[0]' 
+
+        nc.createVariable('hill_bc_x1', str, dimensions=())
+        nc['hill_bc_x1'].long_name = 'hillslope boundary condition at x[end]' 
+        
+        # populate constant variables   
+        nc['x'][:] = self._x
+        nc['y'][:] = self._y
+        nc['time_step'][...] = self._time_step
+        nc['num_steps'][...] = self._num_steps
+        nc['hill_bc_y0'][...] = self._hill_bc[0]
+        nc['hill_bc_y1'][...] = self._hill_bc[1]
+        nc['hill_bc_x0'][...] = self._hill_bc[2]
+        nc['hill_bc_x1'][...] = self._hill_bc[3]
 
         # finalize
         nc.close()
