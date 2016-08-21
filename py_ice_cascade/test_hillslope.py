@@ -8,12 +8,22 @@ References:
 
 import unittest
 import numpy as np
-import hillslope
+from py_ice_cascade import hillslope
 
 import matplotlib.pyplot as plt # debug only
 
 class ftcs_TestCase(unittest.TestCase):
     """Tests for hillslope ftcs model component"""
+
+    def test_input_cyclic_bc(self):
+        """Unmatched cyclic BCs should throw an error"""
+        hh = np.random.rand(10,10)
+        dd = 1.0
+        kk = np.ones((10,10))
+        self.assertRaises(ValueError, hillslope.ftcs, hh, dd, kk, ['cyclic', 'constant', 'constant', 'constant'])
+        self.assertRaises(ValueError, hillslope.ftcs, hh, dd, kk, ['constant', 'cyclic', 'constant', 'constant'])
+        self.assertRaises(ValueError, hillslope.ftcs, hh, dd, kk, ['constant', 'constant', 'cyclic', 'constant'])
+        self.assertRaises(ValueError, hillslope.ftcs, hh, dd, kk, ['constant', 'constant', 'constant', 'cyclic'])
 
     def test_steady_bc_constant(self):
         """Compare against exact solution for sinusoid y=max and zero at other bnd"""

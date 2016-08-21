@@ -140,14 +140,14 @@ class ftcs():
         # NOTE: does not update coefficient matrix
         self._bc = list(new)
         if len(self._bc) != 4:
-            print("hillslope: invalid number of BCs"); sys.exit()
+            raise ValueError("invalid number of BCs")
         valid_bc = set(['constant', 'closed', 'open', 'cyclic', 'mirror'])
         if not set(self._bc).issubset(valid_bc):
-            print("hillslope: invalid BC name"); sys.exit()
+            raise ValueError("invalid BC name")
         if (self._bc[0] == 'cyclic' or self._bc[1] == 'cyclic') and self._bc[0] != self._bc[1]:
-            print("hillslope: unmatched y-dir cyclic BC"); sys.exit() 
+            raise ValueError(": unmatched y-dir cyclic BC")
         if (self._bc[2] == 'cyclic' or self._bc[3] == 'cyclic') and self._bc[2] != self._bc[3]:
-            print("hillslope: unmatched x-dir cyclic BC"); sys.exit() 
+            raise ValueError("unmatched x-dir cyclic BC")
 
     def set_height(self, new):
         """Set height grid"""
