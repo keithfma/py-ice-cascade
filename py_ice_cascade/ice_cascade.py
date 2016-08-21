@@ -47,25 +47,26 @@ class model():
         """
         
         # store select arguments
+        self._input_file = input_file
         self._output_file = output_file
         self._verbose = verbose
         self._display = display
 
         # init from file
         if input_file is not None:
-            self.from_netcdf(input_file)
+            self._from_netcdf()
         
         # init from optional vars, overwriting
-        if x is not None: self._x = x
-        if y is not None: self._y = y 
-        if zrx is not None: self._zrx = zrx 
+        if x is not None: self._x = np.copy(x)
+        if y is not None: self._y = np.copy(y) 
+        if zrx is not None: self._zrx = np.copy(zrx) 
         if time_start is not None: self._time_start = time_start 
         if time_step is not None: self._time_step = time_step 
         if num_steps is not None: self._num_steps = num_steps 
-        if out_steps is not None: self._out_steps = out_steps 
-        if hill_on is not None: self._hill_on = hill_on 
-        if hill_kappa is not None: self._hill_kappa = hill_kappa 
-        if hill_bc is not None: self._hill_bc = hill_bc 
+        if out_steps is not None: self._out_steps = np.copy(out_steps) 
+        if hill_on is not None: self._hill_on = bool(hill_on)
+        if hill_kappa is not None: self._hill_kappa = np.copy(hill_kappa)
+        if hill_bc is not None: self._hill_bc = list(hill_bc)
 
         # confirm valid state and parameters
         if self._output_file is None:
@@ -107,7 +108,7 @@ class model():
             self._abort("expected numpy array with at least 2 elements for out_steps")
         if self._out_steps[0] != 0:
             self._abort("output steps must begin with 0th")
-        if self._out_steps[-1] != self._num_steps-1:
+        if self._out_steps[-1] != self._num_steps:
             self._abort("output steps must end with last")
         if self._hill_on not in [True, False]:
             self._abort("hill_on parameter must be boolean")
@@ -220,6 +221,7 @@ class model():
                 self._time, self._step))
 
         ii = list(self._out_steps).index(self._step) 
+        print(ii)
         nc = netCDF4.Dataset(self._output_file, "a")
         nc['time'][ii] = self._time
         nc['zrx'][ii,:,:] = self._zrx
@@ -234,12 +236,17 @@ class model():
 
         nc = netCDF4.Dataset(self._input_file, "r")
         self._x = nc['x'][:]
+        self._nx = self._x.size
+        self._x = self._x.reshape(1, self._nx)
         self._y = nc['y'][:]
-        self._time_step = nc['time_step']
-        self._num_steps = nc['num_steps']
+        self._ny = self._y.size
+        self._y = self._y.reshape(self._ny, 1)
+        self._time_start = nc['time'][0]
+        self._time_step = np.asscalar(nc['time_step'][...])
+        self._num_steps = np.asscalar(nc['num_steps'][...])
         self._out_steps = nc['out_steps'][:] 
         self._zrx = nc['zrx'][0,:,:]
-        self._hill_on = nc['hill_on'][...]
+        self._hill_on = np.asscalar(nc['hill_on'][...])
         self._hill_kappa = nc['hill_kappa'][0,:,:]
         self._hill_bc = [nc['hill_bc_y0'][...], nc['hill_bc_y1'][...], 
             nc['hill_bc_x0'][...], nc['hill_bc_x1'][...]]
@@ -251,7 +258,7 @@ class model():
         if self._verbose:
             print("ice-cascade: running simulation")
         
-        for self._step in range(self._num_steps):
+        while self._step < self._num_steps:
 
             # synchronize model components
             self._model_hill.set_height(self._zrx)
@@ -273,6 +280,7 @@ class model():
             # advance time step 
             self._zrx += delta_zrx
             self._time += self._time_step
+            self._step += 1
 
             # write output and/or display model state
             if self._step in self._out_steps:
@@ -342,12 +350,13 @@ if __name__ == '__main__':
     time_start = 0.0
     time_step = 0.1
     num_steps = 10
-    out_steps = np.array([0,9]) 
+    out_steps = np.array([0,10]) 
     hill_on = True
     hill_kappa = 0.01*np.ones((ny, nx))
     hill_bc = ['constant']*4
 
     # Example 1: init model directly and run
+    print('--- Example 1 ---')
     mod1 = model(output_file='ex1.out.nc', x=x, y=y, zrx=zrx,
         time_start=time_start, time_step=time_step, num_steps=num_steps,
         out_steps=out_steps, hill_on=hill_on, hill_kappa=hill_kappa,
@@ -355,11 +364,14 @@ if __name__ == '__main__':
     mod1.run()
 
     # Example 2: init model, generating input file but not running
+    print('--- Example 2 ---')
     mod2 = model(output_file='ex2.out.nc', x=x, y=y, zrx=zrx,
         time_start=time_start, time_step=time_step, num_steps=num_steps,
         out_steps=out_steps, hill_on=hill_on, hill_kappa=hill_kappa,
         hill_bc=hill_bc, verbose=True)
 
     # # Example 3: run model from input file
-    # mod3 = model(input_file='ex2.out.nc', output_file='ex3.out.nc', verbose=True)
+    print('--- Example 3 ---')
+    mod3 = model(input_file='ex2.out.nc', output_file='ex3.out.nc', verbose=True)
+    mod2.run()
 
