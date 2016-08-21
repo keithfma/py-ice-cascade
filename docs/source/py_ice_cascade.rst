@@ -4,6 +4,14 @@ py_ice_cascade package
 Submodules
 ----------
 
+py_ice_cascade.example module
+-----------------------------
+
+.. automodule:: py_ice_cascade.example
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 py_ice_cascade.hillslope module
 -------------------------------
 
