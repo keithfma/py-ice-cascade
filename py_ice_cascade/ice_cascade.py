@@ -101,8 +101,10 @@ class model():
             self._abort("missing required parameter 'num_steps'")
         if hasattr(self._num_steps, '__len__'):
             self._abort("expected scalar for num_steps")
-        if len(self._out_steps) < 2:
-            self._abort("expected list with at least 2 elements for out_steps")
+        if self._num_steps < 2:
+            self._abort("must have at least two steps")
+        if self._out_steps.size < 2:
+            self._abort("expected numpy array with at least 2 elements for out_steps")
         if self._out_steps[0] != 0:
             self._abort("output steps must begin with 0th")
         if self._out_steps[-1] != self._num_steps-1:
@@ -145,7 +147,7 @@ class model():
         # create dimensions
         nc.createDimension('x', size = self._nx)
         nc.createDimension('y', size = self._ny)
-        nc.createDimension('time', size = self._num_steps)
+        nc.createDimension('time', size = len(list(self._out_steps)))
 
         # create variables
         nc.createVariable('x', np.double, dimensions=('x'))
@@ -168,15 +170,18 @@ class model():
         nc['num_steps'].long_name = 'number of time steps'
         nc['num_steps'].units = '1'
         
-        nc.createVariable('step', np.int64, dimensions=('time'))
-        nc['step'].long_name = 'model step counter'
-        nc['step'].units = '1'
+        nc.createVariable('out_steps', np.int64, dimensions=('time'))
+        nc['out_steps'].long_name = 'model ouput step indices'
+        nc['out_steps'].units = '1'
     
-        nc.createVariable('zrx', np.double, dimensions=('y', 'x', 'time'))
+        nc.createVariable('zrx', np.double, dimensions=('time', 'y', 'x'))
         nc['zrx'].long_name = 'bedrock surface elevation' 
         nc['zrx'].units = 'm' 
 
-        nc.createVariable('hill_kappa', np.double, dimensions=('y', 'x', 'time')) # scalar
+        nc.createVariable('hill_on', np.int, dimensions=())
+        nc['hill_on'].long_name = 'hillslope model on/off flag'
+
+        nc.createVariable('hill_kappa', np.double, dimensions=('time', 'y', 'x')) # scalar
         nc['hill_kappa'].long_name = 'hillslope diffusivity'
         nc['hill_kappa'].units = 'm^2 / a'
         
@@ -197,6 +202,8 @@ class model():
         nc['y'][:] = self._y
         nc['time_step'][...] = self._time_step
         nc['num_steps'][...] = self._num_steps
+        nc['out_steps'][:] = self._out_steps
+        nc['hill_on'][...] = self._hill_on
         nc['hill_bc_y0'][...] = self._hill_bc[0]
         nc['hill_bc_y1'][...] = self._hill_bc[1]
         nc['hill_bc_x0'][...] = self._hill_bc[2]
@@ -209,45 +216,34 @@ class model():
         """Append model state and parameters to netCDF file"""
 
         if self._verbose:
-            print("ice-cascade: append model state and parameters to netCDF file")
+            print("ice-cascade: write model state at time = {:.2f}, step = {}".format(
+                self._time, self._step))
 
-        # # open file for editing
-        # nc = netCDF4.Dataset(self._output_file, "a", format="NETCDF4", clobber=False)
-
-        # var_time[0] = self._time_start
-    
-        # var_zrx = nc.createVariable('zrx', np.double, dimensions=('y', 'x', 'time'))
-        # var_zrx.long_name = 'bedrock surface elevation' 
-        # var_zrx.units = 'm' 
-        # var_zrx[:,:,0] = self._zrx 
-
-        # var_hill_kappa = nc.createVariable('hill_kappa', np.double, dimensions=('y', 'x', 'time')) # scalar
-        # var_hill_kappa.long_name = 'hillslope diffusivity'
-        # var_hill_kappa.units = 'm^2 / a'
-        # var_hill_kappa[:,:,0] = self._hill_kappa
-        # 
-        # var_hill_bc_y0 = nc.createVariable('hill_bc_y0', str, dimensions=())
-        # var_hill_bc_y0.long_name = 'hillslope boundary condition at y[0]' 
-        # var_hill_bc_y0[...] = self._hill_bc[0]
-
-        # var_hill_bc_y1 = nc.createVariable('hill_bc_y1', str, dimensions=())
-        # var_hill_bc_y1.long_name = 'hillslope boundary condition at y[end]' 
-        # var_hill_bc_y1[...] = self._hill_bc[1]
-
-        # var_hill_bc_x0 = nc.createVariable('hill_bc_x0', str, dimensions=())
-        # var_hill_bc_x0.long_name = 'hillslope boundary condition at x[0]' 
-        # var_hill_bc_x0[...] = self._hill_bc[2]
-
-        # var_hill_bc_x1 = nc.createVariable('hill_bc_x1', str, dimensions=())
-        # var_hill_bc_x1.long_name = 'hillslope boundary condition at x[end]' 
-        # var_hill_bc_x1[...] = self._hill_bc[3]
+        ii = list(self._out_steps).index(self._step) 
+        nc = netCDF4.Dataset(self._output_file, "a")
+        nc['time'][ii] = self._time
+        nc['zrx'][ii,:,:] = self._zrx
+        nc['hill_kappa'][ii,:,:] = self._hill_kappa
+        nc.close()
 
     def _from_netcdf(self):
-        """Read model state and parameters from netCDF file"""
+        """Read model state and parameters from first time step in netCDF file"""
 
         if self._verbose:
             print("ice-cascade: read model state and parameters from netCDF file")
 
+        nc = netCDF4.Dataset(self._input_file, "r")
+        self._x = nc['x'][:]
+        self._y = nc['y'][:]
+        self._time_step = nc['time_step']
+        self._num_steps = nc['num_steps']
+        self._out_steps = nc['out_steps'][:] 
+        self._zrx = nc['zrx'][0,:,:]
+        self._hill_on = nc['hill_on'][...]
+        self._hill_kappa = nc['hill_kappa'][0,:,:]
+        self._hill_bc = [nc['hill_bc_y0'][...], nc['hill_bc_y1'][...], 
+            nc['hill_bc_x0'][...], nc['hill_bc_x1'][...]]
+        nc.close()
 
     def run(self):
         """Run model simulation and optionally write results to file"""
@@ -345,21 +341,25 @@ if __name__ == '__main__':
     zrx = np.pad(np.random.rand(ny-2, nx-2), 1, 'constant', constant_values=0)
     time_start = 0.0
     time_step = 0.1
-    num_steps = 10 # must be >= 2
-    out_steps = [0,9] # must include 0
+    num_steps = 10
+    out_steps = np.array([0,9]) 
     hill_on = True
     hill_kappa = 0.01*np.ones((ny, nx))
     hill_bc = ['constant']*4
-    file_name = "smell_test.nc"
 
     # Example 1: init model directly and run
-    mod = model(output_file=file_name, x=x, y=y, zrx=zrx,
+    mod1 = model(output_file='ex1.out.nc', x=x, y=y, zrx=zrx,
         time_start=time_start, time_step=time_step, num_steps=num_steps,
         out_steps=out_steps, hill_on=hill_on, hill_kappa=hill_kappa,
-        hill_bc=hill_bc, verbose=True, display=True)
-    mod.run()
+        hill_bc=hill_bc, verbose=True)
+    mod1.run()
 
-    # Example 2: init model and generate input file
+    # Example 2: init model, generating input file but not running
+    mod2 = model(output_file='ex2.out.nc', x=x, y=y, zrx=zrx,
+        time_start=time_start, time_step=time_step, num_steps=num_steps,
+        out_steps=out_steps, hill_on=hill_on, hill_kappa=hill_kappa,
+        hill_bc=hill_bc, verbose=True)
 
-    # Example 3: run model from input file
+    # # Example 3: run model from input file
+    # mod3 = model(input_file='ex2.out.nc', output_file='ex3.out.nc', verbose=True)
 
