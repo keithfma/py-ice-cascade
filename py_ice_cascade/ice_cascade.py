@@ -9,15 +9,18 @@ import py_ice_cascade
 import netCDF4
 import sys
 
+# NOTE: in __init__(), create the output_file and populate
+# the 0th time step. This can serve as an input file too.
+
 class model():
     """
     Composite landscape evolution model. Integrates glacial, fluvial, and
     hillslope model components and handles input-output.
     """
 
-    def __init__(self, input_file=None, x=None, y=None, zrx=None,
+    def __init__(self, input_file=None, output_file=None, x=None, y=None, zrx=None,
         time_start=None, time_step=None, num_steps=None, out_steps=None,
-        hill_on=None, hill_kappa=None, hill_bc=None):
+        hill_on=None, hill_kappa=None, hill_bc=None, verbose=False, display=False):
         """
         Initialize model state and parameters from file and variables. The
         input file is parsed first, then overwritten by any supplied variables.
@@ -25,6 +28,8 @@ class model():
         Arguments:
             input_file = String, filename of netCDF file containing initial
                 model state and parameters.
+            output_file = String, filename of netCDF file containing model
+                state and parameters
             x = 1 x nx numpy vector, x-coordinate, [m]
             y = ny x 1 numpy vector, y-coordinate, [m]
             zrx = grid, initial bedrock elevation, [m]
@@ -36,8 +41,16 @@ class model():
             hill_kappa = grid, hillslope diffusivity, [m^2 / a]
             hill_bc = list, hillslope model boundary conditions at [y[0],
                 y[end], x[0], x[end]. See hilllslope.py for details.
+            verbose = Boolean, show verbose progress messages
+            display = Boolean, plot model state at output time-steps, for
+                debugging or demonstration
         """
         
+        # store select arguments
+        self._output_file = output_file
+        self._verbose = verbose
+        self._display = display
+
         # init from file
         if input_file is not None:
             self.from_netcdf(input_file)
@@ -55,6 +68,8 @@ class model():
         if hill_bc is not None: self._hill_bc = hill_bc 
 
         # confirm valid state and parameters
+        if self._output_file is None:
+            self._abort("missing output file name") 
         if type(self._x) is not np.ndarray:
             self._abort("expect x to be a numpy array")
         self._nx = self._x.size
@@ -101,44 +116,42 @@ class model():
         if len(self._hill_bc) != 4:
             self._abort("expect list of 4 boundary conditions in hill_bc")
         
-        # initialize component models
+        # initialize component models (which include additional checks)
         if self._hill_on:
             self._model_hill = py_ice_cascade.hillslope.ftcs(self._zrx, 
                 self._delta, self._hill_kappa, self._hill_bc)
         else: 
             self._model_hill = py_ice_cascade.hillslope.null()
 
+        # init model time
+        self._time = self._time_start
+        self._step = 0
+
+        # create ouput file and write step 0
+        self._create_netcdf()
+        self._to_netcdf()
+
     def _abort(self, msg):
         """Print message and abort"""
         print("ice-cascade: " + msg)
         sys.exit()
 
-    def from_netcdf(self):
-        """Read model state and parameters from netCDF file"""
-
-        if self._verbose:
-            print("ice-cascade: read model state and parameters from netCDF file")
-
-
-    def to_netcdf(self):
-        """Write model state and parameters to new netCDF file"""
-
-        if self._verbose:
-            print("ice-cascade: write model state and parameters to netCDF file")
+    def _create_netcdf(self):
+        """Create new (empty) netCDF for model state and parameters"""
 
         # create file
         nc = netCDF4.Dataset(self._output_file, "w", format="NETCDF4", clobber=False)
         
         # create dimensions
-        dim_x    = nc.createDimension('x', size = self._nx)
-        dim_y    = nc.createDimension('y', size = self._ny)
-        dim_time = nc.createDimension('time', size = len(self._out_steps))
+        nc.createDimension('x', size = self._nx)
+        nc.createDimension('y', size = self._ny)
+        nc.createDimension('time', size = None)
 
         # create and populate variables
-        var_x = nc.createVariable('x', np.double, dimensions=('x'))
-        var_x.long_name = 'x coordinate'
-        var_x.units = 'm'
-        var_x[:] = self._x
+        nc.createVariable('x', np.double, dimensions=('x'))
+        nc['x'].long_name = 'x coordinate'
+        nc['x'].units = 'm'
+        nc['x'][:] = self._x
 
         var_y = nc.createVariable('y', np.double, dimensions=('y'))
         var_y.long_name = 'y coordinate'
@@ -179,35 +192,60 @@ class model():
         var_hill_bc_x1 = nc.createVariable('hill_bc_x1', str, dimensions=())
         var_hill_bc_x1.long_name = 'hillslope boundary condition at x[end]' 
         var_hill_bc_x1[...] = self._hill_bc[3]
-        
 
         # finalize
         nc.close()
 
-    def _write_step(self, verbose=False):
-        """Write output step to file"""
+    def _to_netcdf(self):
+        """Append model state and parameters to netCDF file"""
 
-        if verbose:
-            print("ice-cascade: write output for time = {:.3f}".format(self._time))
+        if self._verbose:
+            print("ice-cascade: append model state and parameters to netCDF file")
 
-    def run(self, output_file=None, verbose=False, display=False):
-        """
-        Run model simulation and optionally write results to file
-        
-        Arguments:
-            output_file = String, name of output netCDF file for results
-            verbose = Boolean, show verbose progress messages
-            display = Boolean, plot model state at output time-steps, for
-                debugging or demonstration
-        """
+        # # open file for editing
+        # nc = netCDF4.Dataset(self._output_file, "a", format="NETCDF4", clobber=False)
 
-        if verbose:
+        # var_time[0] = self._time_start
+    
+        # var_zrx = nc.createVariable('zrx', np.double, dimensions=('y', 'x', 'time'))
+        # var_zrx.long_name = 'bedrock surface elevation' 
+        # var_zrx.units = 'm' 
+        # var_zrx[:,:,0] = self._zrx 
+
+        # var_hill_kappa = nc.createVariable('hill_kappa', np.double, dimensions=('y', 'x', 'time')) # scalar
+        # var_hill_kappa.long_name = 'hillslope diffusivity'
+        # var_hill_kappa.units = 'm^2 / a'
+        # var_hill_kappa[:,:,0] = self._hill_kappa
+        # 
+        # var_hill_bc_y0 = nc.createVariable('hill_bc_y0', str, dimensions=())
+        # var_hill_bc_y0.long_name = 'hillslope boundary condition at y[0]' 
+        # var_hill_bc_y0[...] = self._hill_bc[0]
+
+        # var_hill_bc_y1 = nc.createVariable('hill_bc_y1', str, dimensions=())
+        # var_hill_bc_y1.long_name = 'hillslope boundary condition at y[end]' 
+        # var_hill_bc_y1[...] = self._hill_bc[1]
+
+        # var_hill_bc_x0 = nc.createVariable('hill_bc_x0', str, dimensions=())
+        # var_hill_bc_x0.long_name = 'hillslope boundary condition at x[0]' 
+        # var_hill_bc_x0[...] = self._hill_bc[2]
+
+        # var_hill_bc_x1 = nc.createVariable('hill_bc_x1', str, dimensions=())
+        # var_hill_bc_x1.long_name = 'hillslope boundary condition at x[end]' 
+        # var_hill_bc_x1[...] = self._hill_bc[3]
+
+    def _from_netcdf(self):
+        """Read model state and parameters from netCDF file"""
+
+        if self._verbose:
+            print("ice-cascade: read model state and parameters from netCDF file")
+
+
+    def run(self):
+        """Run model simulation and optionally write results to file"""
+
+        if self._verbose:
             print("ice-cascade: running simulation")
-
-        # create output file
         
-        self._time = self._time_start
-        self._step = 0
         for self._step in range(self._num_steps):
 
             # synchronize model components
@@ -233,11 +271,11 @@ class model():
 
             # write output and/or display model state
             if self._step in self._out_steps:
-                self._write_step(verbose)
-                if display:
+                self._to_netcdf()
+                if self._display:
                     self._plot()
 
-        if verbose:
+        if self._verbose:
             print("ice-cascade: simulation complete")
     
     def _plot(self):
@@ -303,12 +341,14 @@ if __name__ == '__main__':
     hill_on = True
     hill_kappa = 0.01*np.ones((ny, nx))
     hill_bc = ['constant']*4
+    file_name = "smell_test.nc"
 
     # Example 1: init model directly and run
-    mod = model(x=x, y=y, zrx=zrx, time_start=time_start, time_step=time_step,
-        num_steps=num_steps, out_steps=out_steps, hill_on=hill_on,
-        hill_kappa=hill_kappa, hill_bc=hill_bc)
-    mod.run(verbose=True, display=True)
+    mod = model(output_file=file_name, x=x, y=y, zrx=zrx,
+        time_start=time_start, time_step=time_step, num_steps=num_steps,
+        out_steps=out_steps, hill_on=hill_on, hill_kappa=hill_kappa,
+        hill_bc=hill_bc, verbose=True, display=True)
+    mod.run()
 
     # Example 2: init model and generate input file
 
