@@ -75,9 +75,6 @@ class linear():
         self._b = (uf-ui)/(tf-ti)
         self._a = ui-self._b*ti
 
-        # NOTE: this first test may not be needed, precomputation should catch errors
-        if self._ui.shape != self._uf.shape:
-            raise ValueError("Unequal dimensions for initial and final arrays")
         if self._tf <= self._ti:
             raise ValueError("Initial time must be before final time")
 
