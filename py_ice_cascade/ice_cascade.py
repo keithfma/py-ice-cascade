@@ -104,6 +104,8 @@ class model():
             zlib=zlib, complevel=complevel, shuffle=shuffle, chunksizes=chunksizes)
         nc['hill_kappa'].long_name = 'hillslope diffusivity'
         nc['hill_kappa'].units = 'm^2 / a'
+        nc['hill_kappa'].active = self._hill_kappa_active
+        nc['hill_kappa'].inactive = self._hill_kappa_inactive
         
         nc.createVariable('hill_bc', str, dimensions=('bc'))
         for ii in range(4):
@@ -155,6 +157,8 @@ class model():
         # TODO: test for a regular grid here
 
         if self._hill_on:
+            self._hill_kappa = np.ones((self._y.size, self._x.size), 
+                dtype=np.double)*self._hill_kappa_active
             self._model_hill = py_ice_cascade.hillslope.ftcs(self._zrx, 
                 self._delta, self._hill_kappa, self._hill_bc)
         else: 
@@ -163,7 +167,8 @@ class model():
 
     def set_param_from_var(self, x=None, y=None, zrx=None, time_start=None,
         time_step=None, num_steps=None, out_steps=None, hill_on=None,
-        hill_kappa=None, hill_bc=None, verbose=False):
+        hill_kappa_active=None, hill_kappa_inactive=None, hill_bc=None,
+        verbose=False):
         """
         Initialize model state and parameters from argument variables
 
@@ -179,7 +184,8 @@ class model():
             num_steps = scalar, total steps in simulation, i.e. duration, [1]
             out_steps = list, step numbers to write output, 0 is initial state, [1]
             hill_on = scalar, boolean flag, True to enable hillslope model
-            hill_kappa = grid, hillslope diffusivity, [m^2 / a]
+            hill_kappa_active = scalar, hillslope diffusivity where active, [m^2 / a]
+            hill_kappa_inactive = scalar, hillslope diffusivity where inactive, [m^2 / a]
             hill_bc = list, hillslope model boundary conditions at [y[0],
                 y[end], x[0], x[end]. See hilllslope.py for details.
             verbose = Boolean, set True to show verbose messages
@@ -204,8 +210,10 @@ class model():
             self._out_steps = np.copy(out_steps) 
         if hill_on is not None: 
             self._hill_on = bool(hill_on)
-        if hill_kappa is not None: 
-            self._hill_kappa = np.copy(hill_kappa)
+        if hill_kappa_active is not None: 
+            self._hill_kappa_active = np.copy(hill_kappa_active)
+        if hill_kappa_inactive is not None: 
+            self._hill_kappa_inactive = np.copy(hill_kappa_inactive)
         if hill_bc is not None: 
             self._hill_bc = list(hill_bc)
 
@@ -236,7 +244,8 @@ class model():
         self._num_steps = np.asscalar(nc['step'].num_steps)
         self._out_steps = nc['step'].out_steps
         self._hill_on = np.asscalar(nc.hillslope_on)
-        self._hill_kappa = nc['hill_kappa'][step,:,:]
+        self._hill_kappa_active = np.asscalar(nc['hill_kappa'].active)
+        self._hill_kappa_inactive = np.asscalar(nc['hill_kappa'].inactive)
         self._hill_bc = nc['hill_bc'][:]
         nc.close()
 
@@ -334,6 +343,8 @@ def cli():
         help='input netCDF file name')
     parser.add_argument('-o', '--output_file', type=str, default='out.nc',
         help='output netCDF file name')
+    parser.add_argument('-c', '--clobber', action='store_true',
+        help='enable overwriting output file')
     parser.add_argument('-v', '--verbose', action='store_true',
         help='show verbose progress messages')
     parser.add_argument('-d', '--display', action='store_true',
@@ -343,4 +354,4 @@ def cli():
     # init and run model
     mod = model()
     mod.set_param_from_file(args.input_file, verbose=args.verbose) 
-    mod.run(args.output_file, verbose=args.verbose, display=args.display)
+    mod.run(args.output_file, verbose=args.verbose, display=args.display, clobber=args.clobber)

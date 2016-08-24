@@ -25,13 +25,15 @@ def hill_only(clobber=False):
     num_steps = 10
     out_steps = np.arange(0,num_steps)
     hill_on = True
-    hill_kappa = 0.01*np.ones((ny, nx))
+    hill_kappa_active = 0.01
+    hill_kappa_inactive = 0.0
     hill_bc = ['constant']*4
     
     mod = py_ice_cascade.ice_cascade.model()
     mod.set_param_from_var(x=x, y=y, zrx=zrx, time_start=time_start,
         time_step=time_step, num_steps=num_steps, out_steps=out_steps,
-        hill_on=hill_on, hill_kappa=hill_kappa, hill_bc=hill_bc, verbose=True)
+        hill_on=hill_on, hill_kappa_active=hill_kappa_active,
+        hill_kappa_inactive=hill_kappa_inactive, hill_bc=hill_bc, verbose=True)
     mod.to_input_file('ex.hill_only.in.nc', clobber=True, verbose=True)
     mod.run('ex.hill_only.out.nc', clobber=True, verbose=True, display=False)
 
