@@ -22,7 +22,11 @@ class ftcs_TestCase(unittest.TestCase):
     bb = ['constant']*4
 
     def test_input_valid_bc(self):
-        pass
+        """Allow all supported BC names, and fail for others"""
+        hillslope.ftcs(self.hh, self.dd, self.kk, ['constant', 'closed', 'open', 'mirror'])
+        hillslope.ftcs(self.hh, self.dd, self.kk, ['cyclic', 'cyclic', 'constant', 'constant'])
+        self.assertRaises(ValueError, hillslope.ftcs, self.hh, self.dd, self.kk, 
+            ['ooga_booga', 'cyclic', 'constant', 'constant'])
 
     def test_input_cyclic_bc(self):
         """Unmatched cyclic BCs should throw an error"""

@@ -122,32 +122,34 @@ class ftcs():
             bc = List of boundary conditions names for [y=0, y=end, x=0, x=end]
         """
 
+        # set attributes
         self._valid_bc = set(['constant', 'closed', 'open', 'cyclic', 'mirror'])
         self._delta = np.copy(np.double(delta))
-        self._set_bc(bc)
+        self._bc = list(bc)
         self.set_height(height)
         self.set_diffusivity(kappa)
 
-    def _set_bc(self, new):
-        """Check and set boundary condition names"""
-        # NOTE: does not update coefficient matrix
-        self._bc = list(new)
-        if len(self._bc) != 4:
-            raise ValueError("invalid number of BCs")
+    def _check_dims(self, array):
+        """Check that array dims match model dims, or set model dims"""
+        if hasattr(self, '_nx') and array.shape != (self._ny, self._nx):
+            raise ValueError("Array dims do not match model dims")
+        else:
+            self._ny, self._nx = array.shape
+
+    def _check_bcs(self):
+        """Check for valid boundary condition selections"""
         if not set(self._bc).issubset(self._valid_bc):
-            raise ValueError("invalid BC name")
-        if (self._bc[0] == 'cyclic' or self._bc[1] == 'cyclic') and self._bc[0] != self._bc[1]:
-            raise ValueError(": unmatched y-dir cyclic BC")
-        if (self._bc[2] == 'cyclic' or self._bc[3] == 'cyclic') and self._bc[2] != self._bc[3]:
-            raise ValueError("unmatched x-dir cyclic BC")
+            raise ValueError("Invalid boundary condition name")
+        y_num_cyclic = sum([self._bc[ii]=='cyclic' for ii in range(0,2)])
+        x_num_cyclic = sum([self._bc[ii]=='cyclic' for ii in range(2,4)])
+        if y_num_cyclic==1 or x_num_cyclic==1:
+            raise ValueError("Unmatched cyclic boundary condition") 
 
     def set_height(self, new):
         """Set height grid"""
         new_array = np.copy(np.double(new))
-        if new_array.ndim != 2:
-            print("hillslope: height is not a 2D array"); sys.exit()
-        self._ny, self._nx = new_array.shape
-        self._height = np.ravel(new_array, order='C')
+        self._check_dims(new_array)
+        self._height = np.ravel(new_array, order='C') # 
 
     def get_height(self):
         """Return height grid as 2D numpy array"""
@@ -155,12 +157,14 @@ class ftcs():
 
     def set_diffusivity(self, new):
         """Set diffusivity grid and update dheight/dt coefficient matrix"""
-        self._kappa = np.copy(np.double(new))
-        if self._kappa.ndim != 2:
-            print("hillslope: diffusivity is not a 2D array"); sys.exit()
-        if self._kappa.shape != (self._ny, self._nx):
-            print("hillslope: diffusivity grid dims do not match height grid"); sys.exit()
+        new_array = np.copy(np.double(new))
+        self._check_dims(new_array)
+        self._kappa = new_array
         self._set_coeff_matrix()
+
+    def get_diffusivity(self):
+        """Return diffusivity grid as 2D numpy array"""
+        return np.copy(self._kappa.reshape)
 
     def _set_coeff_matrix(self):
         """Define sparse coefficient matrix for dHdt stencil"""
@@ -173,6 +177,7 @@ class ftcs():
         # at edge points, and *both* BCs to be applied at corner points.
 
         # init variables
+        self._check_bcs()
         A = scipy.sparse.lil_matrix((self._ny*self._nx, self._ny*self._nx), dtype=np.double) # lil format is fast to populate
         c = 1.0/(2.0*self._delta*self._delta)
         kappa = self._kappa # alias for convenience 
