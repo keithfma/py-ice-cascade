@@ -35,6 +35,14 @@ def hill_only(clobber=False):
     shutil.copy('ex.hill_only.out.nc', 'ex.hill_only.in.nc')
     mod.run()
 
+def uplift_only(clobber=False):
+    """Generate input and output files for uplift-only example"""
+    raise NotImplementedError
+
+def hill_with_uplift(clobber=False):
+    """Generate input and output files for hillslope diffusion with uplift example"""
+    raise NotImplementedError
+
 def cli():
     """
     Command-line tool to run example cases for for Python ICE-CASCADE glacial-
@@ -44,7 +52,7 @@ def cli():
     Installed as a console-script called *ice-cascade-example*. Additional help
     can be accessed with the *-h* flag.
     """
-    valid_cases = ['hill_only']
+    valid_cases = ['hill_only', 'uplift_only', 'hill_with_uplift']
 
     # get command line arguments
     parser = argparse.ArgumentParser(description='Run various ICE-CASCADE '
@@ -59,6 +67,10 @@ def cli():
     # create input file for selected example case
     if args.case == 'hill_only':
         hill_only(clobber=args.clobber)
+    elif args.case == 'uplift_only':
+        uplift_only(clobber=args.clobber)
+    elif args.case == 'hill_with_uplift':
+        hill_with_uplift(clobber=args.clobber)
 
 if __name__ == '__main__':
     main()
