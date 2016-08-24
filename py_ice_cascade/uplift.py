@@ -43,11 +43,15 @@ class linear():
 
     def get_uplift_rate(self, time):
         """Return the uplift rate at time = time"""
-        pass
+        time = np.asscalar(np.copy(np.double(time)))
+        return self._ui+(time-self._ti)*(self._uf-self._ui)/(self._tf-self._ti)
     
     def get_uplift(self, start, end):
         """Return total (integrated) uplift over the interval start -> end"""
-        pass
+        # THE BELOW IS INCORRECT, REDO THE INTEGRAL
+        start = np.asscalar(np.copy(np.double(start)))
+        end = np.asscalar(np.copy(np.double(end)))
+        return end*self.get_uplift_rate(end)-start*self.get_uplift_rate(start)
 
 if __name__ == '__main__':
 
@@ -55,13 +59,28 @@ if __name__ == '__main__':
     ny = nx = 101 
     u0 = -1.0*np.linspace(0.0, 1.0, nx).reshape(1,nx)*np.ones((ny,1))
     u1 =  1.0*np.linspace(0.0, 1.0, nx).reshape(1,nx)*np.ones((ny,1))
+    t0 = 0.0
+    t1 = 1.0
+    model = linear(u0, u1, t0, t1)
 
-    # init figure
     plt.figure()
-    plt.subplot(1,3,1)
+    plt.subplot(2,2,1)
     plt.imshow(u0, interpolation='nearest', vmin=-1.0, vmax=1.0)
-    plt.title('U(x,y,x) at time = 0')
-    plt.subplot(1,3,2)
+    plt.title('U(x,y,t) at t = 0')
+    plt.subplot(2,2,2)
     plt.imshow(u1, interpolation='nearest', vmin=-1.0, vmax=1.0)
-    plt.title('U(x,y,x) at time = end')
-    plt.show(block=False)
+    plt.title('U(x,y,t) at t = end')
+    plt.subplot(2,2,4)
+    plt.colorbar()
+    plt.ion()
+    for time in np.linspace(t0, t1, 20):
+        plt.subplot(2,2,3)
+        plt.cla()
+        plt.imshow(model.get_uplift_rate(time), interpolation='nearest', vmin=-1.0, vmax=1.0)
+        plt.title("U(x,y,t) at t = {:.2f}".format(time))
+        plt.subplot(2,2,4)
+        plt.cla()
+        plt.imshow(model.get_uplift(t0, time), interpolation='nearest')
+        plt.title("U total at t = {:.2f}".format(time))
+        plt.pause(0.20)
+        
