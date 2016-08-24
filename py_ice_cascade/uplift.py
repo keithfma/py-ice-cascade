@@ -7,7 +7,11 @@ import matplotlib.pyplot as plt
 
 class null():
     """Do-nothing class to be used for disabled uplift component"""
-    def __init__(self):
+    def __init__(self, *args):
+        pass
+    def get_uplift_rate(self, *args):
+        pass
+    def get_uplift(self, *args):
         pass
 
 class linear():
@@ -29,15 +33,21 @@ class linear():
 
         self._ui = np.copy(np.double(ui))
         self._uf = np.copy(np.double(uf))
-        self._ti = np.copy(np.double(ti))
-        self._tf = np.copy(np.double(tf))
+        self._ti = np.asscalar(np.copy(np.double(ti)))
+        self._tf = np.asscalar(np.copy(np.double(tf)))
 
         if self._ui.shape != self._uf.shape:
             raise ValueError("Unequal dimensions for initial and final arrays")
-        if self._ti.isscalar() is not True or self._tf.isscalar() is not True:
-            raise ValueError("Initial and final times must be scalar")
-        if self._tf <= self.ti:
+        if self._tf <= self._ti:
             raise ValueError("Initial time must be before final time")
+
+    def get_uplift_rate(self, time):
+        """Return the uplift rate at time = time"""
+        pass
+    
+    def get_uplift(self, start, end):
+        """Return total (integrated) uplift over the interval start -> end"""
+        pass
 
 if __name__ == '__main__':
 
