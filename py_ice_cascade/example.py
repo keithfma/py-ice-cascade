@@ -9,9 +9,6 @@ import py_ice_cascade
 import shutil
 import numpy as np
 
-# TODO: Update to make use of new ice-cascade model class. This file should
-# include a few functions to generate input & output files for example cases.
-
 def hill_only(clobber=False):
     """Generate input and output files for hillslope-diffusion-only example"""
 
