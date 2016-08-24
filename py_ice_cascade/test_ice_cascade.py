@@ -8,6 +8,28 @@ from py_ice_cascade import ice_cascade
 
 class model_TestCase(unittest.TestCase):
 
+    # default (valid) arguments to ice_cascade.model.__init__()
+    ny = 50
+    nx = 100
+    lx = 1.0
+    delta = lx/(nx-1) 
+    ly = delta*(ny-1)
+    x = np.linspace(0, lx, nx).reshape(1,nx)
+    y = np.linspace(0, ly, ny).reshape(ny, 1)
+    zrx = np.pad(np.random.rand(ny-2, nx-2), 1, 'constant', constant_values=0)
+    time_start = 0.0
+    time_step = 0.1
+    num_steps = 10
+    out_steps = np.array([0,10]) 
+    hill_on = True
+    hill_kappa = 0.01*np.ones((ny, nx))
+    hill_bc = ['constant']*4
+
+    mod = py_ice_cascade.ice_cascade.model(output_file='ex.hill_only.out.nc', 
+        x=x, y=y, zrx=zrx, time_start=time_start, time_step=time_step, 
+        num_steps=num_steps, out_steps=out_steps, hill_on=hill_on, 
+        hill_kappa=hill_kappa, hill_bc=hill_bc, verbose=True)
+
     def test_arg_sanity(self):
         """Confirm expected failures on init for insane inputs"""
         pass
