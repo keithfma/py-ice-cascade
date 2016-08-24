@@ -28,6 +28,14 @@ py_ice_cascade.ice_cascade module
     :undoc-members:
     :show-inheritance:
 
+py_ice_cascade.uplift module
+----------------------------
+
+.. automodule:: py_ice_cascade.uplift
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 
 Module contents
 ---------------

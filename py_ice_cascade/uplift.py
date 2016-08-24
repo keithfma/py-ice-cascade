@@ -6,7 +6,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 class null():
-    """Do-nothing class to be used for disabled uplift component"""
+    """
+    Do-nothing class to be used for disabled uplift component
+    """
+    
     def __init__(self, *args):
         pass
     def get_uplift_rate(self, *args):
@@ -15,9 +18,41 @@ class null():
         pass
 
 class linear():
-    """
-    Tectonic uplift model in which uplift (:math:`U = f(x,y,t)`) is linearly
-    interpolated between a pre-defined initial and final state.
+    r"""
+    Tectonic uplift model in which uplift is linearly interpolated between a
+    pre-defined initial and final state. 
+
+    Let :math:`u(x,y,t)` be the uplift rate as a function of space
+    (:math:`x,y`) and time (:math:`t`), and let the initial and final time be
+    :math:`t_i, t_f`, respectively. This class defines :math:`u` as:
+
+    .. math::
+       u(x,y,t) = u(x,y,t_i) + \frac{u(x,y,t_f) - u(x,y,t_i)}{t_f-t_i} \left( t-t_i \right)
+
+    Omiting the :math:`x,y` coordinates:
+
+    .. math::
+       u(t) = u(t_i) + \frac{u(t_f) - u(t_i)}{t_f-t_i} (t - t_i)
+       = u_i + \frac{u_f - u_i}{t_f - t_i} (t - t_i)
+
+    It is useful redefine the slope term as :math:`b` and gather up constants
+    into a new term :math:`a`, like so:
+
+    .. math::
+       u(t) = u_i + b(t - t_i) = (u_i - b t_i) + b t = a + b t
+
+    The method *get_uplift_rate()* returns the above uplift rate. The method
+    *get_uplift()* instead returns the total uplift over some time interval
+    :math:`[t_{start},t_{end}]`. This is simply the definite integral of the
+    uplift rate:
+
+    .. math::
+       \int_{t_{start}}^{t_{end}} (a + b t) dt &= (a t + \frac{1}{2} b t^2 + c)|_{t_{end}} - (a t + \frac{1}{2} b t^2 + c)|_{t_{start}} \\
+       &= (a t_{end} + \frac{1}{2} b t_{end}^2) - (a t_{start} + \frac{1}{2} b t_{start}^2) \\
+       &= a(t_{end}-t_{start}) + \frac{b}{2} (t_{end}^2 - t_{start}^2)
+
+    Since :math:`a` and :math:`b` are constant coefficients, they are
+    precomputed for efficiency.
     """
 
     def __init__(self, ui, uf, ti, tf):
