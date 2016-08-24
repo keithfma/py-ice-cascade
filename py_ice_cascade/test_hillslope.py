@@ -39,6 +39,17 @@ class ftcs_TestCase(unittest.TestCase):
         self.assertRaises(ValueError, hillslope.ftcs, self.hh, self.dd, self.kk, 
             ['constant', 'constant', 'constant', 'cyclic'])
 
+    def test_consistent_dims(self):
+        """Unequal array dims for height and kappa throws error"""
+        self.assertRaises(ValueError, hillslope.ftcs, np.random.rand(11,11), self.dd, self.kk, self.bb)
+        self.assertRaises(ValueError, hillslope.ftcs, self.hh, self.dd, np.random.rand(11,11), self.bb)
+
+    def test_protect_model_dims(self):
+        """Attempt to set model grid with incorrect size array throw error"""
+        model = hillslope.ftcs(self.hh, self.dd, self.kk, self.bb)
+        self.assertRaises(ValueError, model.set_height, np.random.rand(11,11))
+        self.assertRaises(ValueError, model.set_diffusivity, np.random.rand(11,11))
+
     def test_steady_bc_constant(self):
         """Compare against exact solution for sinusoid y=max and zero at other bnd"""
         
