@@ -33,7 +33,14 @@ def hill_only(clobber=False):
         time_step=time_step, num_steps=num_steps, out_steps=out_steps,
         hill_on=hill_on, hill_kappa=hill_kappa, hill_bc=hill_bc, verbose=True)
     mod.to_input_file('ex.hill_only.in.nc', clobber=True, verbose=True)
-    #mod.run('ex.hill_only.out.nc', clobber=True, verbose=True, display=True)
+    mod.run('ex.hill_only.out.nc', clobber=True, verbose=True, display=False)
+
+    mod2 = py_ice_cascade.ice_cascade.model()
+    mod2.set_param_from_file('ex.hill_only.in.nc', verbose=True) 
+    mod2.run('junk.nc', clobber=True, verbose=True, display=True)
+
+
+
 
 def uplift_only(clobber=False):
     """Generate input and output files for uplift-only example"""

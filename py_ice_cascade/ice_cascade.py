@@ -62,79 +62,52 @@ class model():
         
         # create file
         nc = netCDF4.Dataset(file_name, "w", format="NETCDF4", clobber=clobber)
-        
-        # create dimensions
-        nc.createDimension('x', size = self._x.size)
-        nc.createDimension('y', size = self._y.size)
-        nc.createDimension('time', size = 1 if as_input else self._out_steps.size)
+       
+        # global attributes: on/off switches for model components
+        nc.hillslope_on = int(self._hill_on)
 
-        # create variables
+        # create dimensions
+        nc.createDimension('x', size=self._x.size)
+        nc.createDimension('y', size=self._y.size)
+        nc.createDimension('time', size=(1 if as_input else self._out_steps.size))
+        nc.createDimension('bc', size=4)
+
+        # create variables, populate constants
         nc.createVariable('x', np.double, dimensions=('x'))
         nc['x'].long_name = 'x coordinate'
         nc['x'].units = 'm'
+        nc['x'][:] = self._x
 
         nc.createVariable('y', np.double, dimensions=('y'))
         nc['y'].long_name = 'y coordinate'
         nc['y'].units = 'm'
+        nc['y'][:] = self._y
         
         nc.createVariable('time', np.double, dimensions=('time'))
         nc['time'].long_name = 'time coordinate'
         nc['time'].units = 'a'
-        
-        nc.createVariable('time_start', np.double, dimensions=())
-        nc['time_start'].long_name = 'model start time'
-        nc['time_start'].units = 'a'
+        nc['time'].start = self._time_start
+        nc['time'].step = self._time_step
 
-        nc.createVariable('time_step', np.double, dimensions=())
-        nc['time_step'].long_name = 'time step'
-        nc['time_step'].units = 'a'
-        
-        nc.createVariable('num_steps', np.int64, dimensions=())
-        nc['num_steps'].long_name = 'number of time steps'
-        nc['num_steps'].units = '1'
-        
-        nc.createVariable('out_steps', np.int64, dimensions=('time'))
-        nc['out_steps'].long_name = 'model ouput step indices'
-        nc['out_steps'].units = '1'
+        nc.createVariable('step', np.int64, dimensions=('time'))
+        nc['step'].long_name = 'model time step'
+        nc['step'].units = '1'
+        nc['step'].num_steps = self._num_steps
+        nc['step'].out_steps = self._out_steps
         
         nc.createVariable('zrx', np.double, dimensions=('time', 'y', 'x'),
             zlib=zlib, complevel=complevel, shuffle=shuffle, chunksizes=chunksizes)
         nc['zrx'].long_name = 'bedrock surface elevation' 
         nc['zrx'].units = 'm' 
         
-        nc.createVariable('hill_on', np.int, dimensions=())
-        nc['hill_on'].long_name = 'hillslope model on/off flag'
-        
         nc.createVariable('hill_kappa', np.double, dimensions=('time', 'y', 'x'), 
             zlib=zlib, complevel=complevel, shuffle=shuffle, chunksizes=chunksizes)
         nc['hill_kappa'].long_name = 'hillslope diffusivity'
         nc['hill_kappa'].units = 'm^2 / a'
         
-        nc.createVariable('hill_bc_y0', str, dimensions=())
-        nc['hill_bc_y0'].long_name = 'hillslope boundary condition at y[0]' 
-        
-        nc.createVariable('hill_bc_y1', str, dimensions=())
-        nc['hill_bc_y1'].long_name = 'hillslope boundary condition at y[end]' 
-        
-        nc.createVariable('hill_bc_x0', str, dimensions=())
-        nc['hill_bc_x0'].long_name = 'hillslope boundary condition at x[0]' 
-        
-        nc.createVariable('hill_bc_x1', str, dimensions=())
-        nc['hill_bc_x1'].long_name = 'hillslope boundary condition at x[end]' 
-        
-        # populate constant variables   
-        nc['x'][:] = self._x
-        nc['y'][:] = self._y
-        nc['time_start'][...] = self._time_start
-        nc['time_step'][...] = self._time_step
-        nc['num_steps'][...] = self._num_steps
-        nc['out_steps'][:] = self._out_steps
-        # TODO: convert some vars to attributes, they are making input files unwieldy
-        nc['hill_on'][...] = self._hill_on
-        nc['hill_bc_y0'][...] = self._hill_bc[0]
-        nc['hill_bc_y1'][...] = self._hill_bc[1]
-        nc['hill_bc_x0'][...] = self._hill_bc[2]
-        nc['hill_bc_x1'][...] = self._hill_bc[3]
+        nc.createVariable('hill_bc', str, dimensions=('bc'))
+        for ii in range(4):
+            nc['hill_bc'][ii] = self._hill_bc[ii]
 
         # finalize
         nc.close()
@@ -155,6 +128,7 @@ class model():
         ii = list(self._out_steps).index(self._step) 
         nc = netCDF4.Dataset(file_name, "a")
         nc['time'][ii] = self._time
+        nc['step'][ii] = self._step
         nc['zrx'][ii,:,:] = self._zrx
         nc['hill_kappa'][ii,:,:] = self._hill_kappa
         nc.close()
@@ -257,14 +231,13 @@ class model():
         self._x = nc['x'][:]
         self._y = nc['y'][:]
         self._zrx = nc['zrx'][step,:,:]
-        self._time_start = np.asscalar(nc['time_start'][...])
-        self._time_step = np.asscalar(nc['time_step'][...])
-        self._num_steps = np.asscalar(nc['num_steps'][...])
-        self._out_steps = nc['out_steps'][:] 
-        self._hill_on = np.asscalar(nc['hill_on'][...])
+        self._time_start = np.asscalar(nc['time'].start)
+        self._time_step = np.asscalar(nc['time'].step)
+        self._num_steps = np.asscalar(nc['step'].num_steps)
+        self._out_steps = nc['step'].out_steps
+        self._hill_on = np.asscalar(nc.hillslope_on)
         self._hill_kappa = nc['hill_kappa'][step,:,:]
-        self._hill_bc = list(nc['hill_bc_y0'][...], nc['hill_bc_y1'][...], 
-            nc['hill_bc_x0'][...], nc['hill_bc_x1'][...])
+        self._hill_bc = nc['hill_bc'][:]
         nc.close()
 
     def to_input_file(self, file_name, clobber=False, verbose=False):
