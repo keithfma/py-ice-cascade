@@ -1,16 +1,27 @@
 """
-Console script with options to create input files for example cases
+Example cases for for Python ICE-CASCADE glacial-fluvial-hillslope landscape
+evolution model. 
+
+Examples can be run either directly in the python interpreter, e.g.:
+
+.. code-block:: python
+   import py_ice_cascade
+   py_ice_cascade.example.hill_only
+
+or from the command line by executing the module as a script, e.g.:
+
+.. code-block:: bash
+   python -m py_ice_cascade.example -c hill_only
+
+In the latter case, use the *-h* flag to get additional help
 """
 
 import argparse
-import sys
-import netCDF4
 import py_ice_cascade
-import shutil
 import numpy as np
 
-def hill_only(clobber=False):
-    """Generate input and output files for hillslope-diffusion-only example"""
+def hill_only():
+    """hillslope-diffusion-only example"""
 
     ny = 50
     nx = 100
@@ -34,45 +45,31 @@ def hill_only(clobber=False):
         time_step=time_step, num_steps=num_steps, out_steps=out_steps,
         hill_on=hill_on, hill_kappa_active=hill_kappa_active,
         hill_kappa_inactive=hill_kappa_inactive, hill_bc=hill_bc, verbose=True)
-    mod.to_input_file('ex.hill_only.in.nc', clobber=True, verbose=True)
-    mod.run('ex.hill_only.out.nc', clobber=True, verbose=True, display=False)
+    mod.run('example.hill_only.out.nc', verbose=True)
 
-def uplift_only(clobber=False):
-    """Generate input and output files for uplift-only example"""
+def uplift_only():
+    """uplift-only example"""
     raise NotImplementedError
 
-def hill_with_uplift(clobber=False):
-    """Generate input and output files for hillslope diffusion with uplift example"""
+def hill_with_uplift():
+    """hillslope diffusion with uplift example"""
     raise NotImplementedError
 
-def cli():
-    """
-    Command-line tool to run example cases for for Python ICE-CASCADE glacial-
-    fluvial-hillslope landscape evolution model. Each case generates both an
-    input and an output file. 
-    
-    Installed as a console-script called *ice-cascade-example*. Additional help
-    can be accessed with the *-h* flag.
-    """
+# command line interface
+if __name__ == '__main__':
+
     valid_cases = ['hill_only', 'uplift_only', 'hill_with_uplift']
 
-    # get command line arguments
-    parser = argparse.ArgumentParser(description='Run various ICE-CASCADE '
-        'example cases, and generate both input and output files',
+    parser = argparse.ArgumentParser(description='Run example cases for for '
+        'Python ICE-CASCADE glacial-fluvial-hillslope landscape evolution model',
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    parser.add_argument('case', type=str, choices=valid_cases,
-        help='example case to generate')
-    parser.add_argument('-c', '--clobber', action='store_true',
-        help='allow overwriting existing files')
+    parser.add_argument('-c', type=str, choices=valid_cases,
+        help='example case to generate', required=True)
     args = parser.parse_args()
 
-    # create input file for selected example case
-    if args.case == 'hill_only':
-        hill_only(clobber=args.clobber)
-    elif args.case == 'uplift_only':
-        uplift_only(clobber=args.clobber)
-    elif args.case == 'hill_with_uplift':
-        hill_with_uplift(clobber=args.clobber)
-
-if __name__ == '__main__':
-    main()
+    if args.c == 'hill_only':
+        hill_only()
+    elif args.c == 'uplift_only':
+        uplift_only()
+    elif args.c == 'hill_with_uplift':
+        hill_with_uplift()

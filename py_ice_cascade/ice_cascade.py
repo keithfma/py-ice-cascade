@@ -232,7 +232,7 @@ class model():
 
         # init component model objects
         if self._hill_on:
-            self._hill_kappa = np.ones((self._zrx.shape)*self._hill_kappa_active
+            self._hill_kappa = np.ones(self._zrx.shape)*self._hill_kappa_active
             self._model_hill = py_ice_cascade.hillslope.ftcs(self._zrx, 
                 self._delta, self._hill_kappa, self._hill_bc)
         else: 
