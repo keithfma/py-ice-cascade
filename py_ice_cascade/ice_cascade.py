@@ -16,7 +16,6 @@ class model():
     """
 
     def __init__(self):
-        """Define internal attributes to be populated by set_param*()"""
         # user-defined parameters
         self._x = None
         self._y = None
@@ -42,8 +41,8 @@ class model():
         the length of the time dimension to 1.
 
         Arguments:
-            file_name = String, path to which file should be saved 
-            verbose = Bool, set True to enable verbose messages
+            file_name: String, path to which file should be saved 
+            verbose: Bool, set True to enable verbose messages
         """
 
         if verbose:
@@ -114,8 +113,8 @@ class model():
         Append model state and parameters to netCDF file
         
         Arguments:
-            file_name = String, path to which file should be saved 
-            verbose = Bool, set True to enable verbose messages
+            file_name: String, path to which file should be saved 
+            verbose: Bool, set True to enable verbose messages
         """
 
         if verbose:
@@ -141,19 +140,19 @@ class model():
         state/parameter attributes will be set.
 
         Arguments:
-            x = 1 x nx numpy vector, x-coordinate, [m]
-            y = ny x 1 numpy vector, y-coordinate, [m]
-            zrx = grid, initial bedrock elevation, [m]
-            time_start = scalar, starting time, [a]
-            time_step = scalar, topographic model time step, [a]
-            num_steps = scalar, total steps in simulation, i.e. duration, [1]
-            out_steps = list, step numbers to write output, 0 is initial state, [1]
-            hill_on = scalar, boolean flag, True to enable hillslope model
-            hill_kappa_active = scalar, hillslope diffusivity where active, [m^2 / a]
-            hill_kappa_inactive = scalar, hillslope diffusivity where inactive, [m^2 / a]
-            hill_bc = list, hillslope model boundary conditions at [y[0],
+            x: numpy vector, x-coordinate, [m]
+            y: numpy vector, y-coordinate, [m]
+            zrx: grid, initial bedrock elevation, [m]
+            time_start: scalar, starting time, [a]
+            time_step: scalar, topographic model time step, [a]
+            num_steps: scalar, total steps in simulation, i.e. duration, [1]
+            out_steps: list, step numbers to write output, 0 is initial state, [1]
+            hill_on: scalar, boolean flag, True to enable hillslope model
+            hill_kappa_active: scalar, hillslope diffusivity where active, [m^2 / a]
+            hill_kappa_inactive: scalar, hillslope diffusivity where inactive, [m^2 / a]
+            hill_bc: list, hillslope model boundary conditions at [y[0],
                 y[end], x[0], x[end]. See hilllslope.py for details.
-            verbose = Boolean, set True to show verbose messages
+            verbose: Boolean, set True to show verbose messages
         """
 
         if verbose:
@@ -192,9 +191,9 @@ class model():
         set.
 
         Arguments:
-            file_name = String, name of input file
-            step = Int, index of time step to read for time-dependent vars
-            verbose = Bool, set to True for verbose output
+            file_name: String, name of input file
+            step: Int, index of time step to read for time-dependent vars
+            verbose: Bool, set to True for verbose output
         """
 
         if verbose:
@@ -219,8 +218,8 @@ class model():
         Run model simulation, save results to file
 
         Arguments:
-            file_name = String, path to which results should be saved 
-            verbose = Bool, set True to show verbose messages
+            file_name: String, path to which results should be saved 
+            verbose: Bool, set True to show verbose messages
         """
 
         if verbose:

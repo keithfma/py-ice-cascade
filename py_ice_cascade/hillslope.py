@@ -30,7 +30,29 @@ class ftcs():
     r"""
     Hillslope diffusion model using forward-time center-space (FTCS) finite
     diffence scheme. 
+
+    Arguments:
+        height: 2D numpy array, surface elevation in model domain, [m]
+        delta: Scalar double, grid spacing, assumed square, [m]
+        kappa: 2D numpy array, diffusion coefficient, [m**2/a]
+        bc: List of boundary conditions names for [y=0, y=end, x=0, x=end]
+
+    Supported boundary conditions are:
     
+    * *constant*: :math:`\frac{\partial H}{\partial t} = 0`
+    
+    * *closed*: no flux out of boundary (e.g. :math:`(q_x)_{i,j+1/2} = 0` at
+      :math:`x_{max}`)
+
+    * *open*: no flux gradient normal to boundary, material passes through
+      (e.g. :math:`\frac{\partial q_x}{\partial x} = 0` at :math:`x_{max}`)
+    
+    * *cyclic*: flux at opposing boundaries is equal (e.g.
+      :math:`(q_x)_{i,-1/2} = (q_x)_{i,\text{end}+1/2}`)
+    
+    * *mirror*: boundary flux is equal and opposite incoming flux (e.g.
+      :math:`(q_x)_{i,j+1/2} = -(q_x)_{i,j-1/2}` at :math:`x_{max}`)
+
     Overview of FTCS scheme with spatially variable diffusivity (see reference
     (1) and (2)). Starting with the basic diffusion equation:  
     
@@ -92,36 +114,13 @@ class ftcs():
        H^{n}_{i,j} (4 \kappa_{i,j} + \kappa_{i,j+1} + \kappa_{i,j-1} + \kappa_{i+1,j} + \kappa_{i-1,j})
        \right]
 
-    The above scheme is modified at boundary points. Supported boundary conditions are:
-    
-    * *constant*: :math:`\frac{\partial H}{\partial t} = 0`
-    
-    * *closed*: no flux out of boundary (e.g. :math:`(q_x)_{i,j+1/2} = 0` at
-      :math:`x_{max}`)
-
-    * *open*: no flux gradient normal to boundary, material passes through
-      (e.g. :math:`\frac{\partial q_x}{\partial x} = 0` at :math:`x_{max}`)
-    
-    * *cyclic*: flux at opposing boundaries is equal (e.g.
-      :math:`(q_x)_{i,-1/2} = (q_x)_{i,\text{end}+1/2}`)
-    
-    * *mirror*: boundary flux is equal and opposite incoming flux (e.g.
-      :math:`(q_x)_{i,j+1/2} = -(q_x)_{i,j-1/2}` at :math:`x_{max}`)
-
+    The above scheme is modified at boundary points.     
     """
 
     # NOTE: attributes and methods with the "_" prefix are considered private,
     #       use outside the object at your own risk
 
     def __init__(self, height, delta, kappa, bc):
-        """
-        Arguments:
-            height = 2D numpy array, surface elevation in model domain, [m]
-            delta = Scalar double, grid spacing, assumed square, [m]
-            kappa = 2D numpy array, diffusion coefficient, [m**2/a]
-            bc = List of boundary conditions names for [y=0, y=end, x=0, x=end]
-        """
-
         # set attributes
         self._valid_bc = set(['constant', 'closed', 'open', 'cyclic', 'mirror'])
         self._delta = np.copy(np.double(delta))
@@ -287,7 +286,7 @@ class ftcs():
         Run numerical integration for specified time period
 
         Arguments:
-            run_time = Scalar double, model run time, [a]
+            run_time: Scalar double, model run time, [a]
         """
         
         run_time = np.double(run_time)

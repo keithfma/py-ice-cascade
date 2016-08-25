@@ -22,6 +22,12 @@ class linear():
     Tectonic uplift model in which uplift is linearly interpolated between a
     pre-defined initial and final state. 
 
+    Arguments:
+        ui: 2D numpy array, initial uplift rate, [m/a]
+        uf: 2D numpy array, final uplift rate, [m/a]
+        ti: Scalar, initial time, [a]
+        tf: Scalar, final time, [a]
+
     Let :math:`u(x,y,t)` be the uplift rate as a function of space
     (:math:`x,y`) and time (:math:`t`), and let the initial and final time be
     :math:`t_i, t_f`, respectively. This class defines :math:`u` as:
@@ -56,15 +62,6 @@ class linear():
     """
 
     def __init__(self, ui, uf, ti, tf):
-        """
-        Initialize model attributes
-        
-        Arguments:
-            ui: 2D numpy array, initial uplift rate, [m/a]
-            uf: 2D numpy array, final uplift rate, [m/a]
-            ti: Scalar, initial time, [a]
-            tf: Scalar, final time, [a]
-        """
 
         self._ui = np.copy(np.double(ui))
         self._uf = np.copy(np.double(uf))
