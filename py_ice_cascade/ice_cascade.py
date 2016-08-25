@@ -163,7 +163,7 @@ class model():
         nc['step'][ii] = self._step
         nc['zrx'][ii,:,:] = self._zrx
         nc['hill_kappa'][ii,:,:] = self._hill_kappa
-        #nc['uplift_rate'][ii,:,:] = self._uplift_rate
+        nc['uplift_rate'][ii,:,:] = self._model_uplift.get_uplift_rate(self._time)
         nc.close()
 
 
@@ -182,6 +182,7 @@ class model():
         # init automatic parameters
         self._delta = np.abs(self._x[1]-self._x[0])
         # TODO: test for a regular grid here
+        self._time_end = self._time_start+self._time_step*(self._num_steps-1)
 
         # init component model objects
         if self._hill_on:
@@ -190,6 +191,12 @@ class model():
                 self._delta, self._hill_kappa, self._hill_bc)
         else: 
             self._model_hill = py_ice_cascade.hillslope.null()
+
+        if self._uplift_on:
+            self._model_uplift = py_ice_cascade.uplift.linear(self._uplift_start, 
+                self._uplift_end, self._time_start, self._time_end)
+        else:
+            self._model_uplift = py_ice_cascade.uplift.null()
         
         # init model integration loop
         self._time = self._time_start
@@ -210,16 +217,22 @@ class model():
             self._model_hill.run(self._time_step)
 
             # gather erosion-deposition-uplift component results
-            delta_zrx = self._model_hill.get_height() - self._zrx
+            d_zrx_hill = self._model_hill.get_height() - self._zrx
+            d_zrx_uplift = self._model_uplift.get_uplift(self._time, self._time+self._time_step)
 
             # run isostasy component simulations
 
             # gather isostasy results
 
             # advance time step 
-            self._zrx += delta_zrx
+            self._zrx += d_zrx_hill+d_zrx_uplift
             self._time += self._time_step
             self._step += 1
+
+            # NOTE: would be more elegant, but perhaps less efficent, to recast
+            # the uplift function so that it is .run() and returns a height or
+            # dheight. This would avoid the awkware get_uplift and
+            # get_uplift_rate calls.
 
             # write output and/or display model state
             if self._step in self._out_steps:
