@@ -9,9 +9,6 @@ import py_ice_cascade
 import netCDF4
 import sys
 
-# NOTE: in __init__(), create the output_file and populate
-# the 0th time step. This can serve as an input file too.
-
 class model():
     """
     Composite landscape evolution model. Integrates glacial, fluvial, and
@@ -37,7 +34,7 @@ class model():
         self._step = None
         self._model_hill = None
 
-    def _create_netcdf(self, file_name, as_input=False, clobber=False, verbose=False):
+    def _create_netcdf(self, file_name, verbose=False):
         """
         Create new (empty) netCDF for model state and parameters
         
@@ -46,8 +43,6 @@ class model():
 
         Arguments:
             file_name = String, path to which file should be saved 
-            as_input = Bool, set True save as a model input file
-            clobber = Bool, set True to enable overwriting file_name
             verbose = Bool, set True to enable verbose messages
         """
 
@@ -61,7 +56,7 @@ class model():
         chunksizes = (1, self._y.size, self._x.size)
         
         # create file
-        nc = netCDF4.Dataset(file_name, "w", format="NETCDF4", clobber=clobber)
+        nc = netCDF4.Dataset(file_name, "w", format="NETCDF4", clobber=False)
        
         # global attributes: on/off switches for model components
         nc.hillslope_on = int(self._hill_on)
@@ -69,7 +64,7 @@ class model():
         # create dimensions
         nc.createDimension('x', size=self._x.size)
         nc.createDimension('y', size=self._y.size)
-        nc.createDimension('time', size=(1 if as_input else self._out_steps.size))
+        nc.createDimension('time', size=self._out_steps.size)
         nc.createDimension('bc', size=4)
 
         # create variables, populate constants
@@ -134,36 +129,6 @@ class model():
         nc['zrx'][ii,:,:] = self._zrx
         nc['hill_kappa'][ii,:,:] = self._hill_kappa
         nc.close()
-
-    def _display(self):
-        """Display model state, for debugging / demonstration"""
-        plt.clf()
-        plt.ion()
-        plt.imshow(self._zrx, extent=[np.min(self._x), np.max(self._x), 
-            np.min(self._y), np.max(self._y)], interpolation='nearest', 
-            aspect='equal')
-        plt.colorbar()
-        plt.title('Bedrock elev, step = {}, time = {:.3f}'.format(
-            self._step, self._time))
-        plt.xlabel("X")
-        plt.ylabel("Y")
-        plt.show(block=False)
-        plt.waitforbuttonpress()
-
-    def _initialize_components(self):
-        """Initialize component model objects"""
-
-        self._delta = np.abs(self._x[1]-self._x[0])
-        # TODO: test for a regular grid here
-
-        if self._hill_on:
-            self._hill_kappa = np.ones((self._y.size, self._x.size), 
-                dtype=np.double)*self._hill_kappa_active
-            self._model_hill = py_ice_cascade.hillslope.ftcs(self._zrx, 
-                self._delta, self._hill_kappa, self._hill_bc)
-        else: 
-            self._model_hill = py_ice_cascade.hillslope.null()
-
 
     def set_param_from_var(self, x=None, y=None, zrx=None, time_start=None,
         time_step=None, num_steps=None, out_steps=None, hill_on=None,
@@ -249,47 +214,34 @@ class model():
         self._hill_bc = nc['hill_bc'][:]
         nc.close()
 
-    def to_input_file(self, file_name, clobber=False, verbose=False):
+    def run(self, file_name, verbose=False):
         """
-        Write current model state and parameters as a netCDF input file
-
-        Provides the ability to save a model definition to file. Initializing
-        and running a new model from the generated file would be equivalent to
-        running the current model. It only makes sense to call this method
-        *before* calling run().
-
-        Arguments:
-            file_name = String, path to which file should be saved 
-            clobber = Bool, set True to enable overwriting file_name
-            verbose = Boolean, set True to show verbose messages
-        """
-
-        if verbose:
-            print("ice_cascade.model.to_input_file: dumping model to "+file_name)
-
-        self._time = self._time_start
-        self._step = 0
-        self._create_netcdf(file_name, as_input=True, clobber=clobber, verbose=verbose)
-        self._to_netcdf(file_name, verbose=verbose)
-
-    def run(self, file_name, clobber=False, verbose=False, display=False):
-        """
-        Run initialized model simulation, save results to file
+        Run model simulation, save results to file
 
         Arguments:
             file_name = String, path to which results should be saved 
-            clobber = Bool, set True to enable overwriting file_name
             verbose = Bool, set True to show verbose messages
-            display = Bool, set True to show debugging plots
         """
 
         if verbose:
             print("ice_cascade.model.run: initializing simulation")
 
-        self._initialize_components()
+        # init automatic parameters
+        self._delta = np.abs(self._x[1]-self._x[0])
+        # TODO: test for a regular grid here
+
+        # init component model objects
+        if self._hill_on:
+            self._hill_kappa = np.ones((self._zrx.shape)*self._hill_kappa_active
+            self._model_hill = py_ice_cascade.hillslope.ftcs(self._zrx, 
+                self._delta, self._hill_kappa, self._hill_bc)
+        else: 
+            self._model_hill = py_ice_cascade.hillslope.null()
+        
+        # init model integration loop
         self._time = self._time_start
         self._step = 0
-        self._create_netcdf(file_name, clobber=clobber)
+        self._create_netcdf(file_name)
         self._to_netcdf(file_name)
         
         while self._step < self._num_steps:
@@ -319,39 +271,9 @@ class model():
             # write output and/or display model state
             if self._step in self._out_steps:
                 self._to_netcdf(file_name)
-                if display:
-                    self._display()
 
         if verbose:
             print("ice_cascade.model.run: simulation complete")
 
-def cli():
-    """
-    Command-line front-end for Python ICE-CASCADE glacial-fluvial-hillslope
-    landscape evolution model. 
-    
-    Parses command-line arguments and runs the ICE-CASCADE model. Installed as
-    a console-script called *ice-cascade*.  Additional help can be accessed with
-    the command `ice-cascade -h`.
-    """
-
-    # get command line arguments
-    parser = argparse.ArgumentParser(description='Command-line front-end for '
-        'Python ICE-CASCADE glacial-fluvial-hillslope landscape evolution model',
-        formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    parser.add_argument('-i', '--input_file', type=str, default='in.nc',
-        help='input netCDF file name')
-    parser.add_argument('-o', '--output_file', type=str, default='out.nc',
-        help='output netCDF file name')
-    parser.add_argument('-c', '--clobber', action='store_true',
-        help='enable overwriting output file')
-    parser.add_argument('-v', '--verbose', action='store_true',
-        help='show verbose progress messages')
-    parser.add_argument('-d', '--display', action='store_true',
-        help='plot model state at output time-steps, for debugging or demonstration')
-    args = parser.parse_args()
-
-    # init and run model
-    mod = model()
-    mod.set_param_from_file(args.input_file, verbose=args.verbose) 
-    mod.run(args.output_file, verbose=args.verbose, display=args.display, clobber=args.clobber)
+if __name__ == '__main__':
+    pass

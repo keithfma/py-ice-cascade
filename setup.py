@@ -17,6 +17,5 @@ setup(
 	package_data={'py_ice_cascade' : ['data/*']},
 	install_requires=[],
 	entry_points={'console_scripts' : [
-		'ice-cascade = py_ice_cascade.ice_cascade:cli', 
         'ice-cascade-example = py_ice_cascade.example:cli']}
 )
