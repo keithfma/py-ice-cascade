@@ -5,12 +5,14 @@ evolution model.
 Examples can be run either directly in the python interpreter, e.g.:
 
 .. code-block:: python
+
    import py_ice_cascade
    py_ice_cascade.example.hill_only
 
 or from the command line by executing the module as a script, e.g.:
 
 .. code-block:: bash
+
    python -m py_ice_cascade.example -c hill_only
 
 In the latter case, use the *-h* flag to get additional help
