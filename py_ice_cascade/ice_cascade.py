@@ -136,10 +136,11 @@ class model():
         for ii in range(4):
             nc['hill_bc'][ii] = self._hill_bc[ii]
 
-        nc.createVariable('uplift_rate', np.double, dimensions=('time', 'y', 'x'), 
-            zlib=zlib, complevel=complevel, shuffle=shuffle, chunksizes=chunksizes)
-        nc['uplift_rate'].long_name = 'tectonic rock uplift rate'
-        nc['uplift_rate'].units = 'm / a'
+        if self._uplift_on:
+            nc.createVariable('uplift_rate', np.double, dimensions=('time', 'y', 'x'), 
+                zlib=zlib, complevel=complevel, shuffle=shuffle, chunksizes=chunksizes)
+            nc['uplift_rate'].long_name = 'tectonic rock uplift rate'
+            nc['uplift_rate'].units = 'm / a'
 
         # finalize
         nc.close()
@@ -163,9 +164,27 @@ class model():
         nc['step'][ii] = self._step
         nc['zrx'][ii,:,:] = self._zrx
         nc['hill_kappa'][ii,:,:] = self._hill_kappa
-        nc['uplift_rate'][ii,:,:] = self._model_uplift.get_uplift_rate(self._time)
+        if self._uplift_on:
+            nc['uplift_rate'][ii,:,:] = self._model_uplift.get_uplift_rate(self._time)
         nc.close()
 
+    def _initialize_component_models(self):
+        """Initialize component model objects"""
+
+        # hillslope component
+        if self._hill_on:
+            self._hill_kappa = np.ones(self._zrx.shape)*self._hill_kappa_active
+            self._model_hill = py_ice_cascade.hillslope.ftcs(self._zrx, 
+                self._delta, self._hill_kappa, self._hill_bc)
+        else: 
+            self._model_hill = py_ice_cascade.hillslope.null()
+
+        # uplift component
+        if self._uplift_on:
+            self._model_uplift = py_ice_cascade.uplift.linear(self._uplift_start, 
+                self._uplift_end, self._time_start, self._time_end)
+        else:
+            self._model_uplift = py_ice_cascade.uplift.null()
 
     def run(self, file_name, verbose=False):
         """
@@ -183,20 +202,7 @@ class model():
         self._delta = np.abs(self._x[1]-self._x[0])
         # TODO: test for a regular grid here
         self._time_end = self._time_start+self._time_step*(self._num_steps-1)
-
-        # init component model objects
-        if self._hill_on:
-            self._hill_kappa = np.ones(self._zrx.shape)*self._hill_kappa_active
-            self._model_hill = py_ice_cascade.hillslope.ftcs(self._zrx, 
-                self._delta, self._hill_kappa, self._hill_bc)
-        else: 
-            self._model_hill = py_ice_cascade.hillslope.null()
-
-        if self._uplift_on:
-            self._model_uplift = py_ice_cascade.uplift.linear(self._uplift_start, 
-                self._uplift_end, self._time_start, self._time_end)
-        else:
-            self._model_uplift = py_ice_cascade.uplift.null()
+        self._initialize_component_models()
         
         # init model integration loop
         self._time = self._time_start
@@ -228,11 +234,6 @@ class model():
             self._zrx += d_zrx_hill+d_zrx_uplift
             self._time += self._time_step
             self._step += 1
-
-            # NOTE: would be more elegant, but perhaps less efficent, to recast
-            # the uplift function so that it is .run() and returns a height or
-            # dheight. This would avoid the awkware get_uplift and
-            # get_uplift_rate calls.
 
             # write output and/or display model state
             if self._step in self._out_steps:
