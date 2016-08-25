@@ -52,7 +52,29 @@ def hill_only():
 
 def uplift_only():
     """uplift-only example"""
-    raise NotImplementedError
+
+    ny = 50
+    nx = 100
+    lx = 1.0
+    delta = lx/(nx-1) 
+    ly = delta*(ny-1)
+    x = np.linspace(0, lx, nx)
+    y = np.linspace(0, ly, ny)
+    zrx = np.pad(np.random.rand(ny-2, nx-2), 1, 'constant', constant_values=0)
+    time_start = 0.0
+    time_step = 0.1
+    num_steps = 10
+    out_steps = np.arange(0,num_steps)
+    hill_on = False 
+    uplift_on = True 
+    uplift_start = np.zeros((ny,nx), dtype=np.double)
+    uplift_end = np.ones((ny,nx), dtype=np.double)
+
+    mod = py_ice_cascade.ice_cascade.model(x=x, y=y, zrx=zrx, time_start=time_start,
+        time_step=time_step, num_steps=num_steps, out_steps=out_steps,
+        hill_on=hill_on, uplift_on=uplift_on, uplift_start=uplift_start,
+        uplift_end=uplift_end, verbose=True)
+    mod.run('example.uplift_only.out.nc', verbose=True)
 
 def hill_uplift():
     """hillslope diffusion with uplift example"""
@@ -69,11 +91,11 @@ def hill_uplift():
     time_step = 0.1
     num_steps = 10
     out_steps = np.arange(0,num_steps)
-    hill_on = True
+    hill_on = True 
     hill_kappa_active = 0.01
     hill_kappa_inactive = 0.0
     hill_bc = ['constant']*4
-    uplift_on = False
+    uplift_on = True 
     uplift_start = np.zeros((ny,nx), dtype=np.double)
     uplift_end = np.ones((ny,nx), dtype=np.double)
 

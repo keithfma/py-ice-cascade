@@ -16,8 +16,12 @@ import scipy.sparse
 import sys
 
 class null():
-    """Do-nothing class to be used for disabled hillslope component"""
-    def __init__():
+    """
+    Do-nothing class to be used for disabled hillslope component
+
+    Internal height grid is set and returned unchanged
+    """
+    def __init__(self):
         pass
     def set_height(self, new):
         self._height = np.double(new) 
@@ -25,6 +29,8 @@ class null():
         pass
     def get_height(self):
         return self._height
+    def run(self, *args):
+        pass
 
 class ftcs():
     r"""

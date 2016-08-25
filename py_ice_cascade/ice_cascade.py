@@ -51,12 +51,14 @@ class model():
         self._num_steps = num_steps 
         self._out_steps = np.copy(out_steps) 
         self._hill_on = bool(hill_on)
-        self._hill_kappa_active = np.copy(hill_kappa_active)
-        self._hill_kappa_inactive = np.copy(hill_kappa_inactive)
-        self._hill_bc = list(hill_bc)
-        self._uplift_on = uplift_on
-        self._uplift_start = uplift_start
-        self._uplift_end = uplift_end
+        if self._hill_on:
+            self._hill_kappa_active = np.copy(hill_kappa_active)
+            self._hill_kappa_inactive = np.copy(hill_kappa_inactive)
+            self._hill_bc = list(hill_bc)
+        self._uplift_on = bool(uplift_on)
+        if self._uplift_on:
+            self._uplift_start = uplift_start
+            self._uplift_end = uplift_end
         # automatic parameters
         self._delta = None
         self._time = None
@@ -124,17 +126,18 @@ class model():
             zlib=zlib, complevel=complevel, shuffle=shuffle, chunksizes=chunksizes)
         nc['zrx'].long_name = 'bedrock surface elevation' 
         nc['zrx'].units = 'm' 
-        
-        nc.createVariable('hill_kappa', np.double, dimensions=('time', 'y', 'x'), 
-            zlib=zlib, complevel=complevel, shuffle=shuffle, chunksizes=chunksizes)
-        nc['hill_kappa'].long_name = 'hillslope diffusivity'
-        nc['hill_kappa'].units = 'm^2 / a'
-        nc['hill_kappa'].active = self._hill_kappa_active
-        nc['hill_kappa'].inactive = self._hill_kappa_inactive
-        
-        nc.createVariable('hill_bc', str, dimensions=('bc'))
-        for ii in range(4):
-            nc['hill_bc'][ii] = self._hill_bc[ii]
+
+        if self._hill_on:        
+            nc.createVariable('hill_kappa', np.double, dimensions=('time', 'y', 'x'), 
+                zlib=zlib, complevel=complevel, shuffle=shuffle, chunksizes=chunksizes)
+            nc['hill_kappa'].long_name = 'hillslope diffusivity'
+            nc['hill_kappa'].units = 'm^2 / a'
+            nc['hill_kappa'].active = self._hill_kappa_active
+            nc['hill_kappa'].inactive = self._hill_kappa_inactive
+            
+            nc.createVariable('hill_bc', str, dimensions=('bc'))
+            for ii in range(4):
+                nc['hill_bc'][ii] = self._hill_bc[ii]
 
         if self._uplift_on:
             nc.createVariable('uplift_rate', np.double, dimensions=('time', 'y', 'x'), 
@@ -163,7 +166,8 @@ class model():
         nc['time'][ii] = self._time
         nc['step'][ii] = self._step
         nc['zrx'][ii,:,:] = self._zrx
-        nc['hill_kappa'][ii,:,:] = self._hill_kappa
+        if self._hill_on:
+            nc['hill_kappa'][ii,:,:] = self._hill_kappa
         if self._uplift_on:
             nc['uplift_rate'][ii,:,:] = self._model_uplift.get_uplift_rate(self._time)
         nc.close()
