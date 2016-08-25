@@ -8,14 +8,19 @@ import matplotlib.pyplot as plt
 class null():
     """
     Do-nothing class to be used for disabled uplift component
+
+    Returns zeros for uplift rate and total uplift
+
+    Arguments:
+        shape: (nrow, ncol) of model grid
     """
-    
-    def __init__(self, *args):
-        pass
+
+    def __init__(self, shape):
+        self._shape = shape
     def get_uplift_rate(self, *args):
-        pass
+        return np.zeros(self._shape, dtype=np.double)
     def get_uplift(self, *args):
-        pass
+        return np.zeros(self._shape, dtype=np.double)
 
 class linear():
     r"""

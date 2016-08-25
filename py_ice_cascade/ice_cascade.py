@@ -184,7 +184,7 @@ class model():
             self._model_uplift = py_ice_cascade.uplift.linear(self._uplift_start, 
                 self._uplift_end, self._time_start, self._time_end)
         else:
-            self._model_uplift = py_ice_cascade.uplift.null()
+            self._model_uplift = py_ice_cascade.uplift.null(self._zrx.shape)
 
     def run(self, file_name, verbose=False):
         """
@@ -200,10 +200,11 @@ class model():
 
         # init automatic parameters
         self._delta = np.abs(self._x[1]-self._x[0])
-        # TODO: test for a regular grid here
         self._time_end = self._time_start+self._time_step*(self._num_steps-1)
         self._initialize_component_models()
         
+        # TODO: test for a regular grid here
+
         # init model integration loop
         self._time = self._time_start
         self._step = 0

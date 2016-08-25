@@ -25,8 +25,6 @@ import numpy as np
 def hill_only():
     """hillslope-diffusion-only example"""
 
-    # TODO: disable uplift component    
-
     ny = 50
     nx = 100
     lx = 1.0
@@ -43,12 +41,13 @@ def hill_only():
     hill_kappa_active = 0.01
     hill_kappa_inactive = 0.0
     hill_bc = ['constant']*4
+    uplift_on = False
     
     mod = py_ice_cascade.ice_cascade.model(x=x, y=y, zrx=zrx, time_start=time_start,
         time_step=time_step, num_steps=num_steps, out_steps=out_steps, 
         hill_on=hill_on, hill_kappa_active=hill_kappa_active, 
         hill_kappa_inactive=hill_kappa_inactive, hill_bc=hill_bc,
-        verbose=True)
+        uplift_on=uplift_on, verbose=True)
     mod.run('example.hill_only.out.nc', verbose=True)
 
 def uplift_only():
@@ -74,7 +73,7 @@ def hill_uplift():
     hill_kappa_active = 0.01
     hill_kappa_inactive = 0.0
     hill_bc = ['constant']*4
-    uplift_on = True 
+    uplift_on = False
     uplift_start = np.zeros((ny,nx), dtype=np.double)
     uplift_end = np.ones((ny,nx), dtype=np.double)
 
