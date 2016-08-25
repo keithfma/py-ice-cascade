@@ -22,17 +22,21 @@ class model():
         time_step: scalar, topographic model time step, [a]
         num_steps: scalar, total steps in simulation, i.e. duration, [1]
         out_steps: list, step numbers to write output, 0 is initial state, [1]
-        hill_on: scalar, boolean flag, True to enable hillslope model
+        hill_on: scalar bool, set True to enable hillslope model
         hill_kappa_active: scalar, hillslope diffusivity where active, [m^2 / a]
         hill_kappa_inactive: scalar, hillslope diffusivity where inactive, [m^2 / a]
         hill_bc: list, hillslope model boundary conditions at [y[0],
             y[end], x[0], x[end]. See hilllslope.py for details.
+        uplift_on: scalar bool, set True to enable uplift component model
+        uplift_start: grid, uplift rate at time_start [m / a]
+        uplift_end: grid uplift rate at time_end [m / a]
         verbose: Boolean, set True to show verbose messages
     """
 
     def __init__(self, x=None, y=None, zrx=None, time_start=None,
         time_step=None, num_steps=None, out_steps=None, hill_on=None,
         hill_kappa_active=None, hill_kappa_inactive=None, hill_bc=None,
+        uplift_on=None, uplift_start=None, uplift_end=None,
         verbose=False):
 
         if verbose:
@@ -50,6 +54,9 @@ class model():
         self._hill_kappa_active = np.copy(hill_kappa_active)
         self._hill_kappa_inactive = np.copy(hill_kappa_inactive)
         self._hill_bc = list(hill_bc)
+        self._uplift_on = uplift_on
+        self._uplift_start = uplift_start
+        self._uplift_end = uplift_end
         # automatic parameters
         self._delta = None
         self._time = None
@@ -82,6 +89,7 @@ class model():
        
         # global attributes: on/off switches for model components
         nc.hillslope_on = int(self._hill_on)
+        nc.uplift_on = int(self._uplift_on)
 
         # create dimensions
         nc.createDimension('x', size=self._x.size)
@@ -128,6 +136,11 @@ class model():
         for ii in range(4):
             nc['hill_bc'][ii] = self._hill_bc[ii]
 
+        nc.createVariable('uplift_rate', np.double, dimensions=('time', 'y', 'x'), 
+            zlib=zlib, complevel=complevel, shuffle=shuffle, chunksizes=chunksizes)
+        nc['uplift_rate'].long_name = 'tectonic rock uplift rate'
+        nc['uplift_rate'].units = 'm / a'
+
         # finalize
         nc.close()
 
@@ -150,6 +163,7 @@ class model():
         nc['step'][ii] = self._step
         nc['zrx'][ii,:,:] = self._zrx
         nc['hill_kappa'][ii,:,:] = self._hill_kappa
+        #nc['uplift_rate'][ii,:,:] = self._uplift_rate
         nc.close()
 
 

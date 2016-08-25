@@ -12,5 +12,17 @@ class model_TestCase(unittest.TestCase):
         """Expect failure if grid is not regular"""
         pass
 
+    def test_output_steps(self):
+        """Expect output steps to include 1st and last step"""
+        pass
+
+    def test_disable_hillslope(self):
+        """Confirm ability to disable the hillslope component model"""
+        pass
+
+    def test_disable_uplift(self):
+        """Confirm ability to disable the uplift component model"""
+        pass
+
 if __name__ == '__main__':
     unittest.main()

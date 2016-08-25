@@ -25,6 +25,8 @@ import numpy as np
 def hill_only():
     """hillslope-diffusion-only example"""
 
+    # TODO: disable uplift component    
+
     ny = 50
     nx = 100
     lx = 1.0
@@ -45,21 +47,49 @@ def hill_only():
     mod = py_ice_cascade.ice_cascade.model(x=x, y=y, zrx=zrx, time_start=time_start,
         time_step=time_step, num_steps=num_steps, out_steps=out_steps, 
         hill_on=hill_on, hill_kappa_active=hill_kappa_active, 
-        hill_kappa_inactive=hill_kappa_inactive, hill_bc=hill_bc, verbose=True)
+        hill_kappa_inactive=hill_kappa_inactive, hill_bc=hill_bc,
+        verbose=True)
     mod.run('example.hill_only.out.nc', verbose=True)
 
 def uplift_only():
     """uplift-only example"""
     raise NotImplementedError
 
-def hill_with_uplift():
+def hill_uplift():
     """hillslope diffusion with uplift example"""
-    raise NotImplementedError
+
+    ny = 50
+    nx = 100
+    lx = 1.0
+    delta = lx/(nx-1) 
+    ly = delta*(ny-1)
+    x = np.linspace(0, lx, nx)
+    y = np.linspace(0, ly, ny)
+    zrx = np.pad(np.random.rand(ny-2, nx-2), 1, 'constant', constant_values=0)
+    time_start = 0.0
+    time_step = 0.1
+    num_steps = 10
+    out_steps = np.arange(0,num_steps)
+    hill_on = True
+    hill_kappa_active = 0.01
+    hill_kappa_inactive = 0.0
+    hill_bc = ['constant']*4
+    uplift_on = True 
+    uplift_start = np.zeros((ny,nx), dtype=np.double)
+    uplift_end = np.ones((ny,nx), dtype=np.double)
+
+    mod = py_ice_cascade.ice_cascade.model(x=x, y=y, zrx=zrx, time_start=time_start,
+        time_step=time_step, num_steps=num_steps, out_steps=out_steps,
+        hill_on=hill_on, hill_kappa_active=hill_kappa_active,
+        hill_kappa_inactive=hill_kappa_inactive, hill_bc=hill_bc,
+        uplift_on=uplift_on, uplift_start=uplift_start, uplift_end=uplift_end, 
+        verbose=True)
+    mod.run('example.hill_uplift.out.nc', verbose=True)
 
 # command line interface
 if __name__ == '__main__':
 
-    valid_cases = ['hill_only', 'uplift_only', 'hill_with_uplift']
+    valid_cases = ['hill_only', 'uplift_only', 'hill_uplift']
 
     parser = argparse.ArgumentParser(description='Run example cases for for '
         'Python ICE-CASCADE glacial-fluvial-hillslope landscape evolution model',
@@ -72,5 +102,5 @@ if __name__ == '__main__':
         hill_only()
     elif args.c == 'uplift_only':
         uplift_only()
-    elif args.c == 'hill_with_uplift':
-        hill_with_uplift()
+    elif args.c == 'hill_uplift':
+        hill_uplift()
