@@ -13,20 +13,43 @@ class model():
     """
     Composite landscape evolution model. Integrates glacial, fluvial, and
     hillslope model components and handles input-output.
+
+    Arguments:
+        x: numpy vector, x-coordinate, [m]
+        y: numpy vector, y-coordinate, [m]
+        zrx: grid, initial bedrock elevation, [m]
+        time_start: scalar, starting time, [a]
+        time_step: scalar, topographic model time step, [a]
+        num_steps: scalar, total steps in simulation, i.e. duration, [1]
+        out_steps: list, step numbers to write output, 0 is initial state, [1]
+        hill_on: scalar, boolean flag, True to enable hillslope model
+        hill_kappa_active: scalar, hillslope diffusivity where active, [m^2 / a]
+        hill_kappa_inactive: scalar, hillslope diffusivity where inactive, [m^2 / a]
+        hill_bc: list, hillslope model boundary conditions at [y[0],
+            y[end], x[0], x[end]. See hilllslope.py for details.
+        verbose: Boolean, set True to show verbose messages
     """
 
-    def __init__(self):
+    def __init__(self, x=None, y=None, zrx=None, time_start=None,
+        time_step=None, num_steps=None, out_steps=None, hill_on=None,
+        hill_kappa_active=None, hill_kappa_inactive=None, hill_bc=None,
+        verbose=False):
+
+        if verbose:
+            print("ice_cascade.model: setting model parameters")
+
         # user-defined parameters
-        self._x = None
-        self._y = None
-        self._zrx = None
-        self._time_start = None
-        self._time_step = None
-        self._num_steps = None
-        self._out_steps = None
-        self._hill_on = None
-        self._hill_kappa = None
-        self._hill_bc = None
+        self._x = np.copy(x)
+        self._y = np.copy(y) 
+        self._zrx = np.copy(zrx) 
+        self._time_start = time_start 
+        self._time_step = time_step 
+        self._num_steps = num_steps 
+        self._out_steps = np.copy(out_steps) 
+        self._hill_on = bool(hill_on)
+        self._hill_kappa_active = np.copy(hill_kappa_active)
+        self._hill_kappa_inactive = np.copy(hill_kappa_inactive)
+        self._hill_bc = list(hill_bc)
         # automatic parameters
         self._delta = None
         self._time = None
@@ -129,57 +152,6 @@ class model():
         nc['hill_kappa'][ii,:,:] = self._hill_kappa
         nc.close()
 
-    def set_param_from_var(self, x=None, y=None, zrx=None, time_start=None,
-        time_step=None, num_steps=None, out_steps=None, hill_on=None,
-        hill_kappa_active=None, hill_kappa_inactive=None, hill_bc=None,
-        verbose=False):
-        """
-        Initialize model state and parameters from argument variables
-
-        All input arguments are optional, and only the supplied model
-        state/parameter attributes will be set.
-
-        Arguments:
-            x: numpy vector, x-coordinate, [m]
-            y: numpy vector, y-coordinate, [m]
-            zrx: grid, initial bedrock elevation, [m]
-            time_start: scalar, starting time, [a]
-            time_step: scalar, topographic model time step, [a]
-            num_steps: scalar, total steps in simulation, i.e. duration, [1]
-            out_steps: list, step numbers to write output, 0 is initial state, [1]
-            hill_on: scalar, boolean flag, True to enable hillslope model
-            hill_kappa_active: scalar, hillslope diffusivity where active, [m^2 / a]
-            hill_kappa_inactive: scalar, hillslope diffusivity where inactive, [m^2 / a]
-            hill_bc: list, hillslope model boundary conditions at [y[0],
-                y[end], x[0], x[end]. See hilllslope.py for details.
-            verbose: Boolean, set True to show verbose messages
-        """
-
-        if verbose:
-            print("set_param_from_var: setting model parameters")
-
-        if x is not None: 
-            self._x = np.copy(x)
-        if y is not None: 
-            self._y = np.copy(y) 
-        if zrx is not None: 
-            self._zrx = np.copy(zrx) 
-        if time_start is not None: 
-            self._time_start = time_start 
-        if time_step is not None: 
-            self._time_step = time_step 
-        if num_steps is not None: 
-            self._num_steps = num_steps 
-        if out_steps is not None: 
-            self._out_steps = np.copy(out_steps) 
-        if hill_on is not None: 
-            self._hill_on = bool(hill_on)
-        if hill_kappa_active is not None: 
-            self._hill_kappa_active = np.copy(hill_kappa_active)
-        if hill_kappa_inactive is not None: 
-            self._hill_kappa_inactive = np.copy(hill_kappa_inactive)
-        if hill_bc is not None: 
-            self._hill_bc = list(hill_bc)
 
     def run(self, file_name, verbose=False):
         """

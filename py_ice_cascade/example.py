@@ -42,10 +42,9 @@ def hill_only():
     hill_kappa_inactive = 0.0
     hill_bc = ['constant']*4
     
-    mod = py_ice_cascade.ice_cascade.model()
-    mod.set_param_from_var(x=x, y=y, zrx=zrx, time_start=time_start,
-        time_step=time_step, num_steps=num_steps, out_steps=out_steps,
-        hill_on=hill_on, hill_kappa_active=hill_kappa_active,
+    mod = py_ice_cascade.ice_cascade.model(x=x, y=y, zrx=zrx, time_start=time_start,
+        time_step=time_step, num_steps=num_steps, out_steps=out_steps, 
+        hill_on=hill_on, hill_kappa_active=hill_kappa_active, 
         hill_kappa_inactive=hill_kappa_inactive, hill_bc=hill_bc, verbose=True)
     mod.run('example.hill_only.out.nc', verbose=True)
 
