@@ -1,6 +1,8 @@
 # py\_ice\_cascade
 Python implementation of ICE-CASCADE landscape evolution model 
 
+[Read the documentation](https://keithfma.github.io/py_ice_cascade/)
+
 ## Developer Guidelines
 
 ### Project Metadata
@@ -27,23 +29,14 @@ The project documentation is automagically generated from docstrings using
 when writing docstrings. This format is understood by the documentation build
 process, and will produce readable documents directly from the code. The
 initial *Sphinx* setup followed this [guide](http://gisellezeno.com/tutorials/sphinx-for-python-documentation.html),
-with additional modifications of conf.py and Makefile.  To (re)generate the
-documentation, you must first run *sphinx-apidoc* to translate formated
-docstrings into *rst* files (in [reStructuredText](http://www.sphinx-doc.org/en/stable/rest.html)
-markup), then translate these *.rst* files into your prefered format. This
-process is mostly automated using the Makefile in *docs/* like so: 
+with additional modifications of conf.py and Makefile.  To (re)generate the HTML
+documentation: 
 ```shell 
-cd docs
-make apidoc
 make html
 ``` 
-The *.rst* files are created in *docs/source* and the output docs are created
-in *docs/build/html*. Both should be included in the repository. Keeping the
-html documentation in the repository allows them to be published to the web
-(on Github) with the following command:
-```shell
-git subtree push --prefix docs/build/html origin gh-pages
-```
+The *.rst* files are created in *docs_src* and the output docs are created
+in *docs*. Both should be included in the repository. The *docs* folder in the
+*master* branch is published automatically using (Github Pages)[https://pages.github.com/].
 
 ### Packaging
 This project uses [setuptools](https://pypi.python.org/pypi/setuptools) 
