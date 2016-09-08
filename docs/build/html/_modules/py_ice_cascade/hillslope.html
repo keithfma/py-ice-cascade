@@ -1,0 +1,526 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>py_ice_cascade.hillslope &mdash; py_ice_cascade 0.0.1 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+    <link rel="top" title="py_ice_cascade 0.0.1 documentation" href="../../index.html"/>
+        <link rel="up" title="Module code" href="../index.html"/> 
+
+  
+  <script src="../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> py_ice_cascade
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.0.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../modules.html">py_ice_cascade</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../../index.html">py_ice_cascade</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+      
+    <li>py_ice_cascade.hillslope</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for py_ice_cascade.hillslope</h1><div class="highlight"><pre>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Python ICE-CASCADE hillslope erosion-deposition model component</span>
+
+<span class="sd">References:</span>
+
+<span class="sd">    (1) Becker, T. W., &amp; Kaus, B. J. P. (2016). Numerical Modeling of Earth</span>
+<span class="sd">    Systems: Lecture Notes for USC GEOL557 (1.1.4)</span>
+
+<span class="sd">    (2) Spiegelman, M. (2000). Myths &amp; Methods in Modeling. Columbia University</span>
+<span class="sd">    Course Lecture Notes, 202. http://doi.org/10.1007/BF00763500</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">scipy.sparse</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+
+<div class="viewcode-block" id="null"><a class="viewcode-back" href="../../py_ice_cascade.html#py_ice_cascade.hillslope.null">[docs]</a><span class="k">class</span> <span class="nc">null</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Do-nothing class to be used for disabled hillslope component</span>
+
+<span class="sd">    Internal height grid is set and returned unchanged</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">pass</span>
+<div class="viewcode-block" id="null.set_height"><a class="viewcode-back" href="../../py_ice_cascade.html#py_ice_cascade.hillslope.null.set_height">[docs]</a>    <span class="k">def</span> <span class="nf">set_height</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_height</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">double</span><span class="p">(</span><span class="n">new</span><span class="p">)</span> </div>
+<div class="viewcode-block" id="null.set_diffusivity"><a class="viewcode-back" href="../../py_ice_cascade.html#py_ice_cascade.hillslope.null.set_diffusivity">[docs]</a>    <span class="k">def</span> <span class="nf">set_diffusivity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new</span><span class="p">):</span>
+        <span class="k">pass</span></div>
+<div class="viewcode-block" id="null.get_height"><a class="viewcode-back" href="../../py_ice_cascade.html#py_ice_cascade.hillslope.null.get_height">[docs]</a>    <span class="k">def</span> <span class="nf">get_height</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_height</span></div>
+<div class="viewcode-block" id="null.run"><a class="viewcode-back" href="../../py_ice_cascade.html#py_ice_cascade.hillslope.null.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+        <span class="k">pass</span></div></div>
+
+<div class="viewcode-block" id="ftcs"><a class="viewcode-back" href="../../py_ice_cascade.html#py_ice_cascade.hillslope.ftcs">[docs]</a><span class="k">class</span> <span class="nc">ftcs</span><span class="p">():</span>
+    <span class="sd">r&quot;&quot;&quot;</span>
+<span class="sd">    Hillslope diffusion model using forward-time center-space (FTCS) finite</span>
+<span class="sd">    diffence scheme. </span>
+
+<span class="sd">    Arguments:</span>
+<span class="sd">        height: 2D numpy array, surface elevation in model domain, [m]</span>
+<span class="sd">        delta: Scalar double, grid spacing, assumed square, [m]</span>
+<span class="sd">        kappa: 2D numpy array, diffusion coefficient, [m**2/a]</span>
+<span class="sd">        bc: List of boundary conditions names for [y=0, y=end, x=0, x=end]</span>
+
+<span class="sd">    Supported boundary conditions are:</span>
+<span class="sd">    </span>
+<span class="sd">    * *constant*: :math:`\frac{\partial H}{\partial t} = 0`</span>
+<span class="sd">    </span>
+<span class="sd">    * *closed*: no flux out of boundary (e.g. :math:`(q_x)_{i,j+1/2} = 0` at</span>
+<span class="sd">      :math:`x_{max}`)</span>
+
+<span class="sd">    * *open*: no flux gradient normal to boundary, material passes through</span>
+<span class="sd">      (e.g. :math:`\frac{\partial q_x}{\partial x} = 0` at :math:`x_{max}`)</span>
+<span class="sd">    </span>
+<span class="sd">    * *cyclic*: flux at opposing boundaries is equal (e.g.</span>
+<span class="sd">      :math:`(q_x)_{i,-1/2} = (q_x)_{i,\text{end}+1/2}`)</span>
+<span class="sd">    </span>
+<span class="sd">    * *mirror*: boundary flux is equal and opposite incoming flux (e.g.</span>
+<span class="sd">      :math:`(q_x)_{i,j+1/2} = -(q_x)_{i,j-1/2}` at :math:`x_{max}`)</span>
+
+<span class="sd">    Overview of FTCS scheme with spatially variable diffusivity (see reference</span>
+<span class="sd">    (1) and (2)). Starting with the basic diffusion equation:  </span>
+<span class="sd">    </span>
+<span class="sd">    .. math::</span>
+<span class="sd">       \frac{\partial H}{\partial t} = \nabla \cdot q</span>
+
+<span class="sd">    Discretize derivative terms using FTCS scheme:</span>
+<span class="sd">    </span>
+<span class="sd">    .. math::</span>
+<span class="sd">       \frac{H^{n+1}_{i,j} - H^{n}_{i,j}}{\Delta_t} = </span>
+<span class="sd">           \frac{(q_x)^{n}_{i,j+1/2} - (q_x)^{n}_{i,j-1/2}}{\Delta_x} + </span>
+<span class="sd">           \frac{(q_y)^{n}_{i+1/2,j} - (q_y)^{n}_{i-1/2,j}}{\Delta_y} </span>
+
+<span class="sd">    Expand the fluxes in terms of height gradient:</span>
+<span class="sd">    </span>
+<span class="sd">    .. math::</span>
+<span class="sd">       \frac{1}{\Delta_t} \left( H^{n+1}_{i,j} - H^{n}_{i,j} \right) = </span>
+<span class="sd">           \frac{1}{\Delta_x} \left[ </span>
+<span class="sd">           \kappa_{i,j+1/2} \frac{H^{n}_{i,j+1}-H^{n}_{i,j}}{\Delta_x} - </span>
+<span class="sd">           \kappa_{i,j-1/2} \frac{H^{n}_{i,j}-H^{n}_{i,j-1}}{\Delta_x}</span>
+<span class="sd">           \right] + \\</span>
+<span class="sd">           \frac{1}{\Delta_y} \left[ </span>
+<span class="sd">           \kappa_{i+1/2,j} \frac{H^{n}_{i+1,j}-H^{n}_{i,j}}{\Delta_y} - </span>
+<span class="sd">           \kappa_{i-1/2,j} \frac{H^{n}_{i,j}-H^{n}_{i-1,j}}{\Delta_y}</span>
+<span class="sd">           \right]</span>
+
+<span class="sd">    Use the mean diffusivity at midpoints:</span>
+
+<span class="sd">    .. math::</span>
+<span class="sd">       \frac{1}{\Delta_t} \left( H^{n+1}_{i,j} - H^{n}_{i,j} \right) = </span>
+<span class="sd">           \frac{1}{\Delta_x} \left[ </span>
+<span class="sd">           \frac{\kappa_{i,j+1} + \kappa_{i,j}}{2} \frac{H^{n}_{i,j+1}-H^{n}_{i,j}}{\Delta_x} - </span>
+<span class="sd">           \frac{\kappa_{i,j} + \kappa_{i,j-1}}{2} \frac{H^{n}_{i,j}-H^{n}_{i,j-1}}{\Delta_x}</span>
+<span class="sd">           \right] + \\</span>
+<span class="sd">           \frac{1}{\Delta_y} \left[ </span>
+<span class="sd">           \frac{\kappa_{i+1,j} + \kappa_{i,j}}{2} \frac{H^{n}_{i+1,j}-H^{n}_{i,j}}{\Delta_y} - </span>
+<span class="sd">           \frac{\kappa_{i,j} + \kappa_{i-1,j}}{2} \frac{H^{n}_{i,j}-H^{n}_{i-1,j}}{\Delta_y}</span>
+<span class="sd">           \right]</span>
+
+<span class="sd">    Assume equal x- and y- grid spacing and collect coefficients:</span>
+<span class="sd">        </span>
+<span class="sd">    .. math::</span>
+<span class="sd">       \frac{1}{\Delta_t} \left( H^{n+1}_{i,j} - H^{n}_{i,j} \right) = </span>
+<span class="sd">           \frac{1}{2 \Delta_{xy}^2} \left[ </span>
+<span class="sd">           (\kappa_{i,j+1} + \kappa_{i,j}) (H^{n}_{i,j+1}-H^{n}_{i,j}) - </span>
+<span class="sd">           (\kappa_{i,j} + \kappa_{i,j-1}) (H^{n}_{i,j}-H^{n}_{i,j-1}) + \\</span>
+<span class="sd">           (\kappa_{i+1,j} + \kappa_{i,j}) (H^{n}_{i+1,j}-H^{n}_{i,j}) - </span>
+<span class="sd">           (\kappa_{i,j} + \kappa_{i-1,j}) (H^{n}_{i,j}-H^{n}_{i-1,j})</span>
+<span class="sd">           \right]</span>
+
+<span class="sd">    Expand and collect terms:</span>
+
+<span class="sd">    .. math::</span>
+<span class="sd">       H^{n+1}_{i,j} =  H^{n}_{i,j} + \frac{\Delta_t}{2 \Delta_{xy}^2} \left[ </span>
+<span class="sd">       H^{n}_{i,j+1} (\kappa_{i,j+1} + \kappa_{i,j}) +  </span>
+<span class="sd">       H^{n}_{i,j-1} (\kappa_{i,j} + \kappa_{i,j-1}) +</span>
+<span class="sd">       H^{n}_{i+1,j} (\kappa_{i+1,j} + \kappa_{i,j}) + \\ </span>
+<span class="sd">       H^{n}_{i-1,j} (\kappa_{i,j} + \kappa_{i-1,j}) - </span>
+<span class="sd">       H^{n}_{i,j} (4 \kappa_{i,j} + \kappa_{i,j+1} + \kappa_{i,j-1} + \kappa_{i+1,j} + \kappa_{i-1,j})</span>
+<span class="sd">       \right]</span>
+
+<span class="sd">    The above scheme is modified at boundary points.     </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># NOTE: attributes and methods with the &quot;_&quot; prefix are considered private,</span>
+    <span class="c1">#       use outside the object at your own risk</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">height</span><span class="p">,</span> <span class="n">delta</span><span class="p">,</span> <span class="n">kappa</span><span class="p">,</span> <span class="n">bc</span><span class="p">):</span>
+        <span class="c1"># set attributes</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_valid_bc</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span><span class="s1">&#39;constant&#39;</span><span class="p">,</span> <span class="s1">&#39;closed&#39;</span><span class="p">,</span> <span class="s1">&#39;open&#39;</span><span class="p">,</span> <span class="s1">&#39;cyclic&#39;</span><span class="p">,</span> <span class="s1">&#39;mirror&#39;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_delta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">double</span><span class="p">(</span><span class="n">delta</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_bc</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">bc</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_height</span><span class="p">(</span><span class="n">height</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_diffusivity</span><span class="p">(</span><span class="n">kappa</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_check_dims</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">array</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Check that array dims match model dims, or set model dims&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_nx&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">array</span><span class="o">.</span><span class="n">shape</span> <span class="o">!=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ny</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_nx</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Array dims do not match model dims&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_ny</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_nx</span> <span class="o">=</span> <span class="n">array</span><span class="o">.</span><span class="n">shape</span>
+
+    <span class="k">def</span> <span class="nf">_check_bcs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Check for valid boundary condition selections&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_bc</span><span class="p">)</span><span class="o">.</span><span class="n">issubset</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_valid_bc</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Invalid boundary condition name&quot;</span><span class="p">)</span>
+        <span class="n">y_num_cyclic</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">_bc</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span><span class="o">==</span><span class="s1">&#39;cyclic&#39;</span> <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span><span class="p">)])</span>
+        <span class="n">x_num_cyclic</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">_bc</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span><span class="o">==</span><span class="s1">&#39;cyclic&#39;</span> <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">4</span><span class="p">)])</span>
+        <span class="k">if</span> <span class="n">y_num_cyclic</span><span class="o">==</span><span class="mi">1</span> <span class="ow">or</span> <span class="n">x_num_cyclic</span><span class="o">==</span><span class="mi">1</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Unmatched cyclic boundary condition&quot;</span><span class="p">)</span> 
+
+<div class="viewcode-block" id="ftcs.set_height"><a class="viewcode-back" href="../../py_ice_cascade.html#py_ice_cascade.hillslope.ftcs.set_height">[docs]</a>    <span class="k">def</span> <span class="nf">set_height</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set height grid&quot;&quot;&quot;</span>
+        <span class="n">new_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">double</span><span class="p">(</span><span class="n">new</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_check_dims</span><span class="p">(</span><span class="n">new_array</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_height</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ravel</span><span class="p">(</span><span class="n">new_array</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="s1">&#39;C&#39;</span><span class="p">)</span> <span class="c1"># </span></div>
+
+<div class="viewcode-block" id="ftcs.get_height"><a class="viewcode-back" href="../../py_ice_cascade.html#py_ice_cascade.hillslope.ftcs.get_height">[docs]</a>    <span class="k">def</span> <span class="nf">get_height</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return height grid as 2D numpy array&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_height</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">_ny</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_nx</span><span class="p">),</span> <span class="n">order</span><span class="o">=</span><span class="s1">&#39;C&#39;</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="ftcs.set_diffusivity"><a class="viewcode-back" href="../../py_ice_cascade.html#py_ice_cascade.hillslope.ftcs.set_diffusivity">[docs]</a>    <span class="k">def</span> <span class="nf">set_diffusivity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set diffusivity grid and update dheight/dt coefficient matrix&quot;&quot;&quot;</span>
+        <span class="n">new_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">double</span><span class="p">(</span><span class="n">new</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_check_dims</span><span class="p">(</span><span class="n">new_array</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_kappa</span> <span class="o">=</span> <span class="n">new_array</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set_coeff_matrix</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="ftcs.get_diffusivity"><a class="viewcode-back" href="../../py_ice_cascade.html#py_ice_cascade.hillslope.ftcs.get_diffusivity">[docs]</a>    <span class="k">def</span> <span class="nf">get_diffusivity</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return diffusivity grid as 2D numpy array&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_kappa</span><span class="o">.</span><span class="n">reshape</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">_set_coeff_matrix</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Define sparse coefficient matrix for dHdt stencil&quot;&quot;&quot;</span>
+
+        <span class="c1"># NOTE: FTCS is a 5-point stencil, since diffusivity is a grid, all</span>
+        <span class="c1"># coefficients are potentially unique. </span>
+
+        <span class="c1"># NOTE: corners are handled corners by adding the dqx/dx and dqy/dy</span>
+        <span class="c1"># terms separately. This makes it possible for *one* BC to be applied</span>
+        <span class="c1"># at edge points, and *both* BCs to be applied at corner points.</span>
+
+        <span class="c1"># init variables</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_check_bcs</span><span class="p">()</span>
+        <span class="n">A</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">sparse</span><span class="o">.</span><span class="n">lil_matrix</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">_ny</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">_nx</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ny</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">_nx</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">double</span><span class="p">)</span> <span class="c1"># lil format is fast to populate</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="mf">1.0</span><span class="o">/</span><span class="p">(</span><span class="mf">2.0</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">_delta</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">_delta</span><span class="p">)</span>
+        <span class="n">kappa</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_kappa</span> <span class="c1"># alias for convenience </span>
+        <span class="n">k</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">row</span><span class="p">,</span> <span class="n">col</span><span class="p">:</span> <span class="n">row</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">_nx</span><span class="o">+</span><span class="n">col</span> <span class="c1"># map subscripts (row, col) to linear index (k) in row-major order</span>
+
+        <span class="c1"># populate interior points</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">_ny</span><span class="o">-</span><span class="mi">1</span><span class="p">):</span> <span class="c1"># add dqy/dy tern</span>
+            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">_nx</span><span class="p">):</span>
+                <span class="n">A</span><span class="p">[</span><span class="n">k</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">),</span><span class="n">k</span><span class="p">(</span><span class="n">i</span>  <span class="p">,</span><span class="n">j</span><span class="p">)]</span> <span class="o">+=</span> <span class="o">-</span><span class="n">c</span><span class="o">*</span><span class="p">(</span><span class="n">kappa</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="n">j</span><span class="p">]</span><span class="o">+</span><span class="mi">2</span><span class="o">*</span><span class="n">kappa</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]</span><span class="o">+</span><span class="n">kappa</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="n">j</span><span class="p">])</span>
+                <span class="n">A</span><span class="p">[</span><span class="n">k</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">),</span> <span class="n">k</span><span class="p">(</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="n">j</span><span class="p">)]</span> <span class="o">+=</span>  <span class="n">c</span><span class="o">*</span><span class="p">(</span><span class="n">kappa</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="n">j</span><span class="p">]</span><span class="o">+</span><span class="n">kappa</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">])</span> 
+                <span class="n">A</span><span class="p">[</span><span class="n">k</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">),</span> <span class="n">k</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="n">j</span><span class="p">)]</span> <span class="o">+=</span>  <span class="n">c</span><span class="o">*</span><span class="p">(</span><span class="n">kappa</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]</span><span class="o">+</span><span class="n">kappa</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="n">j</span><span class="p">])</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">_ny</span><span class="p">):</span> <span class="c1"># add dqx/dx term</span>
+            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">_nx</span><span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+                <span class="n">A</span><span class="p">[</span><span class="n">k</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">),</span> <span class="n">k</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">j</span>  <span class="p">)]</span> <span class="o">+=</span> <span class="o">-</span><span class="n">c</span><span class="o">*</span><span class="p">(</span><span class="n">kappa</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="mi">2</span><span class="o">*</span><span class="n">kappa</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]</span><span class="o">+</span><span class="n">kappa</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="o">+</span><span class="mi">1</span><span class="p">])</span>
+                <span class="n">A</span><span class="p">[</span><span class="n">k</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">),</span> <span class="n">k</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="o">-</span><span class="mi">1</span><span class="p">)]</span> <span class="o">+=</span>  <span class="n">c</span><span class="o">*</span><span class="p">(</span><span class="n">kappa</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="n">kappa</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">])</span> 
+                <span class="n">A</span><span class="p">[</span><span class="n">k</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">),</span> <span class="n">k</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="o">+</span><span class="mi">1</span><span class="p">)]</span> <span class="o">+=</span>  <span class="n">c</span><span class="o">*</span><span class="p">(</span><span class="n">kappa</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]</span><span class="o">+</span><span class="n">kappa</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="o">+</span><span class="mi">1</span><span class="p">])</span>
+
+        <span class="c1"># populate boundary at y=0</span>
+        <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;constant&#39;</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">_nx</span><span class="p">):</span> <span class="c1"># all coeff -&gt; 0</span>
+                <span class="n">A</span><span class="p">[</span><span class="n">k</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">),:]</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>  <span class="o">==</span> <span class="s1">&#39;closed&#39;</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">_nx</span><span class="p">):</span> <span class="c1"># add qy/dy term</span>
+                <span class="n">A</span><span class="p">[</span><span class="n">k</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">),</span> <span class="n">k</span><span class="p">(</span><span class="n">i</span>  <span class="p">,</span><span class="n">j</span><span class="p">)]</span> <span class="o">+=</span> <span class="o">-</span><span class="n">c</span><span class="o">*</span><span class="p">(</span><span class="n">kappa</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]</span><span class="o">+</span><span class="n">kappa</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="n">j</span><span class="p">])</span>
+                <span class="n">A</span><span class="p">[</span><span class="n">k</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">),</span> <span class="n">k</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="n">j</span><span class="p">)]</span> <span class="o">+=</span>  <span class="n">c</span><span class="o">*</span><span class="p">(</span><span class="n">kappa</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]</span><span class="o">+</span><span class="n">kappa</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="n">j</span><span class="p">])</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;open&#39;</span><span class="p">:</span>
+            <span class="k">pass</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;cyclic&#39;</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">_nx</span><span class="p">):</span> <span class="c1"># add qy/dy term</span>
+                <span class="n">A</span><span class="p">[</span><span class="n">k</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">),</span> <span class="n">k</span><span class="p">(</span><span class="n">i</span>  <span class="p">,</span><span class="n">j</span><span class="p">)]</span>        <span class="o">+=</span> <span class="o">-</span><span class="n">c</span><span class="o">*</span><span class="p">(</span><span class="n">kappa</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_ny</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="n">j</span><span class="p">]</span><span class="o">+</span><span class="mi">2</span><span class="o">*</span><span class="n">kappa</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]</span><span class="o">+</span><span class="n">kappa</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="n">j</span><span class="p">])</span>
+                <span class="n">A</span><span class="p">[</span><span class="n">k</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">),</span> <span class="n">k</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ny</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="n">j</span><span class="p">)]</span> <span class="o">+=</span>  <span class="n">c</span><span class="o">*</span><span class="p">(</span><span class="n">kappa</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_ny</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="n">j</span><span class="p">]</span><span class="o">+</span><span class="n">kappa</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">])</span> 
+                <span class="n">A</span><span class="p">[</span><span class="n">k</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">),</span> <span class="n">k</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="n">j</span><span class="p">)]</span>        <span class="o">+=</span>  <span class="n">c</span><span class="o">*</span><span class="p">(</span><span class="n">kappa</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]</span><span class="o">+</span><span class="n">kappa</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="n">j</span><span class="p">])</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;mirror&#39;</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">_nx</span><span class="p">):</span> <span class="c1"># dqy/dy term</span>
+                <span class="n">A</span><span class="p">[</span><span class="n">k</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">),</span> <span class="n">k</span><span class="p">(</span><span class="n">i</span>  <span class="p">,</span><span class="n">j</span><span class="p">)]</span> <span class="o">+=</span> <span class="o">-</span><span class="mf">2.0</span><span class="o">*</span><span class="n">c</span><span class="o">*</span><span class="p">(</span><span class="n">kappa</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]</span><span class="o">+</span><span class="n">kappa</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="n">j</span><span class="p">])</span>
+                <span class="n">A</span><span class="p">[</span><span class="n">k</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">),</span> <span class="n">k</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="n">j</span><span class="p">)]</span> <span class="o">+=</span>  <span class="mf">2.0</span><span class="o">*</span><span class="n">c</span><span class="o">*</span><span class="p">(</span><span class="n">kappa</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]</span><span class="o">+</span><span class="n">kappa</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="n">j</span><span class="p">])</span>
+
+        <span class="c1"># populate boundary at y=end</span>
+        <span class="n">i</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ny</span><span class="o">-</span><span class="mi">1</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bc</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;constant&#39;</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">_nx</span><span class="p">):</span> <span class="c1"># all coeff -&gt; 0</span>
+                <span class="n">A</span><span class="p">[</span><span class="n">k</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">),:]</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bc</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>  <span class="o">==</span> <span class="s1">&#39;closed&#39;</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">_nx</span><span class="p">):</span> <span class="c1"># dqy/dy term</span>
+                <span class="n">A</span><span class="p">[</span><span class="n">k</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">),</span> <span class="n">k</span><span class="p">(</span><span class="n">i</span>  <span class="p">,</span><span class="n">j</span>  <span class="p">)]</span> <span class="o">+=</span> <span class="o">-</span><span class="n">c</span><span class="o">*</span><span class="p">(</span><span class="n">kappa</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]</span><span class="o">+</span><span class="n">kappa</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="n">j</span><span class="p">])</span>
+                <span class="n">A</span><span class="p">[</span><span class="n">k</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">),</span> <span class="n">k</span><span class="p">(</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="n">j</span>  <span class="p">)]</span> <span class="o">+=</span>  <span class="n">c</span><span class="o">*</span><span class="p">(</span><span class="n">kappa</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]</span><span class="o">+</span><span class="n">kappa</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="n">j</span><span class="p">])</span> 
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bc</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;open&#39;</span><span class="p">:</span>
+            <span class="k">pass</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bc</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;cyclic&#39;</span><span class="p">:</span> <span class="c1"># dqy/dy term</span>
+            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">_nx</span><span class="p">):</span>
+                <span class="n">A</span><span class="p">[</span><span class="n">k</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">),</span> <span class="n">k</span><span class="p">(</span><span class="n">i</span>  <span class="p">,</span><span class="n">j</span><span class="p">)]</span> <span class="o">+=</span> <span class="o">-</span><span class="n">c</span><span class="o">*</span><span class="p">(</span><span class="n">kappa</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="n">j</span><span class="p">]</span><span class="o">+</span><span class="mi">2</span><span class="o">*</span><span class="n">kappa</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]</span><span class="o">+</span><span class="n">kappa</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="n">j</span><span class="p">])</span>
+                <span class="n">A</span><span class="p">[</span><span class="n">k</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">),</span> <span class="n">k</span><span class="p">(</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="n">j</span><span class="p">)]</span> <span class="o">+=</span>  <span class="n">c</span><span class="o">*</span><span class="p">(</span><span class="n">kappa</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="n">j</span><span class="p">]</span><span class="o">+</span><span class="n">kappa</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">])</span> 
+                <span class="n">A</span><span class="p">[</span><span class="n">k</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">),</span> <span class="n">k</span><span class="p">(</span><span class="mi">0</span>  <span class="p">,</span><span class="n">j</span><span class="p">)]</span> <span class="o">+=</span>  <span class="n">c</span><span class="o">*</span><span class="p">(</span><span class="n">kappa</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]</span><span class="o">+</span><span class="n">kappa</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="n">j</span><span class="p">])</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bc</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>  <span class="o">==</span> <span class="s1">&#39;mirror&#39;</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">_nx</span><span class="p">):</span> <span class="c1"># dqy/dy term</span>
+                <span class="n">A</span><span class="p">[</span><span class="n">k</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">),</span> <span class="n">k</span><span class="p">(</span><span class="n">i</span>  <span class="p">,</span><span class="n">j</span>  <span class="p">)]</span> <span class="o">+=</span> <span class="o">-</span><span class="mf">2.0</span><span class="o">*</span><span class="n">c</span><span class="o">*</span><span class="p">(</span><span class="n">kappa</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]</span><span class="o">+</span><span class="n">kappa</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="n">j</span><span class="p">])</span>
+                <span class="n">A</span><span class="p">[</span><span class="n">k</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">),</span> <span class="n">k</span><span class="p">(</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="n">j</span>  <span class="p">)]</span> <span class="o">+=</span>  <span class="mf">2.0</span><span class="o">*</span><span class="n">c</span><span class="o">*</span><span class="p">(</span><span class="n">kappa</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]</span><span class="o">+</span><span class="n">kappa</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="n">j</span><span class="p">])</span> 
+
+        <span class="c1"># populate boundary at x=0</span>
+        <span class="n">j</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bc</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;constant&#39;</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">_ny</span><span class="p">):</span> <span class="c1"># all coeff -&gt; 0</span>
+                <span class="n">A</span><span class="p">[</span><span class="n">k</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">),:]</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bc</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>  <span class="o">==</span> <span class="s1">&#39;closed&#39;</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">_ny</span><span class="p">):</span> <span class="c1"># dqx/dx term</span>
+                <span class="n">A</span><span class="p">[</span><span class="n">k</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">),</span> <span class="n">k</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">j</span>  <span class="p">)]</span> <span class="o">+=</span> <span class="o">-</span><span class="n">c</span><span class="o">*</span><span class="p">(</span><span class="n">kappa</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]</span><span class="o">+</span><span class="n">kappa</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="o">+</span><span class="mi">1</span><span class="p">])</span>
+                <span class="n">A</span><span class="p">[</span><span class="n">k</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">),</span> <span class="n">k</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="o">+</span><span class="mi">1</span><span class="p">)]</span> <span class="o">+=</span>  <span class="n">c</span><span class="o">*</span><span class="p">(</span><span class="n">kappa</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]</span><span class="o">+</span><span class="n">kappa</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="o">+</span><span class="mi">1</span><span class="p">])</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bc</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;open&#39;</span><span class="p">:</span>
+            <span class="k">pass</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bc</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;cyclic&#39;</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">_ny</span><span class="p">):</span> <span class="c1"># dqx/dx term</span>
+                <span class="n">A</span><span class="p">[</span><span class="n">k</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">),</span> <span class="n">k</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">j</span>  <span class="p">)]</span>        <span class="o">+=</span> <span class="o">-</span><span class="n">c</span><span class="o">*</span><span class="p">(</span><span class="n">kappa</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">_nx</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="mi">2</span><span class="o">*</span><span class="n">kappa</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]</span><span class="o">+</span><span class="n">kappa</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="o">+</span><span class="mi">1</span><span class="p">])</span>
+                <span class="n">A</span><span class="p">[</span><span class="n">k</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">),</span> <span class="n">k</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">_nx</span><span class="o">-</span><span class="mi">1</span><span class="p">)]</span> <span class="o">+=</span>  <span class="n">c</span><span class="o">*</span><span class="p">(</span><span class="n">kappa</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]</span><span class="o">+</span><span class="n">kappa</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">_nx</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+                <span class="n">A</span><span class="p">[</span><span class="n">k</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">),</span> <span class="n">k</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="o">+</span><span class="mi">1</span><span class="p">)]</span>        <span class="o">+=</span>  <span class="n">c</span><span class="o">*</span><span class="p">(</span><span class="n">kappa</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]</span><span class="o">+</span><span class="n">kappa</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="o">+</span><span class="mi">1</span><span class="p">])</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bc</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>  <span class="o">==</span> <span class="s1">&#39;mirror&#39;</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">_ny</span><span class="p">):</span> <span class="c1"># dqx/dx term</span>
+                <span class="n">A</span><span class="p">[</span><span class="n">k</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">),</span> <span class="n">k</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">j</span>  <span class="p">)]</span> <span class="o">+=</span> <span class="o">-</span><span class="mf">2.0</span><span class="o">*</span><span class="n">c</span><span class="o">*</span><span class="p">(</span><span class="n">kappa</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]</span><span class="o">+</span><span class="n">kappa</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="o">+</span><span class="mi">1</span><span class="p">])</span>
+                <span class="n">A</span><span class="p">[</span><span class="n">k</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">),</span> <span class="n">k</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="o">+</span><span class="mi">1</span><span class="p">)]</span> <span class="o">+=</span>  <span class="mf">2.0</span><span class="o">*</span><span class="n">c</span><span class="o">*</span><span class="p">(</span><span class="n">kappa</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]</span><span class="o">+</span><span class="n">kappa</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="o">+</span><span class="mi">1</span><span class="p">])</span>
+
+        <span class="c1"># populate boundary at x=end</span>
+        <span class="n">j</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_nx</span><span class="o">-</span><span class="mi">1</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bc</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;constant&#39;</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">_ny</span><span class="p">):</span> <span class="c1"># all coeff -&gt; 0</span>
+                <span class="n">A</span><span class="p">[</span><span class="n">k</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">),:]</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bc</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>  <span class="o">==</span> <span class="s1">&#39;closed&#39;</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">_ny</span><span class="p">):</span> <span class="c1"># dqx/dx term</span>
+                <span class="n">A</span><span class="p">[</span><span class="n">k</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">),</span> <span class="n">k</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">j</span>  <span class="p">)]</span> <span class="o">+=</span> <span class="o">-</span><span class="n">c</span><span class="o">*</span><span class="p">(</span><span class="n">kappa</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]</span><span class="o">+</span><span class="n">kappa</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+                <span class="n">A</span><span class="p">[</span><span class="n">k</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">),</span> <span class="n">k</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="o">-</span><span class="mi">1</span><span class="p">)]</span> <span class="o">+=</span>  <span class="n">c</span><span class="o">*</span><span class="p">(</span><span class="n">kappa</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]</span><span class="o">+</span><span class="n">kappa</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> 
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bc</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;open&#39;</span><span class="p">:</span>
+            <span class="k">pass</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bc</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;cyclic&#39;</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">_ny</span><span class="p">):</span> <span class="c1"># dqx/dx term</span>
+                <span class="n">A</span><span class="p">[</span><span class="n">k</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">),</span> <span class="n">k</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">j</span>  <span class="p">)]</span> <span class="o">+=</span> <span class="o">-</span><span class="n">c</span><span class="o">*</span><span class="p">(</span><span class="n">kappa</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="mi">2</span><span class="o">*</span><span class="n">kappa</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]</span><span class="o">+</span><span class="n">kappa</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="mi">0</span><span class="p">])</span>
+                <span class="n">A</span><span class="p">[</span><span class="n">k</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">),</span> <span class="n">k</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="o">-</span><span class="mi">1</span><span class="p">)]</span> <span class="o">+=</span>  <span class="n">c</span><span class="o">*</span><span class="p">(</span><span class="n">kappa</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="n">kappa</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">])</span> 
+                <span class="n">A</span><span class="p">[</span><span class="n">k</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">),</span> <span class="n">k</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="mi">0</span><span class="p">)]</span> <span class="o">+=</span>  <span class="n">c</span><span class="o">*</span><span class="p">(</span><span class="n">kappa</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]</span><span class="o">+</span><span class="n">kappa</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="mi">0</span><span class="p">])</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bc</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>  <span class="o">==</span> <span class="s1">&#39;mirror&#39;</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">_ny</span><span class="p">):</span> <span class="c1"># dqx/dx term</span>
+                <span class="n">A</span><span class="p">[</span><span class="n">k</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">),</span> <span class="n">k</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">j</span>  <span class="p">)]</span> <span class="o">+=</span> <span class="o">-</span><span class="mf">2.0</span><span class="o">*</span><span class="n">c</span><span class="o">*</span><span class="p">(</span><span class="n">kappa</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]</span><span class="o">+</span><span class="n">kappa</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+                <span class="n">A</span><span class="p">[</span><span class="n">k</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">),</span> <span class="n">k</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="o">-</span><span class="mi">1</span><span class="p">)]</span> <span class="o">+=</span>  <span class="mf">2.0</span><span class="o">*</span><span class="n">c</span><span class="o">*</span><span class="p">(</span><span class="n">kappa</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]</span><span class="o">+</span><span class="n">kappa</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> 
+
+        <span class="c1"># store results in effcient format for matrix*vector product</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_A</span> <span class="o">=</span> <span class="n">A</span><span class="o">.</span><span class="n">tocsr</span><span class="p">()</span>
+
+<div class="viewcode-block" id="ftcs.run"><a class="viewcode-back" href="../../py_ice_cascade.html#py_ice_cascade.hillslope.ftcs.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">run_time</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Run numerical integration for specified time period</span>
+
+<span class="sd">        Arguments:</span>
+<span class="sd">            run_time: Scalar double, model run time, [a]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        
+        <span class="n">run_time</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">double</span><span class="p">(</span><span class="n">run_time</span><span class="p">)</span>
+        <span class="n">time</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">double</span><span class="p">(</span><span class="mf">0.0</span><span class="p">)</span>    
+        <span class="n">max_step</span> <span class="o">=</span> <span class="mf">0.95</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">_delta</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">_delta</span><span class="o">/</span><span class="p">(</span><span class="mf">4.0</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_kappa</span><span class="p">))</span> <span class="c1"># stable time step, note ref (1) has error</span>
+
+        <span class="k">while</span> <span class="n">time</span> <span class="o">&lt;</span> <span class="n">run_time</span><span class="p">:</span>
+            <span class="n">step</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">run_time</span><span class="o">-</span><span class="n">time</span><span class="p">,</span> <span class="n">max_step</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_height</span> <span class="o">+=</span> <span class="n">step</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">_A</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_height</span><span class="p">)</span>
+            <span class="n">time</span> <span class="o">+=</span> <span class="n">step</span></div></div>
+
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    
+    <span class="c1"># basic usage example and &quot;smell test&quot;: relaxation to height==0 steady state</span>
+    <span class="c1"># # initialize model</span>
+    <span class="n">nx</span> <span class="o">=</span> <span class="mi">100</span>
+    <span class="n">ny</span> <span class="o">=</span> <span class="mi">100</span>
+    <span class="n">max_time</span> <span class="o">=</span> <span class="mf">2.5</span>
+    <span class="n">time_step</span> <span class="o">=</span> <span class="mf">0.1</span>
+    <span class="n">h0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="n">ny</span><span class="p">,</span> <span class="n">nx</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">double</span><span class="p">)</span><span class="o">-</span><span class="mf">0.5</span>
+    <span class="n">h0</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">double</span><span class="p">(</span><span class="mf">0.0</span><span class="p">)</span> 
+    <span class="n">h0</span><span class="p">[:,</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">double</span><span class="p">(</span><span class="mf">0.0</span><span class="p">)</span>
+    <span class="n">h0</span><span class="p">[</span><span class="mi">0</span><span class="p">,:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">double</span><span class="p">(</span><span class="mf">0.0</span><span class="p">)</span>
+    <span class="n">h0</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">double</span><span class="p">(</span><span class="mf">0.0</span><span class="p">)</span>
+    <span class="n">dd</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">double</span><span class="p">(</span><span class="mf">1.0</span><span class="p">)</span>
+    <span class="n">kk</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="n">ny</span><span class="p">,</span> <span class="n">nx</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">double</span><span class="p">)</span>
+    <span class="n">bcs</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;constant&#39;</span><span class="p">,</span> <span class="s1">&#39;constant&#39;</span><span class="p">,</span> <span class="s1">&#39;constant&#39;</span><span class="p">,</span> <span class="s1">&#39;constant&#39;</span><span class="p">]</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">ftcs</span><span class="p">(</span><span class="n">h0</span><span class="p">,</span> <span class="n">dd</span><span class="p">,</span> <span class="n">kk</span><span class="p">,</span> <span class="n">bcs</span><span class="p">)</span>
+    <span class="c1"># # update and plot model</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">get_height</span><span class="p">(),</span> <span class="n">interpolation</span><span class="o">=</span><span class="s1">&#39;nearest&#39;</span><span class="p">,</span> <span class="n">clim</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mf">0.5</span><span class="p">,</span><span class="mf">0.5</span><span class="p">))</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">colorbar</span><span class="p">()</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">ion</span><span class="p">()</span>
+    <span class="n">time</span> <span class="o">=</span> <span class="mf">0.0</span>
+    <span class="k">while</span> <span class="n">time</span> <span class="o">&lt;</span> <span class="n">max_time</span><span class="p">:</span> 
+        <span class="n">model</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">time_step</span><span class="p">)</span>
+        <span class="n">time</span> <span class="o">+=</span> <span class="n">time_step</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">cla</span><span class="p">()</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">get_height</span><span class="p">(),</span> <span class="n">interpolation</span><span class="o">=</span><span class="s1">&#39;nearest&#39;</span><span class="p">,</span> <span class="n">clim</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mf">0.5</span><span class="p">,</span><span class="mf">0.5</span><span class="p">))</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;TIME = {:.2f}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">time</span><span class="p">))</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">pause</span><span class="p">(</span><span class="mf">0.10</span><span class="p">)</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, Keith F. Ma.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../',
+            VERSION:'0.0.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

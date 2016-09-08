@@ -1,5 +1,5 @@
 .*.swp
 *.pyc
-docs/build
+docs/build/doctrees
 **/__pycache__
 **/*.egg-info

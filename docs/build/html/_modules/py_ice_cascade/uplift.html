@@ -1,0 +1,331 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>py_ice_cascade.uplift &mdash; py_ice_cascade 0.0.1 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+    <link rel="top" title="py_ice_cascade 0.0.1 documentation" href="../../index.html"/>
+        <link rel="up" title="Module code" href="../index.html"/> 
+
+  
+  <script src="../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> py_ice_cascade
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.0.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../modules.html">py_ice_cascade</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../../index.html">py_ice_cascade</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+      
+    <li>py_ice_cascade.uplift</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for py_ice_cascade.uplift</h1><div class="highlight"><pre>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Python ICE-CASCADE tectonic uplift-subsidence model component</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">as</span> <span class="nn">plt</span>
+
+<div class="viewcode-block" id="null"><a class="viewcode-back" href="../../py_ice_cascade.html#py_ice_cascade.uplift.null">[docs]</a><span class="k">class</span> <span class="nc">null</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Do-nothing class to be used for disabled uplift component</span>
+
+<span class="sd">    Returns zeros for uplift rate and total uplift</span>
+
+<span class="sd">    Arguments:</span>
+<span class="sd">        shape: (nrow, ncol) of model grid</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">shape</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_shape</span> <span class="o">=</span> <span class="n">shape</span>
+<div class="viewcode-block" id="null.get_uplift_rate"><a class="viewcode-back" href="../../py_ice_cascade.html#py_ice_cascade.uplift.null.get_uplift_rate">[docs]</a>    <span class="k">def</span> <span class="nf">get_uplift_rate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_shape</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">double</span><span class="p">)</span></div>
+<div class="viewcode-block" id="null.get_uplift"><a class="viewcode-back" href="../../py_ice_cascade.html#py_ice_cascade.uplift.null.get_uplift">[docs]</a>    <span class="k">def</span> <span class="nf">get_uplift</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_shape</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">double</span><span class="p">)</span></div></div>
+
+<div class="viewcode-block" id="linear"><a class="viewcode-back" href="../../py_ice_cascade.html#py_ice_cascade.uplift.linear">[docs]</a><span class="k">class</span> <span class="nc">linear</span><span class="p">():</span>
+    <span class="sd">r&quot;&quot;&quot;</span>
+<span class="sd">    Tectonic uplift model in which uplift is linearly interpolated between a</span>
+<span class="sd">    pre-defined initial and final state. </span>
+
+<span class="sd">    Arguments:</span>
+<span class="sd">        ui: 2D numpy array, initial uplift rate, [m/a]</span>
+<span class="sd">        uf: 2D numpy array, final uplift rate, [m/a]</span>
+<span class="sd">        ti: Scalar, initial time, [a]</span>
+<span class="sd">        tf: Scalar, final time, [a]</span>
+
+<span class="sd">    Let :math:`u(x,y,t)` be the uplift rate as a function of space</span>
+<span class="sd">    (:math:`x,y`) and time (:math:`t`), and let the initial and final time be</span>
+<span class="sd">    :math:`t_i, t_f`, respectively. This class defines :math:`u` as:</span>
+
+<span class="sd">    .. math::</span>
+<span class="sd">       u(x,y,t) = u(x,y,t_i) + \frac{u(x,y,t_f) - u(x,y,t_i)}{t_f-t_i} \left( t-t_i \right)</span>
+
+<span class="sd">    Omiting the :math:`x,y` coordinates:</span>
+
+<span class="sd">    .. math::</span>
+<span class="sd">       u(t) = u(t_i) + \frac{u(t_f) - u(t_i)}{t_f-t_i} (t - t_i)</span>
+<span class="sd">       = u_i + \frac{u_f - u_i}{t_f - t_i} (t - t_i)</span>
+
+<span class="sd">    It is useful redefine the slope term as :math:`b` and gather up constants</span>
+<span class="sd">    into a new term :math:`a`, like so:</span>
+
+<span class="sd">    .. math::</span>
+<span class="sd">       u(t) = u_i + b(t - t_i) = (u_i - b t_i) + b t = a + b t</span>
+
+<span class="sd">    The method *get_uplift_rate()* returns the above uplift rate. The method</span>
+<span class="sd">    *get_uplift()* instead returns the total uplift over some time interval</span>
+<span class="sd">    :math:`[t_{start},t_{end}]`. This is simply the definite integral of the</span>
+<span class="sd">    uplift rate:</span>
+
+<span class="sd">    .. math::</span>
+<span class="sd">       \int_{t_{start}}^{t_{end}} (a + b t) dt &amp;= (a t + \frac{1}{2} b t^2 + c)|_{t_{end}} - (a t + \frac{1}{2} b t^2 + c)|_{t_{start}} \\</span>
+<span class="sd">       &amp;= (a t_{end} + \frac{1}{2} b t_{end}^2) - (a t_{start} + \frac{1}{2} b t_{start}^2) \\</span>
+<span class="sd">       &amp;= a(t_{end}-t_{start}) + \frac{b}{2} (t_{end}^2 - t_{start}^2)</span>
+
+<span class="sd">    Since :math:`a` and :math:`b` are constant coefficients, they are</span>
+<span class="sd">    precomputed for efficiency.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ui</span><span class="p">,</span> <span class="n">uf</span><span class="p">,</span> <span class="n">ti</span><span class="p">,</span> <span class="n">tf</span><span class="p">):</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_ui</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">double</span><span class="p">(</span><span class="n">ui</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_uf</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">double</span><span class="p">(</span><span class="n">uf</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_ti</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asscalar</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">double</span><span class="p">(</span><span class="n">ti</span><span class="p">)))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_tf</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asscalar</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">double</span><span class="p">(</span><span class="n">tf</span><span class="p">)))</span>
+
+        <span class="c1"># precompute constant terms, see class docstring</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_b</span> <span class="o">=</span> <span class="p">(</span><span class="n">uf</span><span class="o">-</span><span class="n">ui</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="n">tf</span><span class="o">-</span><span class="n">ti</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_a</span> <span class="o">=</span> <span class="n">ui</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">_b</span><span class="o">*</span><span class="n">ti</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tf</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ti</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Initial time must be before final time&quot;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="linear.get_uplift_rate"><a class="viewcode-back" href="../../py_ice_cascade.html#py_ice_cascade.uplift.linear.get_uplift_rate">[docs]</a>    <span class="k">def</span> <span class="nf">get_uplift_rate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">time</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the uplift rate at time = time&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_a</span><span class="o">+</span><span class="bp">self</span><span class="o">.</span><span class="n">_b</span><span class="o">*</span><span class="n">time</span> </div>
+    
+<div class="viewcode-block" id="linear.get_uplift"><a class="viewcode-back" href="../../py_ice_cascade.html#py_ice_cascade.uplift.linear.get_uplift">[docs]</a>    <span class="k">def</span> <span class="nf">get_uplift</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t_start</span><span class="p">,</span> <span class="n">t_end</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return total (integrated) uplift over the interval [t_start, t_end]&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_a</span><span class="o">*</span><span class="p">(</span><span class="n">t_end</span><span class="o">-</span><span class="n">t_start</span><span class="p">)</span> <span class="o">+</span> <span class="mf">0.5</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">_b</span><span class="o">*</span><span class="p">(</span><span class="n">t_end</span><span class="o">*</span><span class="n">t_end</span><span class="o">-</span><span class="n">t_start</span><span class="o">*</span><span class="n">t_start</span><span class="p">)</span></div></div>
+
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+
+    <span class="c1"># Basic usage example and &quot;smell test&quot;: </span>
+    <span class="c1"># # linear transition between negative and positive ramp functions, &quot;hinge&quot;</span>
+    <span class="c1"># # is at x=0. The expected result is for the uplift rate to transition from</span>
+    <span class="c1"># # initial to final values, and the total erosion to decrease to a minimum</span>
+    <span class="c1"># # of -0.25, then return to 0.</span>
+
+    <span class="n">ny</span> <span class="o">=</span> <span class="n">nx</span> <span class="o">=</span> <span class="mi">101</span> 
+    <span class="n">u0</span> <span class="o">=</span> <span class="o">-</span><span class="mf">1.0</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">nx</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">nx</span><span class="p">)</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="n">ny</span><span class="p">,</span><span class="mi">1</span><span class="p">))</span>
+    <span class="n">u1</span> <span class="o">=</span>  <span class="mf">1.0</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">nx</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">nx</span><span class="p">)</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="n">ny</span><span class="p">,</span><span class="mi">1</span><span class="p">))</span>
+    <span class="n">t0</span> <span class="o">=</span> <span class="mf">0.0</span>
+    <span class="n">t1</span> <span class="o">=</span> <span class="mf">1.0</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">linear</span><span class="p">(</span><span class="n">u0</span><span class="p">,</span> <span class="n">u1</span><span class="p">,</span> <span class="n">t0</span><span class="p">,</span> <span class="n">t1</span><span class="p">)</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">u0</span><span class="p">,</span> <span class="n">interpolation</span><span class="o">=</span><span class="s1">&#39;nearest&#39;</span><span class="p">,</span> <span class="n">vmin</span><span class="o">=-</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;u(x,y,t_i)&#39;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">colorbar</span><span class="p">()</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">u1</span><span class="p">,</span> <span class="n">interpolation</span><span class="o">=</span><span class="s1">&#39;nearest&#39;</span><span class="p">,</span> <span class="n">vmin</span><span class="o">=-</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;u(x,y,t_f)&#39;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">colorbar</span><span class="p">()</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">get_uplift_rate</span><span class="p">(</span><span class="n">t0</span><span class="p">),</span> <span class="n">interpolation</span><span class="o">=</span><span class="s1">&#39;nearest&#39;</span><span class="p">,</span> <span class="n">vmin</span><span class="o">=-</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;u(x,y,{:.2f})&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">t0</span><span class="p">))</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">colorbar</span><span class="p">()</span>
+    
+    <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">4</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">get_uplift</span><span class="p">(</span><span class="n">t0</span><span class="p">,</span> <span class="n">t0</span><span class="p">),</span> <span class="n">interpolation</span><span class="o">=</span><span class="s1">&#39;nearest&#39;</span><span class="p">,</span> <span class="n">vmin</span><span class="o">=-</span><span class="mf">0.25</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="mf">0.0</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;u_total(x,y,{:.2f})&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">t0</span><span class="p">))</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">colorbar</span><span class="p">()</span>
+    
+    <span class="k">for</span> <span class="n">time</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">t0</span><span class="p">,</span> <span class="n">t1</span><span class="p">,</span> <span class="mi">20</span><span class="p">):</span>
+    
+        <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">cla</span><span class="p">()</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">get_uplift_rate</span><span class="p">(</span><span class="n">time</span><span class="p">),</span> <span class="n">interpolation</span><span class="o">=</span><span class="s1">&#39;nearest&#39;</span><span class="p">,</span> <span class="n">vmin</span><span class="o">=-</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;u(x,y,{:.2f})&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">time</span><span class="p">))</span>
+        
+        <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">4</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">cla</span><span class="p">()</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">get_uplift</span><span class="p">(</span><span class="n">t0</span><span class="p">,</span> <span class="n">time</span><span class="p">),</span> <span class="n">interpolation</span><span class="o">=</span><span class="s1">&#39;nearest&#39;</span><span class="p">,</span> <span class="n">vmin</span><span class="o">=-</span><span class="mf">0.25</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="mf">0.0</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;u_total(x,y,{:.2f})&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">time</span><span class="p">))</span>
+        
+        <span class="n">plt</span><span class="o">.</span><span class="n">pause</span><span class="p">(</span><span class="mf">0.20</span><span class="p">)</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, Keith F. Ma.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../',
+            VERSION:'0.0.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>
