@@ -37,9 +37,13 @@ cd docs
 make apidoc
 make html
 ``` 
-The *.rst* files are created in *docs/source* and should be included in the
-repository. The output docs are created in *docs/build* and should not be
-included in the repository. 
+The *.rst* files are created in *docs/source* and the output docs are created
+in *docs/build/html*. Both should be included in the repository. Keeping the
+html documentation in the repository allows them to be published to the web
+(on Github) with the following command:
+```shell
+git subtree push --prefix docs/build/html origin gh-pages
+```
 
 ### Packaging
 This project uses [setuptools](https://pypi.python.org/pypi/setuptools) 
