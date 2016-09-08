@@ -127,13 +127,13 @@
            <div itemprop="articleBody">
             
   <h1>Source code for py_ice_cascade.ice_cascade</h1><div class="highlight"><pre>
-<span class="sd">&quot;&quot;&quot;</span>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">Python ICE-CASCADE combined glacial-fluvial-hillslope landscape evolution model</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">import</span> <span class="nn">argparse</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
 <span class="kn">import</span> <span class="nn">py_ice_cascade</span>
 <span class="kn">import</span> <span class="nn">netCDF4</span>
 <span class="kn">import</span> <span class="nn">sys</span>
@@ -162,14 +162,14 @@
 <span class="sd">        verbose: Boolean, set True to show verbose messages</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">zrx</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">time_start</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
-        <span class="n">time_step</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">num_steps</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">out_steps</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">hill_on</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
-        <span class="n">hill_kappa_active</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">hill_kappa_inactive</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">hill_bc</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
-        <span class="n">uplift_on</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">uplift_start</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">uplift_end</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
-        <span class="n">verbose</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">zrx</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">time_start</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">time_step</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">num_steps</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">out_steps</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">hill_on</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">hill_kappa_active</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">hill_kappa_inactive</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">hill_bc</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">uplift_on</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">uplift_start</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">uplift_end</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 
         <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
-            <span class="k">print</span><span class="p">(</span><span class="s2">&quot;ice_cascade.model: setting model parameters&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;ice_cascade.model: setting model parameters&quot;</span><span class="p">)</span>
 
         <span class="c1"># user-defined parameters</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
@@ -189,12 +189,12 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">_uplift_start</span> <span class="o">=</span> <span class="n">uplift_start</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_uplift_end</span> <span class="o">=</span> <span class="n">uplift_end</span>
         <span class="c1"># automatic parameters</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_delta</span> <span class="o">=</span> <span class="bp">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_time</span> <span class="o">=</span> <span class="bp">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_step</span> <span class="o">=</span> <span class="bp">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_model_hill</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_delta</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_time</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_step</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_model_hill</span> <span class="o">=</span> <span class="kc">None</span>
 
-    <span class="k">def</span> <span class="nf">_create_netcdf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_name</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_create_netcdf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_name</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create new (empty) netCDF for model state and parameters</span>
 <span class="sd">        </span>
@@ -207,16 +207,16 @@
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
-            <span class="k">print</span><span class="p">(</span><span class="s2">&quot;ice_cascade.model._create_netcdf : creating input file &quot;</span><span class="o">+</span><span class="n">file_name</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;ice_cascade.model._create_netcdf : creating input file &quot;</span><span class="o">+</span><span class="n">file_name</span><span class="p">)</span>
         
         <span class="c1"># compression/chunking parameters for time-dependant grid vars</span>
-        <span class="n">zlib</span> <span class="o">=</span> <span class="bp">False</span>
+        <span class="n">zlib</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="n">complevel</span> <span class="o">=</span> <span class="mi">1</span> <span class="c1"># 1-&gt;fastest, 9-&gt;best</span>
-        <span class="n">shuffle</span> <span class="o">=</span> <span class="bp">True</span> 
+        <span class="n">shuffle</span> <span class="o">=</span> <span class="kc">True</span> 
         <span class="n">chunksizes</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_y</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_x</span><span class="o">.</span><span class="n">size</span><span class="p">)</span>
         
         <span class="c1"># create file</span>
-        <span class="n">nc</span> <span class="o">=</span> <span class="n">netCDF4</span><span class="o">.</span><span class="n">Dataset</span><span class="p">(</span><span class="n">file_name</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="n">format</span><span class="o">=</span><span class="s2">&quot;NETCDF4&quot;</span><span class="p">,</span> <span class="n">clobber</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+        <span class="n">nc</span> <span class="o">=</span> <span class="n">netCDF4</span><span class="o">.</span><span class="n">Dataset</span><span class="p">(</span><span class="n">file_name</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;NETCDF4&quot;</span><span class="p">,</span> <span class="n">clobber</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
        
         <span class="c1"># global attributes: on/off switches for model components</span>
         <span class="n">nc</span><span class="o">.</span><span class="n">hillslope_on</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_hill_on</span><span class="p">)</span>
@@ -277,7 +277,7 @@
         <span class="c1"># finalize</span>
         <span class="n">nc</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 
-    <span class="k">def</span> <span class="nf">_to_netcdf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_name</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_to_netcdf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_name</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Append model state and parameters to netCDF file</span>
 <span class="sd">        </span>
@@ -287,7 +287,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
-            <span class="k">print</span><span class="p">(</span><span class="s2">&quot;ice_cascade.model._to_netcdf: write time = {:.2f}, step = {}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;ice_cascade.model._to_netcdf: write time = </span><span class="si">{:.2f}</span><span class="s2">, step = </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_time</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_step</span><span class="p">))</span>
 
         <span class="n">ii</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_out_steps</span><span class="p">)</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_step</span><span class="p">)</span> 
@@ -319,7 +319,7 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_model_uplift</span> <span class="o">=</span> <span class="n">py_ice_cascade</span><span class="o">.</span><span class="n">uplift</span><span class="o">.</span><span class="n">null</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_zrx</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
 
-<div class="viewcode-block" id="model.run"><a class="viewcode-back" href="../../py_ice_cascade.html#py_ice_cascade.ice_cascade.model.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_name</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+<div class="viewcode-block" id="model.run"><a class="viewcode-back" href="../../py_ice_cascade.html#py_ice_cascade.ice_cascade.model.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_name</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Run model simulation, save results to file</span>
 
@@ -329,7 +329,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
-            <span class="k">print</span><span class="p">(</span><span class="s2">&quot;ice_cascade.model.run: initializing simulation&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;ice_cascade.model.run: initializing simulation&quot;</span><span class="p">)</span>
 
         <span class="c1"># init automatic parameters</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_delta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_x</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">_x</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
@@ -374,7 +374,7 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">_to_netcdf</span><span class="p">(</span><span class="n">file_name</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
-            <span class="k">print</span><span class="p">(</span><span class="s2">&quot;ice_cascade.model.run: simulation complete&quot;</span><span class="p">)</span></div></div>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;ice_cascade.model.run: simulation complete&quot;</span><span class="p">)</span></div></div>
 
 <span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
     <span class="k">pass</span>
