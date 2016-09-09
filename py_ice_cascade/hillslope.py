@@ -363,37 +363,3 @@ class ftcs(model):
         """
 
         nc['hill_kappa'][time_idx,:,:] = self._kappa
-
-
-#TODO: delete this sniz and rely on the examples module for the same
-if __name__ == '__main__':
-    
-    # basic usage example and "smell test": relaxation to height==0 steady state
-    # # initialize model
-    nx = 100
-    ny = 100
-    max_time = 2.5
-    time_step = 0.1
-    h0 = np.random.rand(ny, nx).astype(np.double)-0.5
-    h0[:,0] = np.double(0.0) 
-    h0[:,-1] = np.double(0.0)
-    h0[0,:] = np.double(0.0)
-    h0[-1,:] = np.double(0.0)
-    dd = np.double(1.0)
-    mask = np.ones((ny, nx), dtype=np.bool)
-    k_active = np.double(1.0)
-    k_inactive = np.double(0.0)
-    bcs = ['constant', 'constant', 'constant', 'constant']
-    model = ftcs(h0, mask, dd, k_active, k_inactive, bcs)
-    # # update and plot model
-    plt.imshow(model.get_height(), interpolation='nearest', clim=(-0.5,0.5))
-    plt.colorbar()
-    plt.ion()
-    time = 0.0
-    while time < max_time: 
-        model.run(time_step)
-        time += time_step
-        plt.cla()
-        plt.imshow(model.get_height(), interpolation='nearest', clim=(-0.5,0.5))
-        plt.title("TIME = {:.2f}".format(time))
-        plt.pause(0.10)
