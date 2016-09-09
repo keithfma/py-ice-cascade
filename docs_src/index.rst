@@ -1,5 +1,5 @@
-Welcome to the py_ice_cascade documentation!
-==============================================
+Python ICE-CASCADE Documentation
+================================
 
 Contents:
 
@@ -8,7 +8,14 @@ Contents:
 
    modules
 
+Overview
+========
 
+Notes
+=====
+
++ Attributes and methods with the "_" prefix are considered private, use at
+your own risk
 
 Indices and tables
 ==================
