@@ -65,16 +65,19 @@ def uplift_only():
     time_start = 0.0
     time_step = 0.1
     num_steps = 10
+    time_end = time_start + time_step*(num_steps-1)
     out_steps = np.arange(0,num_steps)
-    hill_on = False 
-    uplift_on = True 
     uplift_start = np.zeros((ny,nx), dtype=np.double)
     uplift_end = np.ones((ny,nx), dtype=np.double)
 
-    mod = py_ice_cascade.ice_cascade.model(x=x, y=y, zrx=zrx, time_start=time_start,
+    hill = py_ice_cascade.hillslope.null() 
+
+    uplift = py_ice_cascade.uplift.linear(zrx, uplift_start, uplift_end, time_start, time_end)
+
+    mod = py_ice_cascade.ice_cascade.model(hill, uplift, 
+        x=x, y=y, zrx=zrx, time_start=time_start,
         time_step=time_step, num_steps=num_steps, out_steps=out_steps,
-        hill_on=hill_on, uplift_on=uplift_on, uplift_start=uplift_start,
-        uplift_end=uplift_end, verbose=True)
+        verbose=True)
     mod.run('example.uplift_only.out.nc', verbose=True)
 
 def hill_uplift():

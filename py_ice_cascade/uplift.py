@@ -94,6 +94,7 @@ class linear(model):
         self._uf = np.copy(np.double(uf))
         self._ti = np.asscalar(np.copy(np.double(ti)))
         self._tf = np.asscalar(np.copy(np.double(tf)))
+        self._uplift_rate = np.zeros((self._nx, self._ny), dtype=np.double)
 
         # precompute constant terms, see class docstring
         self._b = (self._uf-self._ui)/(self._tf-self._ti)
@@ -147,8 +148,8 @@ class linear(model):
         nc['uplift_model'][...] = self.__class__.__name__ 
         nc['uplift_model'].time_initial = self._ti
         nc['uplift_model'].time_final = self._tf
-        nc['uplift_model'].uplift_initial = 'See variable uplift_initial'
-        nc['uplift_model'].uplift_final = 'See variable uplift_final'
+        nc['uplift_model'].uplift_initial = 'See variable uplift_rate_initial'
+        nc['uplift_model'].uplift_final = 'See variable uplift_rate_final'
 
         nc.createVariable('uplift_rate_initial', np.double, dimensions=('y', 'x'))
         nc['uplift_rate_initial'].long_name = 'initial uplift rate'

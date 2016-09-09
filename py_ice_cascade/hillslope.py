@@ -28,7 +28,7 @@ class model():
         raise NotImplementedError
     def init_netcdf(self, nc, zlib, complevel, shuffle, chunksizes):
         raise NotImplementedError
-    def to_netcdf(self, file_name):
+    def to_netcdf(self, nc, time_idx):
         raise NotImplementedError
     def run(self, run_time):
         raise NotImplementedError
@@ -49,7 +49,7 @@ class null(model):
         pass
     def init_netcdf(self, nc, zlib, complevel, shuffle, chunksizes):
         pass
-    def to_netcdf(self, nc):
+    def to_netcdf(self, nc, time_idx):
         pass
     def run(self, run_time):
         pass

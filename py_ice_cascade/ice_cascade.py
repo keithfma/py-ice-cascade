@@ -183,6 +183,7 @@ class model():
 
             # run erosion-deposition component simulations
             self._model_hill.run(self._time_step)
+            self._model_uplift.run(self._time, self._time+self._time_step)
 
             # gather erosion-deposition-uplift component results
             d_zrx = (self._model_hill.get_height()
