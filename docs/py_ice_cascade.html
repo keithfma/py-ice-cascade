@@ -155,7 +155,7 @@ evolution model.</p>
 </pre></div>
 </div>
 <p>or from the command line by executing the module as a script, e.g.:</p>
-<div class="highlight-bash"><div class="highlight"><pre><span></span>python -m py_ice_cascade.example -c hill_only
+<div class="highlight-bash"><div class="highlight"><pre><span></span>python -m py_ice_cascade.example hill_only
 </pre></div>
 </div>
 <p>In the latter case, use the <em>-h</em> flag to get additional help</p>
@@ -188,8 +188,9 @@ Systems: Lecture Notes for USC GEOL557 (1.1.4)</p>
 Course Lecture Notes, 202. <a class="reference external" href="http://doi.org/10.1007/BF00763500">http://doi.org/10.1007/BF00763500</a></p>
 <dl class="class">
 <dt id="py_ice_cascade.hillslope.ftcs">
-<em class="property">class </em><code class="descclassname">py_ice_cascade.hillslope.</code><code class="descname">ftcs</code><span class="sig-paren">(</span><em>height</em>, <em>delta</em>, <em>kappa</em>, <em>bc</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/py_ice_cascade/hillslope.html#ftcs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#py_ice_cascade.hillslope.ftcs" title="Permalink to this definition">¶</a></dt>
-<dd><p>Hillslope diffusion model using forward-time center-space (FTCS) finite
+<em class="property">class </em><code class="descclassname">py_ice_cascade.hillslope.</code><code class="descname">ftcs</code><span class="sig-paren">(</span><em>height</em>, <em>mask</em>, <em>delta</em>, <em>kappa_active</em>, <em>kappa_inactive</em>, <em>bc</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/py_ice_cascade/hillslope.html#ftcs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#py_ice_cascade.hillslope.ftcs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#py_ice_cascade.hillslope.model" title="py_ice_cascade.hillslope.model"><code class="xref py py-class docutils literal"><span class="pre">py_ice_cascade.hillslope.model</span></code></a></p>
+<p>Hillslope diffusion model using forward-time center-space (FTCS) finite
 diffence scheme.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -197,8 +198,13 @@ diffence scheme.</p>
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>height</strong> &#8211; 2D numpy array, surface elevation in model domain, [m]</li>
+<li><strong>mask</strong> &#8211; 2D numpy array, True where hillslope diffusion is active, False
+where inactive (e.g. under water or ice)</li>
 <li><strong>delta</strong> &#8211; Scalar double, grid spacing, assumed square, [m]</li>
-<li><strong>kappa</strong> &#8211; 2D numpy array, diffusion coefficient, [m**2/a]</li>
+<li><strong>kappa_active</strong> &#8211; active diffusion coefficient, used where mask is
+True, [m**2/a]</li>
+<li><strong>kappa_inactive</strong> &#8211; inactive diffusion coefficient, used where mask is
+False, [m**2/a]</li>
 <li><strong>bc</strong> &#8211; List of boundary conditions names for [y=0, y=end, x=0, x=end]</li>
 </ul>
 </td>
@@ -268,15 +274,30 @@ H^{n}_{i,j} (4 \kappa_{i,j} + \kappa_{i,j+1} + \kappa_{i,j-1} + \kappa_{i+1,j} +
 \right]\end{split}\]</div>
 <p>The above scheme is modified at boundary points.</p>
 <dl class="method">
-<dt id="py_ice_cascade.hillslope.ftcs.get_diffusivity">
-<code class="descname">get_diffusivity</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/py_ice_cascade/hillslope.html#ftcs.get_diffusivity"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#py_ice_cascade.hillslope.ftcs.get_diffusivity" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return diffusivity grid as 2D numpy array</p>
-</dd></dl>
-
-<dl class="method">
 <dt id="py_ice_cascade.hillslope.ftcs.get_height">
 <code class="descname">get_height</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/py_ice_cascade/hillslope.html#ftcs.get_height"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#py_ice_cascade.hillslope.ftcs.get_height" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return height grid as 2D numpy array</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="py_ice_cascade.hillslope.ftcs.init_netcdf">
+<code class="descname">init_netcdf</code><span class="sig-paren">(</span><em>nc</em>, <em>zlib</em>, <em>complevel</em>, <em>shuffle</em>, <em>chunksizes</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/py_ice_cascade/hillslope.html#ftcs.init_netcdf"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#py_ice_cascade.hillslope.ftcs.init_netcdf" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize model-specific variables and attributes in output file</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>nc</strong> &#8211; netCDF4 Dataset object, output file open for writing</li>
+<li><strong>zlib</strong> &#8211; see <a class="reference external" href="http://unidata.github.io/netcdf4-python/#netCDF4.Dataset.createVariable">http://unidata.github.io/netcdf4-python/#netCDF4.Dataset.createVariable</a></li>
+<li><strong>complevel</strong> &#8211; &#8221; &#8220;</li>
+<li><strong>shuffle</strong> &#8211; &#8221; &#8220;</li>
+<li><strong>chunksizes</strong> &#8211; &#8221; &#8220;</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
@@ -294,27 +315,87 @@ H^{n}_{i,j} (4 \kappa_{i,j} + \kappa_{i,j+1} + \kappa_{i,j-1} + \kappa_{i+1,j} +
 </dd></dl>
 
 <dl class="method">
-<dt id="py_ice_cascade.hillslope.ftcs.set_diffusivity">
-<code class="descname">set_diffusivity</code><span class="sig-paren">(</span><em>new</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/py_ice_cascade/hillslope.html#ftcs.set_diffusivity"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#py_ice_cascade.hillslope.ftcs.set_diffusivity" title="Permalink to this definition">¶</a></dt>
-<dd><p>Set diffusivity grid and update dheight/dt coefficient matrix</p>
-</dd></dl>
-
-<dl class="method">
 <dt id="py_ice_cascade.hillslope.ftcs.set_height">
 <code class="descname">set_height</code><span class="sig-paren">(</span><em>new</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/py_ice_cascade/hillslope.html#ftcs.set_height"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#py_ice_cascade.hillslope.ftcs.set_height" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set height grid</p>
 </dd></dl>
+
+<dl class="method">
+<dt id="py_ice_cascade.hillslope.ftcs.set_mask">
+<code class="descname">set_mask</code><span class="sig-paren">(</span><em>new</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/py_ice_cascade/hillslope.html#ftcs.set_mask"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#py_ice_cascade.hillslope.ftcs.set_mask" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set diffusivity grid from mask and update dheight/dt coeff matrix</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="py_ice_cascade.hillslope.ftcs.to_netcdf">
+<code class="descname">to_netcdf</code><span class="sig-paren">(</span><em>nc</em>, <em>time_idx</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/py_ice_cascade/hillslope.html#ftcs.to_netcdf"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#py_ice_cascade.hillslope.ftcs.to_netcdf" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write model-specific state variables to output file</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>nc</strong> &#8211; netCDF4 Dataset object, output file open for writing</li>
+<li><strong>time_idx</strong> &#8211; integer time index to write to</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="py_ice_cascade.hillslope.model">
+<em class="property">class </em><code class="descclassname">py_ice_cascade.hillslope.</code><code class="descname">model</code><a class="reference internal" href="_modules/py_ice_cascade/hillslope.html#model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#py_ice_cascade.hillslope.model" title="Permalink to this definition">¶</a></dt>
+<dd><p>Base class for hillslope model components</p>
+<dl class="method">
+<dt id="py_ice_cascade.hillslope.model.get_height">
+<code class="descname">get_height</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/py_ice_cascade/hillslope.html#model.get_height"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#py_ice_cascade.hillslope.model.get_height" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="py_ice_cascade.hillslope.model.init_netcdf">
+<code class="descname">init_netcdf</code><span class="sig-paren">(</span><em>nc</em>, <em>zlib</em>, <em>complevel</em>, <em>shuffle</em>, <em>chunksizes</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/py_ice_cascade/hillslope.html#model.init_netcdf"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#py_ice_cascade.hillslope.model.init_netcdf" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="py_ice_cascade.hillslope.model.run">
+<code class="descname">run</code><span class="sig-paren">(</span><em>run_time</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/py_ice_cascade/hillslope.html#model.run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#py_ice_cascade.hillslope.model.run" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="py_ice_cascade.hillslope.model.set_height">
+<code class="descname">set_height</code><span class="sig-paren">(</span><em>new</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/py_ice_cascade/hillslope.html#model.set_height"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#py_ice_cascade.hillslope.model.set_height" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="py_ice_cascade.hillslope.model.set_mask">
+<code class="descname">set_mask</code><span class="sig-paren">(</span><em>new</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/py_ice_cascade/hillslope.html#model.set_mask"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#py_ice_cascade.hillslope.model.set_mask" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="py_ice_cascade.hillslope.model.to_netcdf">
+<code class="descname">to_netcdf</code><span class="sig-paren">(</span><em>nc</em>, <em>time_idx</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/py_ice_cascade/hillslope.html#model.to_netcdf"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#py_ice_cascade.hillslope.model.to_netcdf" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 </dd></dl>
 
 <dl class="class">
 <dt id="py_ice_cascade.hillslope.null">
 <em class="property">class </em><code class="descclassname">py_ice_cascade.hillslope.</code><code class="descname">null</code><a class="reference internal" href="_modules/py_ice_cascade/hillslope.html#null"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#py_ice_cascade.hillslope.null" title="Permalink to this definition">¶</a></dt>
-<dd><p>Do-nothing class to be used for disabled hillslope component</p>
+<dd><p>Bases: <a class="reference internal" href="#py_ice_cascade.hillslope.model" title="py_ice_cascade.hillslope.model"><code class="xref py py-class docutils literal"><span class="pre">py_ice_cascade.hillslope.model</span></code></a></p>
+<p>Do-nothing class to be used for disabled hillslope component</p>
 <p>Internal height grid is set and returned unchanged</p>
 <dl class="method">
 <dt id="py_ice_cascade.hillslope.null.get_height">
 <code class="descname">get_height</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/py_ice_cascade/hillslope.html#null.get_height"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#py_ice_cascade.hillslope.null.get_height" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="py_ice_cascade.hillslope.null.init_netcdf">
+<code class="descname">init_netcdf</code><span class="sig-paren">(</span><em>nc</em>, <em>*args</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/py_ice_cascade/hillslope.html#null.init_netcdf"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#py_ice_cascade.hillslope.null.init_netcdf" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -323,13 +404,18 @@ H^{n}_{i,j} (4 \kappa_{i,j} + \kappa_{i,j+1} + \kappa_{i,j-1} + \kappa_{i+1,j} +
 <dd></dd></dl>
 
 <dl class="method">
-<dt id="py_ice_cascade.hillslope.null.set_diffusivity">
-<code class="descname">set_diffusivity</code><span class="sig-paren">(</span><em>new</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/py_ice_cascade/hillslope.html#null.set_diffusivity"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#py_ice_cascade.hillslope.null.set_diffusivity" title="Permalink to this definition">¶</a></dt>
+<dt id="py_ice_cascade.hillslope.null.set_height">
+<code class="descname">set_height</code><span class="sig-paren">(</span><em>new</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/py_ice_cascade/hillslope.html#null.set_height"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#py_ice_cascade.hillslope.null.set_height" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
-<dt id="py_ice_cascade.hillslope.null.set_height">
-<code class="descname">set_height</code><span class="sig-paren">(</span><em>new</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/py_ice_cascade/hillslope.html#null.set_height"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#py_ice_cascade.hillslope.null.set_height" title="Permalink to this definition">¶</a></dt>
+<dt id="py_ice_cascade.hillslope.null.set_mask">
+<code class="descname">set_mask</code><span class="sig-paren">(</span><em>*args</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/py_ice_cascade/hillslope.html#null.set_mask"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#py_ice_cascade.hillslope.null.set_mask" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="py_ice_cascade.hillslope.null.to_netcdf">
+<code class="descname">to_netcdf</code><span class="sig-paren">(</span><em>*args</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/py_ice_cascade/hillslope.html#null.to_netcdf"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#py_ice_cascade.hillslope.null.to_netcdf" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -340,7 +426,7 @@ H^{n}_{i,j} (4 \kappa_{i,j} + \kappa_{i,j+1} + \kappa_{i,j-1} + \kappa_{i+1,j} +
 <p>Python ICE-CASCADE combined glacial-fluvial-hillslope landscape evolution model</p>
 <dl class="class">
 <dt id="py_ice_cascade.ice_cascade.model">
-<em class="property">class </em><code class="descclassname">py_ice_cascade.ice_cascade.</code><code class="descname">model</code><span class="sig-paren">(</span><em>x=None</em>, <em>y=None</em>, <em>zrx=None</em>, <em>time_start=None</em>, <em>time_step=None</em>, <em>num_steps=None</em>, <em>out_steps=None</em>, <em>hill_on=None</em>, <em>hill_kappa_active=None</em>, <em>hill_kappa_inactive=None</em>, <em>hill_bc=None</em>, <em>uplift_on=None</em>, <em>uplift_start=None</em>, <em>uplift_end=None</em>, <em>verbose=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/py_ice_cascade/ice_cascade.html#model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#py_ice_cascade.ice_cascade.model" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">py_ice_cascade.ice_cascade.</code><code class="descname">model</code><span class="sig-paren">(</span><em>hillslope</em>, <em>uplift</em>, <em>x</em>, <em>y</em>, <em>z_rx</em>, <em>time_start</em>, <em>time_step</em>, <em>num_steps</em>, <em>out_steps</em>, <em>verbose=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/py_ice_cascade/ice_cascade.html#model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#py_ice_cascade.ice_cascade.model" title="Permalink to this definition">¶</a></dt>
 <dd><p>Composite landscape evolution model. Integrates glacial, fluvial, and
 hillslope model components and handles input-output.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -348,21 +434,17 @@ hillslope model components and handles input-output.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>hillslope</strong> &#8211; initialized hillslope model component, expect child of
+py_ice_cascade.hillslope.model class</li>
+<li><strong>uplift</strong> &#8211; initialized uplift model component, expect child of
+py_ice_cascade.uplift.model class</li>
 <li><strong>x</strong> &#8211; numpy vector, x-coordinate, [m]</li>
 <li><strong>y</strong> &#8211; numpy vector, y-coordinate, [m]</li>
-<li><strong>zrx</strong> &#8211; grid, initial bedrock elevation, [m]</li>
+<li><strong>z_rx</strong> &#8211; grid, initial bedrock elevation, [m]</li>
 <li><strong>time_start</strong> &#8211; scalar, starting time, [a]</li>
 <li><strong>time_step</strong> &#8211; scalar, topographic model time step, [a]</li>
 <li><strong>num_steps</strong> &#8211; scalar, total steps in simulation, i.e. duration, [1]</li>
 <li><strong>out_steps</strong> &#8211; list, step numbers to write output, 0 is initial state, [1]</li>
-<li><strong>hill_on</strong> &#8211; scalar bool, set True to enable hillslope model</li>
-<li><strong>hill_kappa_active</strong> &#8211; scalar, hillslope diffusivity where active, [m^2 / a]</li>
-<li><strong>hill_kappa_inactive</strong> &#8211; scalar, hillslope diffusivity where inactive, [m^2 / a]</li>
-<li><strong>hill_bc</strong> &#8211; list, hillslope model boundary conditions at [y[0],
-y[end], x[0], x[end]. See hilllslope.py for details.</li>
-<li><strong>uplift_on</strong> &#8211; scalar bool, set True to enable uplift component model</li>
-<li><strong>uplift_start</strong> &#8211; grid, uplift rate at time_start [m / a]</li>
-<li><strong>uplift_end</strong> &#8211; grid uplift rate at time_end [m / a]</li>
 <li><strong>verbose</strong> &#8211; Boolean, set True to show verbose messages</li>
 </ul>
 </td>
@@ -371,17 +453,13 @@ y[end], x[0], x[end]. See hilllslope.py for details.</li>
 </table>
 <dl class="method">
 <dt id="py_ice_cascade.ice_cascade.model.run">
-<code class="descname">run</code><span class="sig-paren">(</span><em>file_name</em>, <em>verbose=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/py_ice_cascade/ice_cascade.html#model.run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#py_ice_cascade.ice_cascade.model.run" title="Permalink to this definition">¶</a></dt>
+<code class="descname">run</code><span class="sig-paren">(</span><em>file_name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/py_ice_cascade/ice_cascade.html#model.run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#py_ice_cascade.ice_cascade.model.run" title="Permalink to this definition">¶</a></dt>
 <dd><p>Run model simulation, save results to file</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>file_name</strong> &#8211; String, path to which results should be saved</li>
-<li><strong>verbose</strong> &#8211; Bool, set True to show verbose messages</li>
-</ul>
-</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>file_name</strong> &#8211; String, path to which results should be saved</td>
 </tr>
 </tbody>
 </table>
@@ -395,14 +473,16 @@ y[end], x[0], x[end]. See hilllslope.py for details.</li>
 <p>Python ICE-CASCADE tectonic uplift-subsidence model component</p>
 <dl class="class">
 <dt id="py_ice_cascade.uplift.linear">
-<em class="property">class </em><code class="descclassname">py_ice_cascade.uplift.</code><code class="descname">linear</code><span class="sig-paren">(</span><em>ui</em>, <em>uf</em>, <em>ti</em>, <em>tf</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/py_ice_cascade/uplift.html#linear"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#py_ice_cascade.uplift.linear" title="Permalink to this definition">¶</a></dt>
-<dd><p>Tectonic uplift model in which uplift is linearly interpolated between a
+<em class="property">class </em><code class="descclassname">py_ice_cascade.uplift.</code><code class="descname">linear</code><span class="sig-paren">(</span><em>height</em>, <em>ui</em>, <em>uf</em>, <em>ti</em>, <em>tf</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/py_ice_cascade/uplift.html#linear"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#py_ice_cascade.uplift.linear" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#py_ice_cascade.uplift.model" title="py_ice_cascade.uplift.model"><code class="xref py py-class docutils literal"><span class="pre">py_ice_cascade.uplift.model</span></code></a></p>
+<p>Tectonic uplift model in which uplift is linearly interpolated between a
 pre-defined initial and final state.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>height</strong> &#8211; 2D numpy array, surface elevation in model domain, [m]</li>
 <li><strong>ui</strong> &#8211; 2D numpy array, initial uplift rate, [m/a]</li>
 <li><strong>uf</strong> &#8211; 2D numpy array, final uplift rate, [m/a]</li>
 <li><strong>ti</strong> &#8211; Scalar, initial time, [a]</li>
@@ -425,10 +505,8 @@ pre-defined initial and final state.</p>
 into a new term <span class="math">\(a\)</span>, like so:</p>
 <div class="math">
 \[u(t) = u_i + b(t - t_i) = (u_i - b t_i) + b t = a + b t\]</div>
-<p>The method <em>get_uplift_rate()</em> returns the above uplift rate. The method
-<em>get_uplift()</em> instead returns the total uplift over some time interval
-<span class="math">\([t_{start},t_{end}]\)</span>. This is simply the definite integral of the
-uplift rate:</p>
+<p>The total uplift over some time interval <span class="math">\([t_{start},t_{end}]\)</span>. This
+is simply the definite integral of the uplift rate:</p>
 <div class="math">
 \[\begin{split}\int_{t_{start}}^{t_{end}} (a + b t) dt &amp;= (a t + \frac{1}{2} b t^2 + c)|_{t_{end}} - (a t + \frac{1}{2} b t^2 + c)|_{t_{start}} \\
 &amp;= (a t_{end} + \frac{1}{2} b t_{end}^2) - (a t_{start} + \frac{1}{2} b t_{start}^2) \\
@@ -436,40 +514,136 @@ uplift rate:</p>
 <p>Since <span class="math">\(a\)</span> and <span class="math">\(b\)</span> are constant coefficients, they are
 precomputed for efficiency.</p>
 <dl class="method">
-<dt id="py_ice_cascade.uplift.linear.get_uplift">
-<code class="descname">get_uplift</code><span class="sig-paren">(</span><em>t_start</em>, <em>t_end</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/py_ice_cascade/uplift.html#linear.get_uplift"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#py_ice_cascade.uplift.linear.get_uplift" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return total (integrated) uplift over the interval [t_start, t_end]</p>
+<dt id="py_ice_cascade.uplift.linear.get_height">
+<code class="descname">get_height</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/py_ice_cascade/uplift.html#linear.get_height"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#py_ice_cascade.uplift.linear.get_height" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return height grid as 2D numpy array</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="py_ice_cascade.uplift.linear.get_uplift_rate">
-<code class="descname">get_uplift_rate</code><span class="sig-paren">(</span><em>time</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/py_ice_cascade/uplift.html#linear.get_uplift_rate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#py_ice_cascade.uplift.linear.get_uplift_rate" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the uplift rate at time = time</p>
+<dt id="py_ice_cascade.uplift.linear.init_netcdf">
+<code class="descname">init_netcdf</code><span class="sig-paren">(</span><em>nc</em>, <em>zlib</em>, <em>complevel</em>, <em>shuffle</em>, <em>chunksizes</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/py_ice_cascade/uplift.html#linear.init_netcdf"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#py_ice_cascade.uplift.linear.init_netcdf" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize model-specific variables and attributes in output file</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>nc</strong> &#8211; netCDF4 Dataset object, output file open for writing</li>
+<li><strong>zlib</strong> &#8211; see <a class="reference external" href="http://unidata.github.io/netcdf4-python/#netCDF4.Dataset.createVariable">http://unidata.github.io/netcdf4-python/#netCDF4.Dataset.createVariable</a></li>
+<li><strong>complevel</strong> &#8211; &#8221; &#8220;</li>
+<li><strong>shuffle</strong> &#8211; &#8221; &#8220;</li>
+<li><strong>chunksizes</strong> &#8211; &#8221; &#8220;</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="py_ice_cascade.uplift.linear.run">
+<code class="descname">run</code><span class="sig-paren">(</span><em>t_start</em>, <em>t_end</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/py_ice_cascade/uplift.html#linear.run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#py_ice_cascade.uplift.linear.run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute total(integrated) uplift over the time interval and update height grid</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>t_start</strong> &#8211; time interval start, [a]</li>
+<li><strong>t_end</strong> &#8211; time interval end, [a]</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="py_ice_cascade.uplift.linear.set_height">
+<code class="descname">set_height</code><span class="sig-paren">(</span><em>new</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/py_ice_cascade/uplift.html#linear.set_height"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#py_ice_cascade.uplift.linear.set_height" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set height grid</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="py_ice_cascade.uplift.linear.to_netcdf">
+<code class="descname">to_netcdf</code><span class="sig-paren">(</span><em>nc</em>, <em>time_idx</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/py_ice_cascade/uplift.html#linear.to_netcdf"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#py_ice_cascade.uplift.linear.to_netcdf" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write model-specific state variables to output file</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>nc</strong> &#8211; netCDF4 Dataset object, output file open for writing</li>
+<li><strong>time_idx</strong> &#8211; integer time index to write to</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 </dd></dl>
 
 <dl class="class">
-<dt id="py_ice_cascade.uplift.null">
-<em class="property">class </em><code class="descclassname">py_ice_cascade.uplift.</code><code class="descname">null</code><span class="sig-paren">(</span><em>shape</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/py_ice_cascade/uplift.html#null"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#py_ice_cascade.uplift.null" title="Permalink to this definition">¶</a></dt>
-<dd><p>Do-nothing class to be used for disabled uplift component</p>
-<p>Returns zeros for uplift rate and total uplift</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>shape</strong> &#8211; (nrow, ncol) of model grid</td>
-</tr>
-</tbody>
-</table>
+<dt id="py_ice_cascade.uplift.model">
+<em class="property">class </em><code class="descclassname">py_ice_cascade.uplift.</code><code class="descname">model</code><a class="reference internal" href="_modules/py_ice_cascade/uplift.html#model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#py_ice_cascade.uplift.model" title="Permalink to this definition">¶</a></dt>
+<dd><p>Base class for uplift model components</p>
 <dl class="method">
-<dt id="py_ice_cascade.uplift.null.get_uplift">
-<code class="descname">get_uplift</code><span class="sig-paren">(</span><em>*args</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/py_ice_cascade/uplift.html#null.get_uplift"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#py_ice_cascade.uplift.null.get_uplift" title="Permalink to this definition">¶</a></dt>
+<dt id="py_ice_cascade.uplift.model.get_height">
+<code class="descname">get_height</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/py_ice_cascade/uplift.html#model.get_height"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#py_ice_cascade.uplift.model.get_height" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
-<dt id="py_ice_cascade.uplift.null.get_uplift_rate">
-<code class="descname">get_uplift_rate</code><span class="sig-paren">(</span><em>*args</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/py_ice_cascade/uplift.html#null.get_uplift_rate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#py_ice_cascade.uplift.null.get_uplift_rate" title="Permalink to this definition">¶</a></dt>
+<dt id="py_ice_cascade.uplift.model.init_netcdf">
+<code class="descname">init_netcdf</code><span class="sig-paren">(</span><em>nc</em>, <em>zlib</em>, <em>complevel</em>, <em>shuffle</em>, <em>chunksizes</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/py_ice_cascade/uplift.html#model.init_netcdf"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#py_ice_cascade.uplift.model.init_netcdf" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="py_ice_cascade.uplift.model.run">
+<code class="descname">run</code><span class="sig-paren">(</span><em>t_start</em>, <em>t_end</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/py_ice_cascade/uplift.html#model.run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#py_ice_cascade.uplift.model.run" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="py_ice_cascade.uplift.model.set_height">
+<code class="descname">set_height</code><span class="sig-paren">(</span><em>new</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/py_ice_cascade/uplift.html#model.set_height"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#py_ice_cascade.uplift.model.set_height" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="py_ice_cascade.uplift.model.to_netcdf">
+<code class="descname">to_netcdf</code><span class="sig-paren">(</span><em>nc</em>, <em>time_idx</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/py_ice_cascade/uplift.html#model.to_netcdf"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#py_ice_cascade.uplift.model.to_netcdf" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="py_ice_cascade.uplift.null">
+<em class="property">class </em><code class="descclassname">py_ice_cascade.uplift.</code><code class="descname">null</code><a class="reference internal" href="_modules/py_ice_cascade/uplift.html#null"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#py_ice_cascade.uplift.null" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#py_ice_cascade.uplift.model" title="py_ice_cascade.uplift.model"><code class="xref py py-class docutils literal"><span class="pre">py_ice_cascade.uplift.model</span></code></a></p>
+<p>Do-nothing class to be used for disabled uplift component</p>
+<p>Internal height grid is set and returned unchanged</p>
+<dl class="method">
+<dt id="py_ice_cascade.uplift.null.get_height">
+<code class="descname">get_height</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/py_ice_cascade/uplift.html#null.get_height"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#py_ice_cascade.uplift.null.get_height" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="py_ice_cascade.uplift.null.init_netcdf">
+<code class="descname">init_netcdf</code><span class="sig-paren">(</span><em>nc</em>, <em>*args</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/py_ice_cascade/uplift.html#null.init_netcdf"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#py_ice_cascade.uplift.null.init_netcdf" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="py_ice_cascade.uplift.null.run">
+<code class="descname">run</code><span class="sig-paren">(</span><em>*args</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/py_ice_cascade/uplift.html#null.run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#py_ice_cascade.uplift.null.run" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="py_ice_cascade.uplift.null.set_height">
+<code class="descname">set_height</code><span class="sig-paren">(</span><em>new</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/py_ice_cascade/uplift.html#null.set_height"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#py_ice_cascade.uplift.null.set_height" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="py_ice_cascade.uplift.null.to_netcdf">
+<code class="descname">to_netcdf</code><span class="sig-paren">(</span><em>*args</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/py_ice_cascade/uplift.html#null.to_netcdf"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#py_ice_cascade.uplift.null.to_netcdf" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>

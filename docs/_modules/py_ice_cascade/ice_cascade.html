@@ -144,69 +144,56 @@
 <span class="sd">    hillslope model components and handles input-output.</span>
 
 <span class="sd">    Arguments:</span>
+<span class="sd">        hillslope: initialized hillslope model component, expect child of</span>
+<span class="sd">            py_ice_cascade.hillslope.model class </span>
+<span class="sd">        uplift: initialized uplift model component, expect child of</span>
+<span class="sd">            py_ice_cascade.uplift.model class</span>
 <span class="sd">        x: numpy vector, x-coordinate, [m]</span>
 <span class="sd">        y: numpy vector, y-coordinate, [m]</span>
-<span class="sd">        zrx: grid, initial bedrock elevation, [m]</span>
+<span class="sd">        z_rx: grid, initial bedrock elevation, [m]</span>
 <span class="sd">        time_start: scalar, starting time, [a]</span>
 <span class="sd">        time_step: scalar, topographic model time step, [a]</span>
 <span class="sd">        num_steps: scalar, total steps in simulation, i.e. duration, [1]</span>
 <span class="sd">        out_steps: list, step numbers to write output, 0 is initial state, [1]</span>
-<span class="sd">        hill_on: scalar bool, set True to enable hillslope model</span>
-<span class="sd">        hill_kappa_active: scalar, hillslope diffusivity where active, [m^2 / a]</span>
-<span class="sd">        hill_kappa_inactive: scalar, hillslope diffusivity where inactive, [m^2 / a]</span>
-<span class="sd">        hill_bc: list, hillslope model boundary conditions at [y[0],</span>
-<span class="sd">            y[end], x[0], x[end]. See hilllslope.py for details.</span>
-<span class="sd">        uplift_on: scalar bool, set True to enable uplift component model</span>
-<span class="sd">        uplift_start: grid, uplift rate at time_start [m / a]</span>
-<span class="sd">        uplift_end: grid uplift rate at time_end [m / a]</span>
 <span class="sd">        verbose: Boolean, set True to show verbose messages</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">zrx</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">time_start</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-        <span class="n">time_step</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">num_steps</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">out_steps</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">hill_on</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-        <span class="n">hill_kappa_active</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">hill_kappa_inactive</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">hill_bc</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-        <span class="n">uplift_on</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">uplift_start</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">uplift_end</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-        <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">hillslope</span><span class="p">,</span> <span class="n">uplift</span><span class="p">,</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z_rx</span><span class="p">,</span> <span class="n">time_start</span><span class="p">,</span> <span class="n">time_step</span><span class="p">,</span> <span class="n">num_steps</span><span class="p">,</span> <span class="n">out_steps</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 
         <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;ice_cascade.model: setting model parameters&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;ice_cascade.model.__init__: setting model parameters&quot;</span><span class="p">)</span>
 
         <span class="c1"># user-defined parameters</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_model_hill</span> <span class="o">=</span> <span class="n">hillslope</span> 
+        <span class="bp">self</span><span class="o">.</span><span class="n">_model_uplift</span> <span class="o">=</span> <span class="n">uplift</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">y</span><span class="p">)</span> 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_zrx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">zrx</span><span class="p">)</span> 
+        <span class="bp">self</span><span class="o">.</span><span class="n">_z_rx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">z_rx</span><span class="p">)</span> 
         <span class="bp">self</span><span class="o">.</span><span class="n">_time_start</span> <span class="o">=</span> <span class="n">time_start</span> 
         <span class="bp">self</span><span class="o">.</span><span class="n">_time_step</span> <span class="o">=</span> <span class="n">time_step</span> 
         <span class="bp">self</span><span class="o">.</span><span class="n">_num_steps</span> <span class="o">=</span> <span class="n">num_steps</span> 
         <span class="bp">self</span><span class="o">.</span><span class="n">_out_steps</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">out_steps</span><span class="p">)</span> 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_hill_on</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">hill_on</span><span class="p">)</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hill_on</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_hill_kappa_active</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">hill_kappa_active</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_hill_kappa_inactive</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">hill_kappa_inactive</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_hill_bc</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">hill_bc</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_uplift_on</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">uplift_on</span><span class="p">)</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_uplift_on</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_uplift_start</span> <span class="o">=</span> <span class="n">uplift_start</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_uplift_end</span> <span class="o">=</span> <span class="n">uplift_end</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_verbose</span> <span class="o">=</span> <span class="n">verbose</span>
         <span class="c1"># automatic parameters</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_delta</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_time</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_step</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_model_hill</span> <span class="o">=</span> <span class="kc">None</span>
 
-    <span class="k">def</span> <span class="nf">_create_netcdf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_name</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="c1"># TODO: test for a regular grid here</span>
+
+    <span class="k">def</span> <span class="nf">_create_netcdf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_name</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create new (empty) netCDF for model state and parameters</span>
 <span class="sd">        </span>
-<span class="sd">        Includes an option to save as an input file (*as_input*), which sets</span>
-<span class="sd">        the length of the time dimension to 1.</span>
-
 <span class="sd">        Arguments:</span>
 <span class="sd">            file_name: String, path to which file should be saved </span>
-<span class="sd">            verbose: Bool, set True to enable verbose messages</span>
+<span class="sd">        </span>
+<span class="sd">        Model components are responsible for initializing thier own output</span>
+<span class="sd">        variables, using the expected .init_netcdf method.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_verbose</span><span class="p">:</span>
             <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;ice_cascade.model._create_netcdf : creating input file &quot;</span><span class="o">+</span><span class="n">file_name</span><span class="p">)</span>
         
         <span class="c1"># compression/chunking parameters for time-dependant grid vars</span>
@@ -218,15 +205,17 @@
         <span class="c1"># create file</span>
         <span class="n">nc</span> <span class="o">=</span> <span class="n">netCDF4</span><span class="o">.</span><span class="n">Dataset</span><span class="p">(</span><span class="n">file_name</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;NETCDF4&quot;</span><span class="p">,</span> <span class="n">clobber</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
        
-        <span class="c1"># global attributes: on/off switches for model components</span>
-        <span class="n">nc</span><span class="o">.</span><span class="n">hillslope_on</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_hill_on</span><span class="p">)</span>
-        <span class="n">nc</span><span class="o">.</span><span class="n">uplift_on</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_uplift_on</span><span class="p">)</span>
+        <span class="c1"># global attributes</span>
+        <span class="n">nc</span><span class="o">.</span><span class="n">version</span> <span class="o">=</span> <span class="n">py_ice_cascade</span><span class="o">.</span><span class="n">__version__</span>
+        <span class="n">nc</span><span class="o">.</span><span class="n">time_start</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_time_start</span>
+        <span class="n">nc</span><span class="o">.</span><span class="n">time_step</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_time_step</span>
+        <span class="n">nc</span><span class="o">.</span><span class="n">num_steps</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_num_steps</span>
+        <span class="n">nc</span><span class="o">.</span><span class="n">out_steps</span> <span class="o">=</span> <span class="s2">&quot;see step variable&quot;</span>
 
         <span class="c1"># create dimensions</span>
         <span class="n">nc</span><span class="o">.</span><span class="n">createDimension</span><span class="p">(</span><span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_x</span><span class="o">.</span><span class="n">size</span><span class="p">)</span>
         <span class="n">nc</span><span class="o">.</span><span class="n">createDimension</span><span class="p">(</span><span class="s1">&#39;y&#39;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_y</span><span class="o">.</span><span class="n">size</span><span class="p">)</span>
         <span class="n">nc</span><span class="o">.</span><span class="n">createDimension</span><span class="p">(</span><span class="s1">&#39;time&#39;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_out_steps</span><span class="o">.</span><span class="n">size</span><span class="p">)</span>
-        <span class="n">nc</span><span class="o">.</span><span class="n">createDimension</span><span class="p">(</span><span class="s1">&#39;bc&#39;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
 
         <span class="c1"># create variables, populate constants</span>
         <span class="n">nc</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span><span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">double</span><span class="p">,</span> <span class="n">dimensions</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;x&#39;</span><span class="p">))</span>
@@ -251,103 +240,70 @@
         <span class="n">nc</span><span class="p">[</span><span class="s1">&#39;step&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">num_steps</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_num_steps</span>
         <span class="n">nc</span><span class="p">[</span><span class="s1">&#39;step&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">out_steps</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_out_steps</span>
         
-        <span class="n">nc</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span><span class="s1">&#39;zrx&#39;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">double</span><span class="p">,</span> <span class="n">dimensions</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;time&#39;</span><span class="p">,</span> <span class="s1">&#39;y&#39;</span><span class="p">,</span> <span class="s1">&#39;x&#39;</span><span class="p">),</span>
+        <span class="n">nc</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span><span class="s1">&#39;z_rx&#39;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">double</span><span class="p">,</span> <span class="n">dimensions</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;time&#39;</span><span class="p">,</span> <span class="s1">&#39;y&#39;</span><span class="p">,</span> <span class="s1">&#39;x&#39;</span><span class="p">),</span>
             <span class="n">zlib</span><span class="o">=</span><span class="n">zlib</span><span class="p">,</span> <span class="n">complevel</span><span class="o">=</span><span class="n">complevel</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="n">shuffle</span><span class="p">,</span> <span class="n">chunksizes</span><span class="o">=</span><span class="n">chunksizes</span><span class="p">)</span>
-        <span class="n">nc</span><span class="p">[</span><span class="s1">&#39;zrx&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">long_name</span> <span class="o">=</span> <span class="s1">&#39;bedrock surface elevation&#39;</span> 
-        <span class="n">nc</span><span class="p">[</span><span class="s1">&#39;zrx&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="s1">&#39;m&#39;</span> 
+        <span class="n">nc</span><span class="p">[</span><span class="s1">&#39;z_rx&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">long_name</span> <span class="o">=</span> <span class="s1">&#39;bedrock surface elevation&#39;</span> 
+        <span class="n">nc</span><span class="p">[</span><span class="s1">&#39;z_rx&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="s1">&#39;m&#39;</span> 
 
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hill_on</span><span class="p">:</span>        
-            <span class="n">nc</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span><span class="s1">&#39;hill_kappa&#39;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">double</span><span class="p">,</span> <span class="n">dimensions</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;time&#39;</span><span class="p">,</span> <span class="s1">&#39;y&#39;</span><span class="p">,</span> <span class="s1">&#39;x&#39;</span><span class="p">),</span> 
-                <span class="n">zlib</span><span class="o">=</span><span class="n">zlib</span><span class="p">,</span> <span class="n">complevel</span><span class="o">=</span><span class="n">complevel</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="n">shuffle</span><span class="p">,</span> <span class="n">chunksizes</span><span class="o">=</span><span class="n">chunksizes</span><span class="p">)</span>
-            <span class="n">nc</span><span class="p">[</span><span class="s1">&#39;hill_kappa&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">long_name</span> <span class="o">=</span> <span class="s1">&#39;hillslope diffusivity&#39;</span>
-            <span class="n">nc</span><span class="p">[</span><span class="s1">&#39;hill_kappa&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="s1">&#39;m^2 / a&#39;</span>
-            <span class="n">nc</span><span class="p">[</span><span class="s1">&#39;hill_kappa&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">active</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hill_kappa_active</span>
-            <span class="n">nc</span><span class="p">[</span><span class="s1">&#39;hill_kappa&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">inactive</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hill_kappa_inactive</span>
-            
-            <span class="n">nc</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span><span class="s1">&#39;hill_bc&#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="n">dimensions</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;bc&#39;</span><span class="p">))</span>
-            <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">4</span><span class="p">):</span>
-                <span class="n">nc</span><span class="p">[</span><span class="s1">&#39;hill_bc&#39;</span><span class="p">][</span><span class="n">ii</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hill_bc</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span>
-
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_uplift_on</span><span class="p">:</span>
-            <span class="n">nc</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span><span class="s1">&#39;uplift_rate&#39;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">double</span><span class="p">,</span> <span class="n">dimensions</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;time&#39;</span><span class="p">,</span> <span class="s1">&#39;y&#39;</span><span class="p">,</span> <span class="s1">&#39;x&#39;</span><span class="p">),</span> 
-                <span class="n">zlib</span><span class="o">=</span><span class="n">zlib</span><span class="p">,</span> <span class="n">complevel</span><span class="o">=</span><span class="n">complevel</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="n">shuffle</span><span class="p">,</span> <span class="n">chunksizes</span><span class="o">=</span><span class="n">chunksizes</span><span class="p">)</span>
-            <span class="n">nc</span><span class="p">[</span><span class="s1">&#39;uplift_rate&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">long_name</span> <span class="o">=</span> <span class="s1">&#39;tectonic rock uplift rate&#39;</span>
-            <span class="n">nc</span><span class="p">[</span><span class="s1">&#39;uplift_rate&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="s1">&#39;m / a&#39;</span>
+        <span class="c1"># initialize output for component models</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_model_hill</span><span class="o">.</span><span class="n">init_netcdf</span><span class="p">(</span><span class="n">nc</span><span class="p">,</span> <span class="n">zlib</span><span class="p">,</span> <span class="n">complevel</span><span class="p">,</span> <span class="n">shuffle</span><span class="p">,</span> <span class="n">chunksizes</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_model_uplift</span><span class="o">.</span><span class="n">init_netcdf</span><span class="p">(</span><span class="n">nc</span><span class="p">,</span> <span class="n">zlib</span><span class="p">,</span> <span class="n">complevel</span><span class="p">,</span> <span class="n">shuffle</span><span class="p">,</span> <span class="n">chunksizes</span><span class="p">)</span>
 
         <span class="c1"># finalize</span>
         <span class="n">nc</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 
-    <span class="k">def</span> <span class="nf">_to_netcdf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_name</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_to_netcdf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_name</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Append model state and parameters to netCDF file</span>
 <span class="sd">        </span>
 <span class="sd">        Arguments:</span>
 <span class="sd">            file_name: String, path to which file should be saved </span>
-<span class="sd">            verbose: Bool, set True to enable verbose messages</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;ice_cascade.model._to_netcdf: write time = </span><span class="si">{:.2f}</span><span class="s2">, step = </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_time</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_step</span><span class="p">))</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_step</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_out_steps</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_verbose</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;ice_cascade.model._to_netcdf: write time = </span><span class="si">{:.2f}</span><span class="s2">, step = </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_time</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_step</span><span class="p">))</span>
 
-        <span class="n">ii</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_out_steps</span><span class="p">)</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_step</span><span class="p">)</span> 
-        <span class="n">nc</span> <span class="o">=</span> <span class="n">netCDF4</span><span class="o">.</span><span class="n">Dataset</span><span class="p">(</span><span class="n">file_name</span><span class="p">,</span> <span class="s2">&quot;a&quot;</span><span class="p">)</span>
-        <span class="n">nc</span><span class="p">[</span><span class="s1">&#39;time&#39;</span><span class="p">][</span><span class="n">ii</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_time</span>
-        <span class="n">nc</span><span class="p">[</span><span class="s1">&#39;step&#39;</span><span class="p">][</span><span class="n">ii</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_step</span>
-        <span class="n">nc</span><span class="p">[</span><span class="s1">&#39;zrx&#39;</span><span class="p">][</span><span class="n">ii</span><span class="p">,:,:]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_zrx</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hill_on</span><span class="p">:</span>
-            <span class="n">nc</span><span class="p">[</span><span class="s1">&#39;hill_kappa&#39;</span><span class="p">][</span><span class="n">ii</span><span class="p">,:,:]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hill_kappa</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_uplift_on</span><span class="p">:</span>
-            <span class="n">nc</span><span class="p">[</span><span class="s1">&#39;uplift_rate&#39;</span><span class="p">][</span><span class="n">ii</span><span class="p">,:,:]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model_uplift</span><span class="o">.</span><span class="n">get_uplift_rate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_time</span><span class="p">)</span>
-        <span class="n">nc</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+            <span class="n">ii</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_out_steps</span><span class="p">)</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_step</span><span class="p">)</span> 
+            <span class="n">nc</span> <span class="o">=</span> <span class="n">netCDF4</span><span class="o">.</span><span class="n">Dataset</span><span class="p">(</span><span class="n">file_name</span><span class="p">,</span> <span class="s2">&quot;a&quot;</span><span class="p">)</span>
+            <span class="n">nc</span><span class="p">[</span><span class="s1">&#39;time&#39;</span><span class="p">][</span><span class="n">ii</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_time</span>
+            <span class="n">nc</span><span class="p">[</span><span class="s1">&#39;step&#39;</span><span class="p">][</span><span class="n">ii</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_step</span>
+            <span class="n">nc</span><span class="p">[</span><span class="s1">&#39;z_rx&#39;</span><span class="p">][</span><span class="n">ii</span><span class="p">,:,:]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_z_rx</span>
 
-    <span class="k">def</span> <span class="nf">_initialize_component_models</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Initialize component model objects&quot;&quot;&quot;</span>
+            <span class="c1"># write data for model components</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_model_hill</span><span class="o">.</span><span class="n">to_netcdf</span><span class="p">(</span><span class="n">nc</span><span class="p">,</span> <span class="n">ii</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_model_uplift</span><span class="o">.</span><span class="n">to_netcdf</span><span class="p">(</span><span class="n">nc</span><span class="p">,</span> <span class="n">ii</span><span class="p">)</span>
 
-        <span class="c1"># hillslope component</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hill_on</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_hill_kappa</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_zrx</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">_hill_kappa_active</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_model_hill</span> <span class="o">=</span> <span class="n">py_ice_cascade</span><span class="o">.</span><span class="n">hillslope</span><span class="o">.</span><span class="n">ftcs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_zrx</span><span class="p">,</span> 
-                <span class="bp">self</span><span class="o">.</span><span class="n">_delta</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hill_kappa</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hill_bc</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span> 
-            <span class="bp">self</span><span class="o">.</span><span class="n">_model_hill</span> <span class="o">=</span> <span class="n">py_ice_cascade</span><span class="o">.</span><span class="n">hillslope</span><span class="o">.</span><span class="n">null</span><span class="p">()</span>
+            <span class="c1"># finalize</span>
+            <span class="n">nc</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 
-        <span class="c1"># uplift component</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_uplift_on</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_model_uplift</span> <span class="o">=</span> <span class="n">py_ice_cascade</span><span class="o">.</span><span class="n">uplift</span><span class="o">.</span><span class="n">linear</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_uplift_start</span><span class="p">,</span> 
-                <span class="bp">self</span><span class="o">.</span><span class="n">_uplift_end</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_time_start</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_time_end</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_model_uplift</span> <span class="o">=</span> <span class="n">py_ice_cascade</span><span class="o">.</span><span class="n">uplift</span><span class="o">.</span><span class="n">null</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_zrx</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
-
-<div class="viewcode-block" id="model.run"><a class="viewcode-back" href="../../py_ice_cascade.html#py_ice_cascade.ice_cascade.model.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_name</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="model.run"><a class="viewcode-back" href="../../py_ice_cascade.html#py_ice_cascade.ice_cascade.model.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_name</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Run model simulation, save results to file</span>
 
 <span class="sd">        Arguments:</span>
 <span class="sd">            file_name: String, path to which results should be saved </span>
-<span class="sd">            verbose: Bool, set True to show verbose messages</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_verbose</span><span class="p">:</span>
             <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;ice_cascade.model.run: initializing simulation&quot;</span><span class="p">)</span>
 
         <span class="c1"># init automatic parameters</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_delta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_x</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">_x</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_time_end</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_time_start</span><span class="o">+</span><span class="bp">self</span><span class="o">.</span><span class="n">_time_step</span><span class="o">*</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_num_steps</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_initialize_component_models</span><span class="p">()</span>
-        
-        <span class="c1"># TODO: test for a regular grid here</span>
 
         <span class="c1"># init model integration loop</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_time</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_time_start</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_step</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_create_netcdf</span><span class="p">(</span><span class="n">file_name</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_to_netcdf</span><span class="p">(</span><span class="n">file_name</span><span class="p">)</span>
-        
+
         <span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">_step</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">_num_steps</span><span class="p">:</span>
 
             <span class="c1"># synchronize model components</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_model_hill</span><span class="o">.</span><span class="n">set_height</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_zrx</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_model_hill</span><span class="o">.</span><span class="n">set_height</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_z_rx</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_model_uplift</span><span class="o">.</span><span class="n">set_height</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_z_rx</span><span class="p">)</span>
 
             <span class="c1"># run climate component simulations</span>
 
@@ -355,29 +311,27 @@
 
             <span class="c1"># run erosion-deposition component simulations</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_model_hill</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_time_step</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_model_uplift</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_time</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_time</span><span class="o">+</span><span class="bp">self</span><span class="o">.</span><span class="n">_time_step</span><span class="p">)</span>
 
             <span class="c1"># gather erosion-deposition-uplift component results</span>
-            <span class="n">d_zrx_hill</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model_hill</span><span class="o">.</span><span class="n">get_height</span><span class="p">()</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">_zrx</span>
-            <span class="n">d_zrx_uplift</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model_uplift</span><span class="o">.</span><span class="n">get_uplift</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_time</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_time</span><span class="o">+</span><span class="bp">self</span><span class="o">.</span><span class="n">_time_step</span><span class="p">)</span>
+            <span class="n">dzdt</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_model_hill</span><span class="o">.</span><span class="n">get_height</span><span class="p">()</span>
+                <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model_uplift</span><span class="o">.</span><span class="n">get_height</span><span class="p">()</span>
+                <span class="o">-</span> <span class="mi">2</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">_z_rx</span><span class="p">)</span>
 
             <span class="c1"># run isostasy component simulations</span>
 
             <span class="c1"># gather isostasy results</span>
 
             <span class="c1"># advance time step </span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_zrx</span> <span class="o">+=</span> <span class="n">d_zrx_hill</span><span class="o">+</span><span class="n">d_zrx_uplift</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_z_rx</span> <span class="o">+=</span> <span class="n">dzdt</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_time</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_time_step</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_step</span> <span class="o">+=</span> <span class="mi">1</span>
 
             <span class="c1"># write output and/or display model state</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_step</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_out_steps</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_to_netcdf</span><span class="p">(</span><span class="n">file_name</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_to_netcdf</span><span class="p">(</span><span class="n">file_name</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_verbose</span><span class="p">:</span>
             <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;ice_cascade.model.run: simulation complete&quot;</span><span class="p">)</span></div></div>
-
-<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
-    <span class="k">pass</span>
 </pre></div>
 
            </div>

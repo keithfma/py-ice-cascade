@@ -73,10 +73,8 @@ class linear(model):
     .. math::
        u(t) = u_i + b(t - t_i) = (u_i - b t_i) + b t = a + b t
 
-    The method *get_uplift_rate()* returns the above uplift rate. The method
-    *get_uplift()* instead returns the total uplift over some time interval
-    :math:`[t_{start},t_{end}]`. This is simply the definite integral of the
-    uplift rate:
+    The total uplift over some time interval :math:`[t_{start},t_{end}]`. This
+    is simply the definite integral of the uplift rate:
 
     .. math::
        \int_{t_{start}}^{t_{end}} (a + b t) dt &= (a t + \frac{1}{2} b t^2 + c)|_{t_{end}} - (a t + \frac{1}{2} b t^2 + c)|_{t_{start}} \\

@@ -142,7 +142,7 @@
 
 <span class="sd">.. code-block:: bash</span>
 
-<span class="sd">   python -m py_ice_cascade.example -c hill_only</span>
+<span class="sd">   python -m py_ice_cascade.example hill_only</span>
 
 <span class="sd">In the latter case, use the *-h* flag to get additional help</span>
 <span class="sd">&quot;&quot;&quot;</span>
@@ -162,22 +162,23 @@
     <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">lx</span><span class="p">,</span> <span class="n">nx</span><span class="p">)</span>
     <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">ly</span><span class="p">,</span> <span class="n">ny</span><span class="p">)</span>
     <span class="n">zrx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">pad</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="n">ny</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="n">nx</span><span class="o">-</span><span class="mi">2</span><span class="p">),</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;constant&#39;</span><span class="p">,</span> <span class="n">constant_values</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="n">ny</span><span class="p">,</span> <span class="n">nx</span><span class="p">))</span>
+    <span class="n">kappa_active</span> <span class="o">=</span> <span class="mf">0.01</span>
+    <span class="n">kappa_inactive</span> <span class="o">=</span> <span class="mf">0.0</span>
+    <span class="n">bcs</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;constant&#39;</span><span class="p">]</span><span class="o">*</span><span class="mi">4</span>
     <span class="n">time_start</span> <span class="o">=</span> <span class="mf">0.0</span>
     <span class="n">time_step</span> <span class="o">=</span> <span class="mf">0.1</span>
     <span class="n">num_steps</span> <span class="o">=</span> <span class="mi">10</span>
     <span class="n">out_steps</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">num_steps</span><span class="p">)</span>
-    <span class="n">hill_on</span> <span class="o">=</span> <span class="kc">True</span>
-    <span class="n">hill_kappa_active</span> <span class="o">=</span> <span class="mf">0.01</span>
-    <span class="n">hill_kappa_inactive</span> <span class="o">=</span> <span class="mf">0.0</span>
-    <span class="n">hill_bc</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;constant&#39;</span><span class="p">]</span><span class="o">*</span><span class="mi">4</span>
-    <span class="n">uplift_on</span> <span class="o">=</span> <span class="kc">False</span>
+
+    <span class="n">hill</span> <span class="o">=</span> <span class="n">py_ice_cascade</span><span class="o">.</span><span class="n">hillslope</span><span class="o">.</span><span class="n">ftcs</span><span class="p">(</span><span class="n">zrx</span><span class="p">,</span> <span class="n">mask</span><span class="p">,</span> <span class="n">delta</span><span class="p">,</span> <span class="n">kappa_active</span><span class="p">,</span>
+        <span class="n">kappa_inactive</span><span class="p">,</span> <span class="n">bcs</span><span class="p">)</span>
+
+    <span class="n">uplift</span> <span class="o">=</span> <span class="n">py_ice_cascade</span><span class="o">.</span><span class="n">uplift</span><span class="o">.</span><span class="n">null</span><span class="p">()</span>
     
-    <span class="n">mod</span> <span class="o">=</span> <span class="n">py_ice_cascade</span><span class="o">.</span><span class="n">ice_cascade</span><span class="o">.</span><span class="n">model</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="n">y</span><span class="p">,</span> <span class="n">zrx</span><span class="o">=</span><span class="n">zrx</span><span class="p">,</span> <span class="n">time_start</span><span class="o">=</span><span class="n">time_start</span><span class="p">,</span>
-        <span class="n">time_step</span><span class="o">=</span><span class="n">time_step</span><span class="p">,</span> <span class="n">num_steps</span><span class="o">=</span><span class="n">num_steps</span><span class="p">,</span> <span class="n">out_steps</span><span class="o">=</span><span class="n">out_steps</span><span class="p">,</span> 
-        <span class="n">hill_on</span><span class="o">=</span><span class="n">hill_on</span><span class="p">,</span> <span class="n">hill_kappa_active</span><span class="o">=</span><span class="n">hill_kappa_active</span><span class="p">,</span> 
-        <span class="n">hill_kappa_inactive</span><span class="o">=</span><span class="n">hill_kappa_inactive</span><span class="p">,</span> <span class="n">hill_bc</span><span class="o">=</span><span class="n">hill_bc</span><span class="p">,</span>
-        <span class="n">uplift_on</span><span class="o">=</span><span class="n">uplift_on</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="n">mod</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="s1">&#39;example.hill_only.out.nc&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+    <span class="n">mod</span> <span class="o">=</span> <span class="n">py_ice_cascade</span><span class="o">.</span><span class="n">ice_cascade</span><span class="o">.</span><span class="n">model</span><span class="p">(</span><span class="n">hill</span><span class="p">,</span> <span class="n">uplift</span><span class="p">,</span> 
+        <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">zrx</span><span class="p">,</span> <span class="n">time_start</span><span class="p">,</span> <span class="n">time_step</span><span class="p">,</span> <span class="n">num_steps</span><span class="p">,</span> <span class="n">out_steps</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">mod</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="s1">&#39;example.hill_only.out.nc&#39;</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="uplift_only"><a class="viewcode-back" href="../../py_ice_cascade.html#py_ice_cascade.example.uplift_only">[docs]</a><span class="k">def</span> <span class="nf">uplift_only</span><span class="p">():</span>
     <span class="sd">&quot;&quot;&quot;uplift-only example&quot;&quot;&quot;</span>
@@ -193,17 +194,18 @@
     <span class="n">time_start</span> <span class="o">=</span> <span class="mf">0.0</span>
     <span class="n">time_step</span> <span class="o">=</span> <span class="mf">0.1</span>
     <span class="n">num_steps</span> <span class="o">=</span> <span class="mi">10</span>
+    <span class="n">time_end</span> <span class="o">=</span> <span class="n">time_start</span> <span class="o">+</span> <span class="n">time_step</span><span class="o">*</span><span class="p">(</span><span class="n">num_steps</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
     <span class="n">out_steps</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">num_steps</span><span class="p">)</span>
-    <span class="n">hill_on</span> <span class="o">=</span> <span class="kc">False</span> 
-    <span class="n">uplift_on</span> <span class="o">=</span> <span class="kc">True</span> 
     <span class="n">uplift_start</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">ny</span><span class="p">,</span><span class="n">nx</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">double</span><span class="p">)</span>
     <span class="n">uplift_end</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="n">ny</span><span class="p">,</span><span class="n">nx</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">double</span><span class="p">)</span>
 
-    <span class="n">mod</span> <span class="o">=</span> <span class="n">py_ice_cascade</span><span class="o">.</span><span class="n">ice_cascade</span><span class="o">.</span><span class="n">model</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="n">y</span><span class="p">,</span> <span class="n">zrx</span><span class="o">=</span><span class="n">zrx</span><span class="p">,</span> <span class="n">time_start</span><span class="o">=</span><span class="n">time_start</span><span class="p">,</span>
-        <span class="n">time_step</span><span class="o">=</span><span class="n">time_step</span><span class="p">,</span> <span class="n">num_steps</span><span class="o">=</span><span class="n">num_steps</span><span class="p">,</span> <span class="n">out_steps</span><span class="o">=</span><span class="n">out_steps</span><span class="p">,</span>
-        <span class="n">hill_on</span><span class="o">=</span><span class="n">hill_on</span><span class="p">,</span> <span class="n">uplift_on</span><span class="o">=</span><span class="n">uplift_on</span><span class="p">,</span> <span class="n">uplift_start</span><span class="o">=</span><span class="n">uplift_start</span><span class="p">,</span>
-        <span class="n">uplift_end</span><span class="o">=</span><span class="n">uplift_end</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="n">mod</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="s1">&#39;example.uplift_only.out.nc&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+    <span class="n">hill</span> <span class="o">=</span> <span class="n">py_ice_cascade</span><span class="o">.</span><span class="n">hillslope</span><span class="o">.</span><span class="n">null</span><span class="p">()</span> 
+
+    <span class="n">uplift</span> <span class="o">=</span> <span class="n">py_ice_cascade</span><span class="o">.</span><span class="n">uplift</span><span class="o">.</span><span class="n">linear</span><span class="p">(</span><span class="n">zrx</span><span class="p">,</span> <span class="n">uplift_start</span><span class="p">,</span> <span class="n">uplift_end</span><span class="p">,</span> <span class="n">time_start</span><span class="p">,</span> <span class="n">time_end</span><span class="p">)</span>
+
+    <span class="n">mod</span> <span class="o">=</span> <span class="n">py_ice_cascade</span><span class="o">.</span><span class="n">ice_cascade</span><span class="o">.</span><span class="n">model</span><span class="p">(</span><span class="n">hill</span><span class="p">,</span> <span class="n">uplift</span><span class="p">,</span> 
+        <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">zrx</span><span class="p">,</span> <span class="n">time_start</span><span class="p">,</span> <span class="n">time_step</span><span class="p">,</span> <span class="n">num_steps</span><span class="p">,</span> <span class="n">out_steps</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">mod</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="s1">&#39;example.uplift_only.out.nc&#39;</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="hill_uplift"><a class="viewcode-back" href="../../py_ice_cascade.html#py_ice_cascade.example.hill_uplift">[docs]</a><span class="k">def</span> <span class="nf">hill_uplift</span><span class="p">():</span>
     <span class="sd">&quot;&quot;&quot;hillslope diffusion with uplift example&quot;&quot;&quot;</span>
@@ -219,22 +221,23 @@
     <span class="n">time_start</span> <span class="o">=</span> <span class="mf">0.0</span>
     <span class="n">time_step</span> <span class="o">=</span> <span class="mf">0.1</span>
     <span class="n">num_steps</span> <span class="o">=</span> <span class="mi">10</span>
+    <span class="n">time_end</span> <span class="o">=</span> <span class="n">time_start</span> <span class="o">+</span> <span class="n">time_step</span><span class="o">*</span><span class="p">(</span><span class="n">num_steps</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
     <span class="n">out_steps</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">num_steps</span><span class="p">)</span>
-    <span class="n">hill_on</span> <span class="o">=</span> <span class="kc">True</span> 
+    <span class="n">hill_mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="n">ny</span><span class="p">,</span> <span class="n">nx</span><span class="p">))</span>
     <span class="n">hill_kappa_active</span> <span class="o">=</span> <span class="mf">0.01</span>
     <span class="n">hill_kappa_inactive</span> <span class="o">=</span> <span class="mf">0.0</span>
     <span class="n">hill_bc</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;constant&#39;</span><span class="p">]</span><span class="o">*</span><span class="mi">4</span>
-    <span class="n">uplift_on</span> <span class="o">=</span> <span class="kc">True</span> 
     <span class="n">uplift_start</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">ny</span><span class="p">,</span><span class="n">nx</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">double</span><span class="p">)</span>
     <span class="n">uplift_end</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="n">ny</span><span class="p">,</span><span class="n">nx</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">double</span><span class="p">)</span>
 
-    <span class="n">mod</span> <span class="o">=</span> <span class="n">py_ice_cascade</span><span class="o">.</span><span class="n">ice_cascade</span><span class="o">.</span><span class="n">model</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="n">y</span><span class="p">,</span> <span class="n">zrx</span><span class="o">=</span><span class="n">zrx</span><span class="p">,</span> <span class="n">time_start</span><span class="o">=</span><span class="n">time_start</span><span class="p">,</span>
-        <span class="n">time_step</span><span class="o">=</span><span class="n">time_step</span><span class="p">,</span> <span class="n">num_steps</span><span class="o">=</span><span class="n">num_steps</span><span class="p">,</span> <span class="n">out_steps</span><span class="o">=</span><span class="n">out_steps</span><span class="p">,</span>
-        <span class="n">hill_on</span><span class="o">=</span><span class="n">hill_on</span><span class="p">,</span> <span class="n">hill_kappa_active</span><span class="o">=</span><span class="n">hill_kappa_active</span><span class="p">,</span>
-        <span class="n">hill_kappa_inactive</span><span class="o">=</span><span class="n">hill_kappa_inactive</span><span class="p">,</span> <span class="n">hill_bc</span><span class="o">=</span><span class="n">hill_bc</span><span class="p">,</span>
-        <span class="n">uplift_on</span><span class="o">=</span><span class="n">uplift_on</span><span class="p">,</span> <span class="n">uplift_start</span><span class="o">=</span><span class="n">uplift_start</span><span class="p">,</span> <span class="n">uplift_end</span><span class="o">=</span><span class="n">uplift_end</span><span class="p">,</span> 
-        <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="n">mod</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="s1">&#39;example.hill_uplift.out.nc&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+    <span class="n">hill</span> <span class="o">=</span> <span class="n">py_ice_cascade</span><span class="o">.</span><span class="n">hillslope</span><span class="o">.</span><span class="n">ftcs</span><span class="p">(</span><span class="n">zrx</span><span class="p">,</span> <span class="n">hill_mask</span><span class="p">,</span> <span class="n">delta</span><span class="p">,</span> <span class="n">hill_kappa_active</span><span class="p">,</span>
+        <span class="n">hill_kappa_inactive</span><span class="p">,</span> <span class="n">hill_bc</span><span class="p">)</span>
+
+    <span class="n">uplift</span> <span class="o">=</span> <span class="n">py_ice_cascade</span><span class="o">.</span><span class="n">uplift</span><span class="o">.</span><span class="n">linear</span><span class="p">(</span><span class="n">zrx</span><span class="p">,</span> <span class="n">uplift_start</span><span class="p">,</span> <span class="n">uplift_end</span><span class="p">,</span> <span class="n">time_start</span><span class="p">,</span> <span class="n">time_end</span><span class="p">)</span>
+
+    <span class="n">mod</span> <span class="o">=</span> <span class="n">py_ice_cascade</span><span class="o">.</span><span class="n">ice_cascade</span><span class="o">.</span><span class="n">model</span><span class="p">(</span><span class="n">hill</span><span class="p">,</span> <span class="n">uplift</span><span class="p">,</span> 
+        <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">zrx</span><span class="p">,</span> <span class="n">time_start</span><span class="p">,</span> <span class="n">time_step</span><span class="p">,</span> <span class="n">num_steps</span><span class="p">,</span> <span class="n">out_steps</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">mod</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="s1">&#39;example.hill_uplift.out.nc&#39;</span><span class="p">)</span></div>
 
 <span class="c1"># command line interface</span>
 <span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
@@ -244,15 +247,15 @@
     <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s1">&#39;Run example cases for for &#39;</span>
         <span class="s1">&#39;Python ICE-CASCADE glacial-fluvial-hillslope landscape evolution model&#39;</span><span class="p">,</span>
         <span class="n">formatter_class</span><span class="o">=</span><span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentDefaultsHelpFormatter</span><span class="p">)</span>
-    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-c&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="n">valid_cases</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s1">&#39;example case to generate&#39;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;case&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="n">valid_cases</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s1">&#39;example case to run&#39;</span><span class="p">)</span>
     <span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
 
-    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">c</span> <span class="o">==</span> <span class="s1">&#39;hill_only&#39;</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">case</span> <span class="o">==</span> <span class="s1">&#39;hill_only&#39;</span><span class="p">:</span>
         <span class="n">hill_only</span><span class="p">()</span>
-    <span class="k">elif</span> <span class="n">args</span><span class="o">.</span><span class="n">c</span> <span class="o">==</span> <span class="s1">&#39;uplift_only&#39;</span><span class="p">:</span>
+    <span class="k">elif</span> <span class="n">args</span><span class="o">.</span><span class="n">case</span> <span class="o">==</span> <span class="s1">&#39;uplift_only&#39;</span><span class="p">:</span>
         <span class="n">uplift_only</span><span class="p">()</span>
-    <span class="k">elif</span> <span class="n">args</span><span class="o">.</span><span class="n">c</span> <span class="o">==</span> <span class="s1">&#39;hill_uplift&#39;</span><span class="p">:</span>
+    <span class="k">elif</span> <span class="n">args</span><span class="o">.</span><span class="n">case</span> <span class="o">==</span> <span class="s1">&#39;hill_uplift&#39;</span><span class="p">:</span>
         <span class="n">hill_uplift</span><span class="p">()</span>
 </pre></div>
 

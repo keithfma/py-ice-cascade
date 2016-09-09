@@ -13,7 +13,7 @@ or from the command line by executing the module as a script, e.g.:
 
 .. code-block:: bash
 
-   python -m py_ice_cascade.example -c hill_only
+   python -m py_ice_cascade.example hill_only
 
 In the latter case, use the *-h* flag to get additional help
 """

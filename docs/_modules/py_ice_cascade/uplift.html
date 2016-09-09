@@ -134,29 +134,50 @@
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
 
-<div class="viewcode-block" id="null"><a class="viewcode-back" href="../../py_ice_cascade.html#py_ice_cascade.uplift.null">[docs]</a><span class="k">class</span> <span class="nc">null</span><span class="p">():</span>
+<div class="viewcode-block" id="model"><a class="viewcode-back" href="../../py_ice_cascade.html#py_ice_cascade.uplift.model">[docs]</a><span class="k">class</span> <span class="nc">model</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;Base class for uplift model components&quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">pass</span>
+<div class="viewcode-block" id="model.set_height"><a class="viewcode-back" href="../../py_ice_cascade.html#py_ice_cascade.uplift.model.set_height">[docs]</a>    <span class="k">def</span> <span class="nf">set_height</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+<div class="viewcode-block" id="model.get_height"><a class="viewcode-back" href="../../py_ice_cascade.html#py_ice_cascade.uplift.model.get_height">[docs]</a>    <span class="k">def</span> <span class="nf">get_height</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+<div class="viewcode-block" id="model.init_netcdf"><a class="viewcode-back" href="../../py_ice_cascade.html#py_ice_cascade.uplift.model.init_netcdf">[docs]</a>    <span class="k">def</span> <span class="nf">init_netcdf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nc</span><span class="p">,</span> <span class="n">zlib</span><span class="p">,</span> <span class="n">complevel</span><span class="p">,</span> <span class="n">shuffle</span><span class="p">,</span> <span class="n">chunksizes</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+<div class="viewcode-block" id="model.to_netcdf"><a class="viewcode-back" href="../../py_ice_cascade.html#py_ice_cascade.uplift.model.to_netcdf">[docs]</a>    <span class="k">def</span> <span class="nf">to_netcdf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nc</span><span class="p">,</span> <span class="n">time_idx</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+<div class="viewcode-block" id="model.run"><a class="viewcode-back" href="../../py_ice_cascade.html#py_ice_cascade.uplift.model.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t_start</span><span class="p">,</span> <span class="n">t_end</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div></div>
+
+<div class="viewcode-block" id="null"><a class="viewcode-back" href="../../py_ice_cascade.html#py_ice_cascade.uplift.null">[docs]</a><span class="k">class</span> <span class="nc">null</span><span class="p">(</span><span class="n">model</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Do-nothing class to be used for disabled uplift component</span>
 
-<span class="sd">    Returns zeros for uplift rate and total uplift</span>
-
-<span class="sd">    Arguments:</span>
-<span class="sd">        shape: (nrow, ncol) of model grid</span>
+<span class="sd">    Internal height grid is set and returned unchanged</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">shape</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_shape</span> <span class="o">=</span> <span class="n">shape</span>
-<div class="viewcode-block" id="null.get_uplift_rate"><a class="viewcode-back" href="../../py_ice_cascade.html#py_ice_cascade.uplift.null.get_uplift_rate">[docs]</a>    <span class="k">def</span> <span class="nf">get_uplift_rate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_shape</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">double</span><span class="p">)</span></div>
-<div class="viewcode-block" id="null.get_uplift"><a class="viewcode-back" href="../../py_ice_cascade.html#py_ice_cascade.uplift.null.get_uplift">[docs]</a>    <span class="k">def</span> <span class="nf">get_uplift</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_shape</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">double</span><span class="p">)</span></div></div>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">pass</span>
+<div class="viewcode-block" id="null.set_height"><a class="viewcode-back" href="../../py_ice_cascade.html#py_ice_cascade.uplift.null.set_height">[docs]</a>    <span class="k">def</span> <span class="nf">set_height</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_height</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">double</span><span class="p">(</span><span class="n">new</span><span class="p">))</span></div>
+<div class="viewcode-block" id="null.get_height"><a class="viewcode-back" href="../../py_ice_cascade.html#py_ice_cascade.uplift.null.get_height">[docs]</a>    <span class="k">def</span> <span class="nf">get_height</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_height</span><span class="p">)</span></div>
+<div class="viewcode-block" id="null.init_netcdf"><a class="viewcode-back" href="../../py_ice_cascade.html#py_ice_cascade.uplift.null.init_netcdf">[docs]</a>    <span class="k">def</span> <span class="nf">init_netcdf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nc</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+        <span class="n">nc</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span><span class="s1">&#39;uplift_model&#39;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="s1">&#39;i1&#39;</span><span class="p">))</span> <span class="c1"># scalar</span>
+        <span class="n">nc</span><span class="p">[</span><span class="s1">&#39;uplift_model&#39;</span><span class="p">][</span><span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span> 
+        <span class="n">nc</span><span class="p">[</span><span class="s1">&#39;uplift_model&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">type</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__name__</span> </div>
+<div class="viewcode-block" id="null.to_netcdf"><a class="viewcode-back" href="../../py_ice_cascade.html#py_ice_cascade.uplift.null.to_netcdf">[docs]</a>    <span class="k">def</span> <span class="nf">to_netcdf</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">):</span>
+        <span class="k">pass</span></div>
+<div class="viewcode-block" id="null.run"><a class="viewcode-back" href="../../py_ice_cascade.html#py_ice_cascade.uplift.null.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">):</span>
+        <span class="k">pass</span></div></div>
 
-<div class="viewcode-block" id="linear"><a class="viewcode-back" href="../../py_ice_cascade.html#py_ice_cascade.uplift.linear">[docs]</a><span class="k">class</span> <span class="nc">linear</span><span class="p">():</span>
+<div class="viewcode-block" id="linear"><a class="viewcode-back" href="../../py_ice_cascade.html#py_ice_cascade.uplift.linear">[docs]</a><span class="k">class</span> <span class="nc">linear</span><span class="p">(</span><span class="n">model</span><span class="p">):</span>
     <span class="sd">r&quot;&quot;&quot;</span>
 <span class="sd">    Tectonic uplift model in which uplift is linearly interpolated between a</span>
 <span class="sd">    pre-defined initial and final state. </span>
 
 <span class="sd">    Arguments:</span>
+<span class="sd">        height: 2D numpy array, surface elevation in model domain, [m]</span>
 <span class="sd">        ui: 2D numpy array, initial uplift rate, [m/a]</span>
 <span class="sd">        uf: 2D numpy array, final uplift rate, [m/a]</span>
 <span class="sd">        ti: Scalar, initial time, [a]</span>
@@ -181,10 +202,8 @@
 <span class="sd">    .. math::</span>
 <span class="sd">       u(t) = u_i + b(t - t_i) = (u_i - b t_i) + b t = a + b t</span>
 
-<span class="sd">    The method *get_uplift_rate()* returns the above uplift rate. The method</span>
-<span class="sd">    *get_uplift()* instead returns the total uplift over some time interval</span>
-<span class="sd">    :math:`[t_{start},t_{end}]`. This is simply the definite integral of the</span>
-<span class="sd">    uplift rate:</span>
+<span class="sd">    The total uplift over some time interval :math:`[t_{start},t_{end}]`. This</span>
+<span class="sd">    is simply the definite integral of the uplift rate:</span>
 
 <span class="sd">    .. math::</span>
 <span class="sd">       \int_{t_{start}}^{t_{end}} (a + b t) dt &amp;= (a t + \frac{1}{2} b t^2 + c)|_{t_{end}} - (a t + \frac{1}{2} b t^2 + c)|_{t_{start}} \\</span>
@@ -195,78 +214,98 @@
 <span class="sd">    precomputed for efficiency.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ui</span><span class="p">,</span> <span class="n">uf</span><span class="p">,</span> <span class="n">ti</span><span class="p">,</span> <span class="n">tf</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">height</span><span class="p">,</span> <span class="n">ui</span><span class="p">,</span> <span class="n">uf</span><span class="p">,</span> <span class="n">ti</span><span class="p">,</span> <span class="n">tf</span><span class="p">):</span>
 
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_height</span><span class="p">(</span><span class="n">height</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_check_dims</span><span class="p">(</span><span class="n">ui</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_ui</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">double</span><span class="p">(</span><span class="n">ui</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_check_dims</span><span class="p">(</span><span class="n">uf</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_uf</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">double</span><span class="p">(</span><span class="n">uf</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_ti</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asscalar</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">double</span><span class="p">(</span><span class="n">ti</span><span class="p">)))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_tf</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asscalar</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">double</span><span class="p">(</span><span class="n">tf</span><span class="p">)))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_uplift_rate</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">_nx</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ny</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">double</span><span class="p">)</span>
 
         <span class="c1"># precompute constant terms, see class docstring</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_b</span> <span class="o">=</span> <span class="p">(</span><span class="n">uf</span><span class="o">-</span><span class="n">ui</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="n">tf</span><span class="o">-</span><span class="n">ti</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_a</span> <span class="o">=</span> <span class="n">ui</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">_b</span><span class="o">*</span><span class="n">ti</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_b</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_uf</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">_ui</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_tf</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">_ti</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_a</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ui</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">_b</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">_ti</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tf</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ti</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Initial time must be before final time&quot;</span><span class="p">)</span>
 
-<div class="viewcode-block" id="linear.get_uplift_rate"><a class="viewcode-back" href="../../py_ice_cascade.html#py_ice_cascade.uplift.linear.get_uplift_rate">[docs]</a>    <span class="k">def</span> <span class="nf">get_uplift_rate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">time</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return the uplift rate at time = time&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_a</span><span class="o">+</span><span class="bp">self</span><span class="o">.</span><span class="n">_b</span><span class="o">*</span><span class="n">time</span> </div>
-    
-<div class="viewcode-block" id="linear.get_uplift"><a class="viewcode-back" href="../../py_ice_cascade.html#py_ice_cascade.uplift.linear.get_uplift">[docs]</a>    <span class="k">def</span> <span class="nf">get_uplift</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t_start</span><span class="p">,</span> <span class="n">t_end</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return total (integrated) uplift over the interval [t_start, t_end]&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_a</span><span class="o">*</span><span class="p">(</span><span class="n">t_end</span><span class="o">-</span><span class="n">t_start</span><span class="p">)</span> <span class="o">+</span> <span class="mf">0.5</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">_b</span><span class="o">*</span><span class="p">(</span><span class="n">t_end</span><span class="o">*</span><span class="n">t_end</span><span class="o">-</span><span class="n">t_start</span><span class="o">*</span><span class="n">t_start</span><span class="p">)</span></div></div>
+    <span class="k">def</span> <span class="nf">_check_dims</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">array</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Check that array dims match model dims, or set model dims&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_nx&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">array</span><span class="o">.</span><span class="n">shape</span> <span class="o">!=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ny</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_nx</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Array dims do not match model dims&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_ny</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_nx</span> <span class="o">=</span> <span class="n">array</span><span class="o">.</span><span class="n">shape</span>
 
-<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+<div class="viewcode-block" id="linear.set_height"><a class="viewcode-back" href="../../py_ice_cascade.html#py_ice_cascade.uplift.linear.set_height">[docs]</a>    <span class="k">def</span> <span class="nf">set_height</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set height grid&quot;&quot;&quot;</span>
+        <span class="n">new_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">double</span><span class="p">(</span><span class="n">new</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_check_dims</span><span class="p">(</span><span class="n">new_array</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_height</span> <span class="o">=</span> <span class="n">new_array</span></div>
 
-    <span class="c1"># Basic usage example and &quot;smell test&quot;: </span>
-    <span class="c1"># # linear transition between negative and positive ramp functions, &quot;hinge&quot;</span>
-    <span class="c1"># # is at x=0. The expected result is for the uplift rate to transition from</span>
-    <span class="c1"># # initial to final values, and the total erosion to decrease to a minimum</span>
-    <span class="c1"># # of -0.25, then return to 0.</span>
+<div class="viewcode-block" id="linear.get_height"><a class="viewcode-back" href="../../py_ice_cascade.html#py_ice_cascade.uplift.linear.get_height">[docs]</a>    <span class="k">def</span> <span class="nf">get_height</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return height grid as 2D numpy array&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_height</span><span class="p">)</span></div>
 
-    <span class="n">ny</span> <span class="o">=</span> <span class="n">nx</span> <span class="o">=</span> <span class="mi">101</span> 
-    <span class="n">u0</span> <span class="o">=</span> <span class="o">-</span><span class="mf">1.0</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">nx</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">nx</span><span class="p">)</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="n">ny</span><span class="p">,</span><span class="mi">1</span><span class="p">))</span>
-    <span class="n">u1</span> <span class="o">=</span>  <span class="mf">1.0</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">nx</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">nx</span><span class="p">)</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="n">ny</span><span class="p">,</span><span class="mi">1</span><span class="p">))</span>
-    <span class="n">t0</span> <span class="o">=</span> <span class="mf">0.0</span>
-    <span class="n">t1</span> <span class="o">=</span> <span class="mf">1.0</span>
-    <span class="n">model</span> <span class="o">=</span> <span class="n">linear</span><span class="p">(</span><span class="n">u0</span><span class="p">,</span> <span class="n">u1</span><span class="p">,</span> <span class="n">t0</span><span class="p">,</span> <span class="n">t1</span><span class="p">)</span>
+<div class="viewcode-block" id="linear.run"><a class="viewcode-back" href="../../py_ice_cascade.html#py_ice_cascade.uplift.linear.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t_start</span><span class="p">,</span> <span class="n">t_end</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Compute total(integrated) uplift over the time interval and update height grid</span>
+<span class="sd">        </span>
+<span class="sd">        Arguments:</span>
+<span class="sd">            t_start: time interval start, [a]</span>
+<span class="sd">            t_end: time interval end, [a]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">uplift</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_a</span><span class="o">*</span><span class="p">(</span><span class="n">t_end</span><span class="o">-</span><span class="n">t_start</span><span class="p">)</span> <span class="o">+</span> <span class="mf">0.5</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">_b</span><span class="o">*</span><span class="p">(</span><span class="n">t_end</span><span class="o">*</span><span class="n">t_end</span><span class="o">-</span><span class="n">t_start</span><span class="o">*</span><span class="n">t_start</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_height</span> <span class="o">+=</span> <span class="n">uplift</span> 
+        <span class="bp">self</span><span class="o">.</span><span class="n">_uplift_rate</span> <span class="o">=</span> <span class="n">uplift</span><span class="o">/</span><span class="p">(</span><span class="n">t_end</span><span class="o">-</span><span class="n">t_start</span><span class="p">)</span></div>
 
-    <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
-    <span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">u0</span><span class="p">,</span> <span class="n">interpolation</span><span class="o">=</span><span class="s1">&#39;nearest&#39;</span><span class="p">,</span> <span class="n">vmin</span><span class="o">=-</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>
-    <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;u(x,y,t_i)&#39;</span><span class="p">)</span>
-    <span class="n">plt</span><span class="o">.</span><span class="n">colorbar</span><span class="p">()</span>
+<div class="viewcode-block" id="linear.init_netcdf"><a class="viewcode-back" href="../../py_ice_cascade.html#py_ice_cascade.uplift.linear.init_netcdf">[docs]</a>    <span class="k">def</span> <span class="nf">init_netcdf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nc</span><span class="p">,</span> <span class="n">zlib</span><span class="p">,</span> <span class="n">complevel</span><span class="p">,</span> <span class="n">shuffle</span><span class="p">,</span> <span class="n">chunksizes</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialize model-specific variables and attributes in output file</span>
+<span class="sd">        </span>
+<span class="sd">        Arguments: </span>
+<span class="sd">            nc: netCDF4 Dataset object, output file open for writing </span>
+<span class="sd">            zlib: see http://unidata.github.io/netcdf4-python/#netCDF4.Dataset.createVariable</span>
+<span class="sd">            complevel: &quot; &quot; </span>
+<span class="sd">            shuffle: &quot; &quot; </span>
+<span class="sd">            chunksizes: &quot; &quot; </span>
+<span class="sd">        &quot;&quot;&quot;</span>
 
-    <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span>
-    <span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">u1</span><span class="p">,</span> <span class="n">interpolation</span><span class="o">=</span><span class="s1">&#39;nearest&#39;</span><span class="p">,</span> <span class="n">vmin</span><span class="o">=-</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>
-    <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;u(x,y,t_f)&#39;</span><span class="p">)</span>
-    <span class="n">plt</span><span class="o">.</span><span class="n">colorbar</span><span class="p">()</span>
+        <span class="n">nc</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span><span class="s1">&#39;uplift_model&#39;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="s1">&#39;i1&#39;</span><span class="p">))</span> <span class="c1"># scalar</span>
+        <span class="n">nc</span><span class="p">[</span><span class="s1">&#39;uplift_model&#39;</span><span class="p">][</span><span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">nc</span><span class="p">[</span><span class="s1">&#39;uplift_model&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">type</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__name__</span> 
+        <span class="n">nc</span><span class="p">[</span><span class="s1">&#39;uplift_model&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">time_initial</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ti</span>
+        <span class="n">nc</span><span class="p">[</span><span class="s1">&#39;uplift_model&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">time_final</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tf</span>
+        <span class="n">nc</span><span class="p">[</span><span class="s1">&#39;uplift_model&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">uplift_initial</span> <span class="o">=</span> <span class="s1">&#39;see uplift_dzdt_initial variable&#39;</span>
+        <span class="n">nc</span><span class="p">[</span><span class="s1">&#39;uplift_model&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">uplift_final</span> <span class="o">=</span> <span class="s1">&#39;see uplift_dzdt_final variable&#39;</span>
 
-    <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">)</span>
-    <span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">get_uplift_rate</span><span class="p">(</span><span class="n">t0</span><span class="p">),</span> <span class="n">interpolation</span><span class="o">=</span><span class="s1">&#39;nearest&#39;</span><span class="p">,</span> <span class="n">vmin</span><span class="o">=-</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>
-    <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;u(x,y,</span><span class="si">{:.2f}</span><span class="s2">)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">t0</span><span class="p">))</span>
-    <span class="n">plt</span><span class="o">.</span><span class="n">colorbar</span><span class="p">()</span>
-    
-    <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">4</span><span class="p">)</span>
-    <span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">get_uplift</span><span class="p">(</span><span class="n">t0</span><span class="p">,</span> <span class="n">t0</span><span class="p">),</span> <span class="n">interpolation</span><span class="o">=</span><span class="s1">&#39;nearest&#39;</span><span class="p">,</span> <span class="n">vmin</span><span class="o">=-</span><span class="mf">0.25</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="mf">0.0</span><span class="p">)</span>
-    <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;u_total(x,y,</span><span class="si">{:.2f}</span><span class="s2">)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">t0</span><span class="p">))</span>
-    <span class="n">plt</span><span class="o">.</span><span class="n">colorbar</span><span class="p">()</span>
-    
-    <span class="k">for</span> <span class="n">time</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">t0</span><span class="p">,</span> <span class="n">t1</span><span class="p">,</span> <span class="mi">20</span><span class="p">):</span>
-    
-        <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">)</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">cla</span><span class="p">()</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">get_uplift_rate</span><span class="p">(</span><span class="n">time</span><span class="p">),</span> <span class="n">interpolation</span><span class="o">=</span><span class="s1">&#39;nearest&#39;</span><span class="p">,</span> <span class="n">vmin</span><span class="o">=-</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;u(x,y,</span><span class="si">{:.2f}</span><span class="s2">)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">time</span><span class="p">))</span>
-        
-        <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">4</span><span class="p">)</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">cla</span><span class="p">()</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">get_uplift</span><span class="p">(</span><span class="n">t0</span><span class="p">,</span> <span class="n">time</span><span class="p">),</span> <span class="n">interpolation</span><span class="o">=</span><span class="s1">&#39;nearest&#39;</span><span class="p">,</span> <span class="n">vmin</span><span class="o">=-</span><span class="mf">0.25</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="mf">0.0</span><span class="p">)</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;u_total(x,y,</span><span class="si">{:.2f}</span><span class="s2">)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">time</span><span class="p">))</span>
-        
-        <span class="n">plt</span><span class="o">.</span><span class="n">pause</span><span class="p">(</span><span class="mf">0.20</span><span class="p">)</span>
+        <span class="n">nc</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span><span class="s1">&#39;uplift_dzdt_initial&#39;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">double</span><span class="p">,</span> <span class="n">dimensions</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;y&#39;</span><span class="p">,</span> <span class="s1">&#39;x&#39;</span><span class="p">))</span>
+        <span class="n">nc</span><span class="p">[</span><span class="s1">&#39;uplift_dzdt_initial&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">long_name</span> <span class="o">=</span> <span class="s1">&#39;initial uplift rate&#39;</span>
+        <span class="n">nc</span><span class="p">[</span><span class="s1">&#39;uplift_dzdt_initial&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="s1">&#39;m / a&#39;</span>
+        <span class="n">nc</span><span class="p">[</span><span class="s1">&#39;uplift_dzdt_initial&#39;</span><span class="p">][:,:]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ui</span>
 
-    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+        <span class="n">nc</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span><span class="s1">&#39;uplift_dzdt_final&#39;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">double</span><span class="p">,</span> <span class="n">dimensions</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;y&#39;</span><span class="p">,</span> <span class="s1">&#39;x&#39;</span><span class="p">))</span>
+        <span class="n">nc</span><span class="p">[</span><span class="s1">&#39;uplift_dzdt_final&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">long_name</span> <span class="o">=</span> <span class="s1">&#39;final uplift rate&#39;</span>
+        <span class="n">nc</span><span class="p">[</span><span class="s1">&#39;uplift_dzdt_final&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="s1">&#39;m / a&#39;</span>
+        <span class="n">nc</span><span class="p">[</span><span class="s1">&#39;uplift_dzdt_final&#39;</span><span class="p">][:,:]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_uf</span>
+
+        <span class="n">nc</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span><span class="s1">&#39;uplift_dzdt&#39;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">double</span><span class="p">,</span> <span class="n">dimensions</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;time&#39;</span><span class="p">,</span> <span class="s1">&#39;y&#39;</span><span class="p">,</span> <span class="s1">&#39;x&#39;</span><span class="p">),</span> 
+            <span class="n">zlib</span><span class="o">=</span><span class="n">zlib</span><span class="p">,</span> <span class="n">complevel</span><span class="o">=</span><span class="n">complevel</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="n">shuffle</span><span class="p">,</span> <span class="n">chunksizes</span><span class="o">=</span><span class="n">chunksizes</span><span class="p">)</span>
+        <span class="n">nc</span><span class="p">[</span><span class="s1">&#39;uplift_dzdt&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">long_name</span> <span class="o">=</span> <span class="s1">&#39;average tectonic uplift rate&#39;</span>
+        <span class="n">nc</span><span class="p">[</span><span class="s1">&#39;uplift_dzdt&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="s1">&#39;m / a&#39;</span></div>
+
+<div class="viewcode-block" id="linear.to_netcdf"><a class="viewcode-back" href="../../py_ice_cascade.html#py_ice_cascade.uplift.linear.to_netcdf">[docs]</a>    <span class="k">def</span> <span class="nf">to_netcdf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nc</span><span class="p">,</span> <span class="n">time_idx</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Write model-specific state variables to output file</span>
+
+<span class="sd">        Arguments:</span>
+<span class="sd">            nc: netCDF4 Dataset object, output file open for writing </span>
+<span class="sd">            time_idx: integer time index to write to</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">nc</span><span class="p">[</span><span class="s1">&#39;uplift_dzdt&#39;</span><span class="p">][</span><span class="n">time_idx</span><span class="p">,:,:]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_uplift_rate</span></div></div>
 </pre></div>
 
            </div>

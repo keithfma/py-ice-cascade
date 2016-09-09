@@ -143,8 +143,26 @@
 <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
 <span class="kn">import</span> <span class="nn">scipy.sparse</span>
 <span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">netCDF4</span>
 
-<div class="viewcode-block" id="null"><a class="viewcode-back" href="../../py_ice_cascade.html#py_ice_cascade.hillslope.null">[docs]</a><span class="k">class</span> <span class="nc">null</span><span class="p">():</span>
+<div class="viewcode-block" id="model"><a class="viewcode-back" href="../../py_ice_cascade.html#py_ice_cascade.hillslope.model">[docs]</a><span class="k">class</span> <span class="nc">model</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;Base class for hillslope model components&quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">pass</span>
+<div class="viewcode-block" id="model.set_height"><a class="viewcode-back" href="../../py_ice_cascade.html#py_ice_cascade.hillslope.model.set_height">[docs]</a>    <span class="k">def</span> <span class="nf">set_height</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+<div class="viewcode-block" id="model.get_height"><a class="viewcode-back" href="../../py_ice_cascade.html#py_ice_cascade.hillslope.model.get_height">[docs]</a>    <span class="k">def</span> <span class="nf">get_height</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+<div class="viewcode-block" id="model.set_mask"><a class="viewcode-back" href="../../py_ice_cascade.html#py_ice_cascade.hillslope.model.set_mask">[docs]</a>    <span class="k">def</span> <span class="nf">set_mask</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+<div class="viewcode-block" id="model.init_netcdf"><a class="viewcode-back" href="../../py_ice_cascade.html#py_ice_cascade.hillslope.model.init_netcdf">[docs]</a>    <span class="k">def</span> <span class="nf">init_netcdf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nc</span><span class="p">,</span> <span class="n">zlib</span><span class="p">,</span> <span class="n">complevel</span><span class="p">,</span> <span class="n">shuffle</span><span class="p">,</span> <span class="n">chunksizes</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+<div class="viewcode-block" id="model.to_netcdf"><a class="viewcode-back" href="../../py_ice_cascade.html#py_ice_cascade.hillslope.model.to_netcdf">[docs]</a>    <span class="k">def</span> <span class="nf">to_netcdf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nc</span><span class="p">,</span> <span class="n">time_idx</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+<div class="viewcode-block" id="model.run"><a class="viewcode-back" href="../../py_ice_cascade.html#py_ice_cascade.hillslope.model.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">run_time</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div></div>
+
+<div class="viewcode-block" id="null"><a class="viewcode-back" href="../../py_ice_cascade.html#py_ice_cascade.hillslope.null">[docs]</a><span class="k">class</span> <span class="nc">null</span><span class="p">(</span><span class="n">model</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Do-nothing class to be used for disabled hillslope component</span>
 
@@ -154,22 +172,33 @@
         <span class="k">pass</span>
 <div class="viewcode-block" id="null.set_height"><a class="viewcode-back" href="../../py_ice_cascade.html#py_ice_cascade.hillslope.null.set_height">[docs]</a>    <span class="k">def</span> <span class="nf">set_height</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_height</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">double</span><span class="p">(</span><span class="n">new</span><span class="p">)</span> </div>
-<div class="viewcode-block" id="null.set_diffusivity"><a class="viewcode-back" href="../../py_ice_cascade.html#py_ice_cascade.hillslope.null.set_diffusivity">[docs]</a>    <span class="k">def</span> <span class="nf">set_diffusivity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new</span><span class="p">):</span>
-        <span class="k">pass</span></div>
 <div class="viewcode-block" id="null.get_height"><a class="viewcode-back" href="../../py_ice_cascade.html#py_ice_cascade.hillslope.null.get_height">[docs]</a>    <span class="k">def</span> <span class="nf">get_height</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_height</span></div>
-<div class="viewcode-block" id="null.run"><a class="viewcode-back" href="../../py_ice_cascade.html#py_ice_cascade.hillslope.null.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+<div class="viewcode-block" id="null.set_mask"><a class="viewcode-back" href="../../py_ice_cascade.html#py_ice_cascade.hillslope.null.set_mask">[docs]</a>    <span class="k">def</span> <span class="nf">set_mask</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">):</span>
+        <span class="k">pass</span></div>
+<div class="viewcode-block" id="null.init_netcdf"><a class="viewcode-back" href="../../py_ice_cascade.html#py_ice_cascade.hillslope.null.init_netcdf">[docs]</a>    <span class="k">def</span> <span class="nf">init_netcdf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nc</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+        <span class="n">nc</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span><span class="s1">&#39;hill_model&#39;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="s1">&#39;i1&#39;</span><span class="p">))</span> <span class="c1"># scalar</span>
+        <span class="n">nc</span><span class="p">[</span><span class="s1">&#39;hill_model&#39;</span><span class="p">][</span><span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span> 
+        <span class="n">nc</span><span class="p">[</span><span class="s1">&#39;hill_model&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">type</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__name__</span> </div>
+<div class="viewcode-block" id="null.to_netcdf"><a class="viewcode-back" href="../../py_ice_cascade.html#py_ice_cascade.hillslope.null.to_netcdf">[docs]</a>    <span class="k">def</span> <span class="nf">to_netcdf</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">):</span>
+        <span class="k">pass</span></div>
+<div class="viewcode-block" id="null.run"><a class="viewcode-back" href="../../py_ice_cascade.html#py_ice_cascade.hillslope.null.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">):</span>
         <span class="k">pass</span></div></div>
 
-<div class="viewcode-block" id="ftcs"><a class="viewcode-back" href="../../py_ice_cascade.html#py_ice_cascade.hillslope.ftcs">[docs]</a><span class="k">class</span> <span class="nc">ftcs</span><span class="p">():</span>
+<div class="viewcode-block" id="ftcs"><a class="viewcode-back" href="../../py_ice_cascade.html#py_ice_cascade.hillslope.ftcs">[docs]</a><span class="k">class</span> <span class="nc">ftcs</span><span class="p">(</span><span class="n">model</span><span class="p">):</span>
     <span class="sd">r&quot;&quot;&quot;</span>
 <span class="sd">    Hillslope diffusion model using forward-time center-space (FTCS) finite</span>
 <span class="sd">    diffence scheme. </span>
 
 <span class="sd">    Arguments:</span>
 <span class="sd">        height: 2D numpy array, surface elevation in model domain, [m]</span>
+<span class="sd">        mask: 2D numpy array, True where hillslope diffusion is active, False</span>
+<span class="sd">            where inactive (e.g. under water or ice)</span>
 <span class="sd">        delta: Scalar double, grid spacing, assumed square, [m]</span>
-<span class="sd">        kappa: 2D numpy array, diffusion coefficient, [m**2/a]</span>
+<span class="sd">        kappa_active: active diffusion coefficient, used where mask is </span>
+<span class="sd">            True, [m**2/a]</span>
+<span class="sd">        kappa_inactive: inactive diffusion coefficient, used where mask is</span>
+<span class="sd">            False, [m**2/a]</span>
 <span class="sd">        bc: List of boundary conditions names for [y=0, y=end, x=0, x=end]</span>
 
 <span class="sd">    Supported boundary conditions are:</span>
@@ -252,16 +281,17 @@
 <span class="sd">    The above scheme is modified at boundary points.     </span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="c1"># NOTE: attributes and methods with the &quot;_&quot; prefix are considered private,</span>
-    <span class="c1">#       use outside the object at your own risk</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">height</span><span class="p">,</span> <span class="n">delta</span><span class="p">,</span> <span class="n">kappa</span><span class="p">,</span> <span class="n">bc</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">height</span><span class="p">,</span> <span class="n">mask</span><span class="p">,</span> <span class="n">delta</span><span class="p">,</span> <span class="n">kappa_active</span><span class="p">,</span> <span class="n">kappa_inactive</span><span class="p">,</span> <span class="n">bc</span><span class="p">):</span>
         <span class="c1"># set attributes</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_valid_bc</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span><span class="s1">&#39;constant&#39;</span><span class="p">,</span> <span class="s1">&#39;closed&#39;</span><span class="p">,</span> <span class="s1">&#39;open&#39;</span><span class="p">,</span> <span class="s1">&#39;cyclic&#39;</span><span class="p">,</span> <span class="s1">&#39;mirror&#39;</span><span class="p">])</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_delta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">double</span><span class="p">(</span><span class="n">delta</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_kappa_active</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">double</span><span class="p">(</span><span class="n">kappa_active</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_kappa_inactive</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">double</span><span class="p">(</span><span class="n">kappa_inactive</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_bc</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">bc</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">set_height</span><span class="p">(</span><span class="n">height</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">set_diffusivity</span><span class="p">(</span><span class="n">kappa</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_mask</span><span class="p">(</span><span class="n">mask</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_dhdt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">_ny</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_nx</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">double</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_check_dims</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">array</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Check that array dims match model dims, or set model dims&quot;&quot;&quot;</span>
@@ -283,22 +313,19 @@
         <span class="sd">&quot;&quot;&quot;Set height grid&quot;&quot;&quot;</span>
         <span class="n">new_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">double</span><span class="p">(</span><span class="n">new</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_check_dims</span><span class="p">(</span><span class="n">new_array</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_height</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ravel</span><span class="p">(</span><span class="n">new_array</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="s1">&#39;C&#39;</span><span class="p">)</span> <span class="c1"># </span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_height</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ravel</span><span class="p">(</span><span class="n">new_array</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="s1">&#39;C&#39;</span><span class="p">)</span> <span class="c1"># stored as vector </span></div>
 
 <div class="viewcode-block" id="ftcs.get_height"><a class="viewcode-back" href="../../py_ice_cascade.html#py_ice_cascade.hillslope.ftcs.get_height">[docs]</a>    <span class="k">def</span> <span class="nf">get_height</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return height grid as 2D numpy array&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_height</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">_ny</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_nx</span><span class="p">),</span> <span class="n">order</span><span class="o">=</span><span class="s1">&#39;C&#39;</span><span class="p">))</span></div>
 
-<div class="viewcode-block" id="ftcs.set_diffusivity"><a class="viewcode-back" href="../../py_ice_cascade.html#py_ice_cascade.hillslope.ftcs.set_diffusivity">[docs]</a>    <span class="k">def</span> <span class="nf">set_diffusivity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Set diffusivity grid and update dheight/dt coefficient matrix&quot;&quot;&quot;</span>
-        <span class="n">new_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">double</span><span class="p">(</span><span class="n">new</span><span class="p">))</span>
+<div class="viewcode-block" id="ftcs.set_mask"><a class="viewcode-back" href="../../py_ice_cascade.html#py_ice_cascade.hillslope.ftcs.set_mask">[docs]</a>    <span class="k">def</span> <span class="nf">set_mask</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set diffusivity grid from mask and update dheight/dt coeff matrix&quot;&quot;&quot;</span>
+        <span class="n">new_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">new</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_check_dims</span><span class="p">(</span><span class="n">new_array</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_kappa</span> <span class="o">=</span> <span class="n">new_array</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_mask</span> <span class="o">=</span> <span class="n">new_array</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_kappa</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_mask</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_kappa_active</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_kappa_inactive</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_set_coeff_matrix</span><span class="p">()</span></div>
-
-<div class="viewcode-block" id="ftcs.get_diffusivity"><a class="viewcode-back" href="../../py_ice_cascade.html#py_ice_cascade.hillslope.ftcs.get_diffusivity">[docs]</a>    <span class="k">def</span> <span class="nf">get_diffusivity</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return diffusivity grid as 2D numpy array&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_kappa</span><span class="o">.</span><span class="n">reshape</span><span class="p">)</span></div>
 
     <span class="k">def</span> <span class="nf">_set_coeff_matrix</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Define sparse coefficient matrix for dHdt stencil&quot;&quot;&quot;</span>
@@ -427,41 +454,58 @@
         <span class="n">run_time</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">double</span><span class="p">(</span><span class="n">run_time</span><span class="p">)</span>
         <span class="n">time</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">double</span><span class="p">(</span><span class="mf">0.0</span><span class="p">)</span>    
         <span class="n">max_step</span> <span class="o">=</span> <span class="mf">0.95</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">_delta</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">_delta</span><span class="o">/</span><span class="p">(</span><span class="mf">4.0</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_kappa</span><span class="p">))</span> <span class="c1"># stable time step, note ref (1) has error</span>
+        <span class="n">h0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_height</span><span class="p">)</span>
 
         <span class="k">while</span> <span class="n">time</span> <span class="o">&lt;</span> <span class="n">run_time</span><span class="p">:</span>
             <span class="n">step</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">run_time</span><span class="o">-</span><span class="n">time</span><span class="p">,</span> <span class="n">max_step</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_height</span> <span class="o">+=</span> <span class="n">step</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">_A</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_height</span><span class="p">)</span>
-            <span class="n">time</span> <span class="o">+=</span> <span class="n">step</span></div></div>
+            <span class="n">time</span> <span class="o">+=</span> <span class="n">step</span>
 
-<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
-    
-    <span class="c1"># basic usage example and &quot;smell test&quot;: relaxation to height==0 steady state</span>
-    <span class="c1"># # initialize model</span>
-    <span class="n">nx</span> <span class="o">=</span> <span class="mi">100</span>
-    <span class="n">ny</span> <span class="o">=</span> <span class="mi">100</span>
-    <span class="n">max_time</span> <span class="o">=</span> <span class="mf">2.5</span>
-    <span class="n">time_step</span> <span class="o">=</span> <span class="mf">0.1</span>
-    <span class="n">h0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="n">ny</span><span class="p">,</span> <span class="n">nx</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">double</span><span class="p">)</span><span class="o">-</span><span class="mf">0.5</span>
-    <span class="n">h0</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">double</span><span class="p">(</span><span class="mf">0.0</span><span class="p">)</span> 
-    <span class="n">h0</span><span class="p">[:,</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">double</span><span class="p">(</span><span class="mf">0.0</span><span class="p">)</span>
-    <span class="n">h0</span><span class="p">[</span><span class="mi">0</span><span class="p">,:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">double</span><span class="p">(</span><span class="mf">0.0</span><span class="p">)</span>
-    <span class="n">h0</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">double</span><span class="p">(</span><span class="mf">0.0</span><span class="p">)</span>
-    <span class="n">dd</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">double</span><span class="p">(</span><span class="mf">1.0</span><span class="p">)</span>
-    <span class="n">kk</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="n">ny</span><span class="p">,</span> <span class="n">nx</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">double</span><span class="p">)</span>
-    <span class="n">bcs</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;constant&#39;</span><span class="p">,</span> <span class="s1">&#39;constant&#39;</span><span class="p">,</span> <span class="s1">&#39;constant&#39;</span><span class="p">,</span> <span class="s1">&#39;constant&#39;</span><span class="p">]</span>
-    <span class="n">model</span> <span class="o">=</span> <span class="n">ftcs</span><span class="p">(</span><span class="n">h0</span><span class="p">,</span> <span class="n">dd</span><span class="p">,</span> <span class="n">kk</span><span class="p">,</span> <span class="n">bcs</span><span class="p">)</span>
-    <span class="c1"># # update and plot model</span>
-    <span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">get_height</span><span class="p">(),</span> <span class="n">interpolation</span><span class="o">=</span><span class="s1">&#39;nearest&#39;</span><span class="p">,</span> <span class="n">clim</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mf">0.5</span><span class="p">,</span><span class="mf">0.5</span><span class="p">))</span>
-    <span class="n">plt</span><span class="o">.</span><span class="n">colorbar</span><span class="p">()</span>
-    <span class="n">plt</span><span class="o">.</span><span class="n">ion</span><span class="p">()</span>
-    <span class="n">time</span> <span class="o">=</span> <span class="mf">0.0</span>
-    <span class="k">while</span> <span class="n">time</span> <span class="o">&lt;</span> <span class="n">max_time</span><span class="p">:</span> 
-        <span class="n">model</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">time_step</span><span class="p">)</span>
-        <span class="n">time</span> <span class="o">+=</span> <span class="n">time_step</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">cla</span><span class="p">()</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">get_height</span><span class="p">(),</span> <span class="n">interpolation</span><span class="o">=</span><span class="s1">&#39;nearest&#39;</span><span class="p">,</span> <span class="n">clim</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mf">0.5</span><span class="p">,</span><span class="mf">0.5</span><span class="p">))</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;TIME = </span><span class="si">{:.2f}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">time</span><span class="p">))</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">pause</span><span class="p">(</span><span class="mf">0.10</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_dhdt</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_height</span><span class="o">-</span><span class="n">h0</span><span class="p">)</span><span class="o">/</span><span class="n">run_time</span></div>
+
+<div class="viewcode-block" id="ftcs.init_netcdf"><a class="viewcode-back" href="../../py_ice_cascade.html#py_ice_cascade.hillslope.ftcs.init_netcdf">[docs]</a>    <span class="k">def</span> <span class="nf">init_netcdf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nc</span><span class="p">,</span> <span class="n">zlib</span><span class="p">,</span> <span class="n">complevel</span><span class="p">,</span> <span class="n">shuffle</span><span class="p">,</span> <span class="n">chunksizes</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialize model-specific variables and attributes in output file</span>
+<span class="sd">        </span>
+<span class="sd">        Arguments: </span>
+<span class="sd">            nc: netCDF4 Dataset object, output file open for writing </span>
+<span class="sd">            zlib: see http://unidata.github.io/netcdf4-python/#netCDF4.Dataset.createVariable</span>
+<span class="sd">            complevel: &quot; &quot; </span>
+<span class="sd">            shuffle: &quot; &quot; </span>
+<span class="sd">            chunksizes: &quot; &quot; </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">nc</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span><span class="s1">&#39;hill_model&#39;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="s1">&#39;i1&#39;</span><span class="p">))</span> <span class="c1"># scalar</span>
+        <span class="n">nc</span><span class="p">[</span><span class="s1">&#39;hill_model&#39;</span><span class="p">][</span><span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">nc</span><span class="p">[</span><span class="s1">&#39;hill_model&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">type</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__name__</span> 
+        <span class="n">nc</span><span class="p">[</span><span class="s1">&#39;hill_model&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">kappa_active</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_kappa_active</span> 
+        <span class="n">nc</span><span class="p">[</span><span class="s1">&#39;hill_model&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">kappa_inactive</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_kappa_inactive</span> 
+        <span class="n">nc</span><span class="p">[</span><span class="s1">&#39;hill_model&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">bc_yi</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">nc</span><span class="p">[</span><span class="s1">&#39;hill_model&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">bc_yf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bc</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">nc</span><span class="p">[</span><span class="s1">&#39;hill_model&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">bc_xi</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bc</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+        <span class="n">nc</span><span class="p">[</span><span class="s1">&#39;hill_model&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">bc_xf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bc</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
+
+        <span class="n">nc</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span><span class="s1">&#39;hill_kappa&#39;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">double</span><span class="p">,</span> <span class="n">dimensions</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;time&#39;</span><span class="p">,</span> <span class="s1">&#39;y&#39;</span><span class="p">,</span> <span class="s1">&#39;x&#39;</span><span class="p">),</span> 
+            <span class="n">zlib</span><span class="o">=</span><span class="n">zlib</span><span class="p">,</span> <span class="n">complevel</span><span class="o">=</span><span class="n">complevel</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="n">shuffle</span><span class="p">,</span> <span class="n">chunksizes</span><span class="o">=</span><span class="n">chunksizes</span><span class="p">)</span>
+        <span class="n">nc</span><span class="p">[</span><span class="s1">&#39;hill_kappa&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">long_name</span> <span class="o">=</span> <span class="s1">&#39;hillslope diffusivity&#39;</span>
+        <span class="n">nc</span><span class="p">[</span><span class="s1">&#39;hill_kappa&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="s1">&#39;m^2 / a&#39;</span>
+
+        <span class="n">nc</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span><span class="s1">&#39;hill_dzdt&#39;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">double</span><span class="p">,</span> <span class="n">dimensions</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;time&#39;</span><span class="p">,</span> <span class="s1">&#39;y&#39;</span><span class="p">,</span> <span class="s1">&#39;x&#39;</span><span class="p">),</span> 
+            <span class="n">zlib</span><span class="o">=</span><span class="n">zlib</span><span class="p">,</span> <span class="n">complevel</span><span class="o">=</span><span class="n">complevel</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="n">shuffle</span><span class="p">,</span> <span class="n">chunksizes</span><span class="o">=</span><span class="n">chunksizes</span><span class="p">)</span>
+        <span class="n">nc</span><span class="p">[</span><span class="s1">&#39;hill_dzdt&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">long_name</span> <span class="o">=</span> <span class="s1">&#39;average hillslope bedrock elevation rate of change&#39;</span>
+        <span class="n">nc</span><span class="p">[</span><span class="s1">&#39;hill_dzdt&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="s1">&#39;m / a&#39;</span></div>
+
+<div class="viewcode-block" id="ftcs.to_netcdf"><a class="viewcode-back" href="../../py_ice_cascade.html#py_ice_cascade.hillslope.ftcs.to_netcdf">[docs]</a>    <span class="k">def</span> <span class="nf">to_netcdf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nc</span><span class="p">,</span> <span class="n">time_idx</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Write model-specific state variables to output file</span>
+
+<span class="sd">        Arguments:</span>
+<span class="sd">            nc: netCDF4 Dataset object, output file open for writing </span>
+<span class="sd">            time_idx: integer time index to write to</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">nc</span><span class="p">[</span><span class="s1">&#39;hill_kappa&#39;</span><span class="p">][</span><span class="n">time_idx</span><span class="p">,:,:]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_kappa</span>
+        <span class="n">nc</span><span class="p">[</span><span class="s1">&#39;hill_dzdt&#39;</span><span class="p">][</span><span class="n">time_idx</span><span class="p">,:,:]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dhdt</span></div></div>
 </pre></div>
 
            </div>

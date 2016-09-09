@@ -15,12 +15,10 @@ class model():
     hillslope model components and handles input-output.
 
     Arguments:
-        hillslope = initialized hillslope model component, expect child of
+        hillslope: initialized hillslope model component, expect child of
             py_ice_cascade.hillslope.model class 
-        uplift = initialized uplift model component, expect child of
+        uplift: initialized uplift model component, expect child of
             py_ice_cascade.uplift.model class
-
-        *OLD*
         x: numpy vector, x-coordinate, [m]
         y: numpy vector, y-coordinate, [m]
         z_rx: grid, initial bedrock elevation, [m]
