@@ -16,6 +16,12 @@ class linear_TestCase(unittest.TestCase):
         self.assertRaises(ValueError, uplift.linear,grid, np.random.rand(11,11), grid, 0, 1)
         self.assertRaises(ValueError, uplift.linear,grid, grid, np.random.rand(11,11), 0, 1)
 
+    def test_protect_model_dims(self):
+        """Attempt to set model grid with incorrect size array throw error"""
+        grid = np.random.rand(10,10)
+        model = uplift.linear(grid, grid, grid, 0, 1)
+        self.assertRaises(ValueError, model.set_height, np.random.rand(11,11))
+
     def test_time_scalar(self):
         """Time bounds must be scalars"""
         grid = np.random.rand(10,10)
