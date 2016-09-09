@@ -47,9 +47,11 @@ class null(model):
         return self._height
     def set_mask(self, new):
         pass
-    def init_netcdf(self, nc, zlib, complevel, shuffle, chunksizes):
-        pass
-    def to_netcdf(self, nc, time_idx):
+    def init_netcdf(self, nc, *args):
+        nc.createVariable('hill_model', np.dtype('i1')) # scalar
+        nc['hill_model'][...] = False 
+        nc['hill_model'].type = self.__class__.__name__ 
+    def to_netcdf(self, *args):
         pass
     def run(self, run_time):
         pass
