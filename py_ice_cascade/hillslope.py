@@ -15,7 +15,20 @@ import matplotlib.pyplot as plt
 import scipy.sparse
 import sys
 
-class null():
+class model():
+    """Base class for hillslope model components"""
+    def __init__(self):
+        pass
+    def set_height(self, new):
+        raise NotImplementedError
+    def set_diffusivity(self, new):
+        raise NotImplementedError
+    def get_height(self):
+        raise NotImplementedError
+    def run(self, run_time):
+        raise NotImplementedError
+
+class null(model):
     """
     Do-nothing class to be used for disabled hillslope component
 
@@ -29,10 +42,10 @@ class null():
         pass
     def get_height(self):
         return self._height
-    def run(self, *args):
+    def run(self, run_time):
         pass
 
-class ftcs():
+class ftcs(model):
     r"""
     Hillslope diffusion model using forward-time center-space (FTCS) finite
     diffence scheme. 
@@ -123,8 +136,6 @@ class ftcs():
     The above scheme is modified at boundary points.     
     """
 
-    # NOTE: attributes and methods with the "_" prefix are considered private,
-    #       use outside the object at your own risk
 
     def __init__(self, height, delta, kappa, bc):
         # set attributes
