@@ -21,9 +21,9 @@ class model():
         pass
     def set_height(self, new):
         raise NotImplementedError
-    def set_diffusivity(self, new):
-        raise NotImplementedError
     def get_height(self):
+        raise NotImplementedError
+    def set_mask(self, new):
         raise NotImplementedError
     def run(self, run_time):
         raise NotImplementedError
@@ -38,10 +38,10 @@ class null(model):
         pass
     def set_height(self, new):
         self._height = np.double(new) 
-    def set_diffusivity(self, new):
-        pass
     def get_height(self):
         return self._height
+    def set_mask(self, new):
+        pass
     def run(self, run_time):
         pass
 
@@ -52,8 +52,13 @@ class ftcs(model):
 
     Arguments:
         height: 2D numpy array, surface elevation in model domain, [m]
+        mask: 2D numpy array, True where hillslope diffusion is active, False
+            where inactive (e.g. under water or ice)
         delta: Scalar double, grid spacing, assumed square, [m]
-        kappa: 2D numpy array, diffusion coefficient, [m**2/a]
+        kappa_active: active diffusion coefficient, used where mask is 
+            True, [m**2/a]
+        kappa_inactive: inactive diffusion coefficient, used where mask is
+            False, [m**2/a]
         bc: List of boundary conditions names for [y=0, y=end, x=0, x=end]
 
     Supported boundary conditions are:
@@ -137,13 +142,15 @@ class ftcs(model):
     """
 
 
-    def __init__(self, height, delta, kappa, bc):
+    def __init__(self, height, mask, delta, kappa_active, kappa_inactive, bc):
         # set attributes
         self._valid_bc = set(['constant', 'closed', 'open', 'cyclic', 'mirror'])
         self._delta = np.copy(np.double(delta))
+        self._kappa_active = np.copy(np.double(kappa_active))
+        self._kappa_inactive = np.copy(np.double(kappa_inactive))
         self._bc = list(bc)
         self.set_height(height)
-        self.set_diffusivity(kappa)
+        self.set_mask(mask)
 
     def _check_dims(self, array):
         """Check that array dims match model dims, or set model dims"""
@@ -171,16 +178,21 @@ class ftcs(model):
         """Return height grid as 2D numpy array"""
         return np.copy(self._height.reshape((self._ny, self._nx), order='C'))
 
-    def set_diffusivity(self, new):
-        """Set diffusivity grid and update dheight/dt coefficient matrix"""
-        new_array = np.copy(np.double(new))
+    def set_mask(self, new):
+        """Set diffusivity grid from mask and update dheight/dt coeff matrix"""
+        new_array = np.where(new, True, False)
         self._check_dims(new_array)
-        self._kappa = new_array
+        self._mask = new_array
+        self._kappa = np.where(self._mask, self._kappa_active, self._kappa_inactive)
         self._set_coeff_matrix()
+
+    def get_mask(self):
+        """Return mask grid as 2D numpy array"""
+        return np.copy(self._mask)
 
     def get_diffusivity(self):
         """Return diffusivity grid as 2D numpy array"""
-        return np.copy(self._kappa.reshape)
+        return np.copy(self._kappa)
 
     def _set_coeff_matrix(self):
         """Define sparse coefficient matrix for dHdt stencil"""
@@ -329,9 +341,11 @@ if __name__ == '__main__':
     h0[0,:] = np.double(0.0)
     h0[-1,:] = np.double(0.0)
     dd = np.double(1.0)
-    kk = np.ones((ny, nx), dtype=np.double)
+    mask = np.ones((ny, nx), dtype=np.bool)
+    k_active = np.double(1.0)
+    k_inactive = np.double(0.0)
     bcs = ['constant', 'constant', 'constant', 'constant']
-    model = ftcs(h0, dd, kk, bcs)
+    model = ftcs(h0, mask, dd, k_active, k_inactive, bcs)
     # # update and plot model
     plt.imshow(model.get_height(), interpolation='nearest', clim=(-0.5,0.5))
     plt.colorbar()
