@@ -5,29 +5,48 @@ Python ICE-CASCADE tectonic uplift-subsidence model component
 import numpy as np
 import matplotlib.pyplot as plt
 
-class null():
+class model():
+    """Base class for uplift model components"""
+    def __init__(self):
+        pass
+    def set_height(self, new):
+        raise NotImplementedError
+    def get_height(self):
+        raise NotImplementedError
+    def init_netcdf(self, file_name):
+        raise NotImplementedError
+    def to_netcdf(self, file_name):
+        raise NotImplementedError
+    def run(self, run_time):
+        raise NotImplementedError
+
+class null(model):
     """
     Do-nothing class to be used for disabled uplift component
 
-    Returns zeros for uplift rate and total uplift
-
-    Arguments:
-        shape: (nrow, ncol) of model grid
+    Internal height grid is set and returned unchanged
     """
 
-    def __init__(self, shape):
-        self._shape = shape
-    def get_uplift_rate(self, *args):
-        return np.zeros(self._shape, dtype=np.double)
-    def get_uplift(self, *args):
-        return np.zeros(self._shape, dtype=np.double)
+    def __init__(self):
+        pass
+    def set_height(self, new):
+        self._height = np.copy(np.double(new))
+    def get_height(self):
+        return np.copy(self._height)
+    def init_netcdf(self, nc, zlib, complevel, shuffle, chunksizes):
+        pass
+    def to_netcdf(self, nc):
+        pass
+    def run(self, run_time):
+        pass
 
-class linear():
+class linear(model):
     r"""
     Tectonic uplift model in which uplift is linearly interpolated between a
     pre-defined initial and final state. 
 
     Arguments:
+        height: 2D numpy array, surface elevation in model domain, [m]
         ui: 2D numpy array, initial uplift rate, [m/a]
         uf: 2D numpy array, final uplift rate, [m/a]
         ti: Scalar, initial time, [a]
@@ -66,28 +85,98 @@ class linear():
     precomputed for efficiency.
     """
 
-    def __init__(self, ui, uf, ti, tf):
+    def __init__(self, height, ui, uf, ti, tf):
 
+        self.set_height(height)
+        self._check_dims(ui)
         self._ui = np.copy(np.double(ui))
+        self._check_dims(uf)
         self._uf = np.copy(np.double(uf))
         self._ti = np.asscalar(np.copy(np.double(ti)))
         self._tf = np.asscalar(np.copy(np.double(tf)))
 
         # precompute constant terms, see class docstring
-        self._b = (uf-ui)/(tf-ti)
-        self._a = ui-self._b*ti
+        self._b = (self._uf-self._ui)/(self._tf-self._ti)
+        self._a = self._ui-self._b*self._ti
 
         if self._tf <= self._ti:
             raise ValueError("Initial time must be before final time")
 
-    def get_uplift_rate(self, time):
-        """Return the uplift rate at time = time"""
-        return self._a+self._b*time 
-    
-    def get_uplift(self, t_start, t_end):
-        """Return total (integrated) uplift over the interval [t_start, t_end]"""
-        return self._a*(t_end-t_start) + 0.5*self._b*(t_end*t_end-t_start*t_start)
+    def _check_dims(self, array):
+        """Check that array dims match model dims, or set model dims"""
+        if hasattr(self, '_nx') and array.shape != (self._ny, self._nx):
+            raise ValueError("Array dims do not match model dims")
+        else:
+            self._ny, self._nx = array.shape
 
+    def set_height(self, new):
+        """Set height grid"""
+        new_array = np.copy(np.double(new))
+        self._check_dims(new_array)
+        self._height = new_array
+
+    def get_height(self):
+        """Return height grid as 2D numpy array"""
+        return np.copy(self._height)
+
+    def run(self, t_start, t_end):
+        """
+        Compute total(integrated) uplift over the time interval and update height grid
+        
+        Arguments:
+            t_start: time interval start, [a]
+            t_end: time interval end, [a]
+        """
+        uplift = self._a*(t_end-t_start) + 0.5*self._b*(t_end*t_end-t_start*t_start)
+        self._height += uplift 
+        self._uplift_rate = uplift/(t_end-t_start)
+
+    def init_netcdf(self, nc, zlib, complevel, shuffle, chunksizes):
+        """
+        Initialize model-specific variables and attributes in output file
+        
+        Arguments: 
+            nc: netCDF4 Dataset object, output file open for writing 
+            zlib: see http://unidata.github.io/netcdf4-python/#netCDF4.Dataset.createVariable
+            complevel: " " 
+            shuffle: " " 
+            chunksizes: " " 
+        """
+
+        nc.createVariable('uplift_model', str) # scalar
+        nc['uplift_model'][...] = self.__class__.__name__ 
+        nc['uplift_model'].time_initial = self._ti
+        nc['uplift_model'].time_final = self._tf
+        nc['uplift_model'].uplift_initial = 'See variable uplift_initial'
+        nc['uplift_model'].uplift_final = 'See variable uplift_final'
+
+        nc.createVariable('uplift_rate_initial', np.double, dimensions=('y', 'x'))
+        nc['uplift_rate_initial'].long_name = 'initial uplift rate'
+        nc['uplift_rate_initial'].units = 'm / a'
+        nc['uplift_rate_initial'][:,:] = self._ui
+
+        nc.createVariable('uplift_rate_final', np.double, dimensions=('y', 'x'))
+        nc['uplift_rate_final'].long_name = 'final uplift rate'
+        nc['uplift_rate_final'].units = 'm / a'
+        nc['uplift_rate_final'][:,:] = self._uf
+
+        nc.createVariable('uplift_rate', np.double, dimensions=('time', 'y', 'x'), 
+            zlib=zlib, complevel=complevel, shuffle=shuffle, chunksizes=chunksizes)
+        nc['uplift_rate'].long_name = 'average tectonic uplift rate'
+        nc['uplift_rate'].units = 'm / a'
+
+    def to_netcdf(self, nc, time_idx):
+        """
+        Write model-specific state variables to output file
+
+        Arguments:
+            nc: netCDF4 Dataset object, output file open for writing 
+            time_idx: integer time index to write to
+        """
+
+        nc['uplift_rate'][time_idx,:,:] = self._uplift_rate
+
+# TODO: move to examples and delete
 if __name__ == '__main__':
 
     # Basic usage example and "smell test": 
