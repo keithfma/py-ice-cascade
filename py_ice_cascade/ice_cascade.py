@@ -17,6 +17,8 @@ class model():
     Arguments:
         hillslope = initialized hillslope model component, expect child of
             py_ice_cascade.hillslope.model class 
+        uplift = initialized uplift model component, expect child of
+            py_ice_cascade.uplift.model class
 
         *OLD*
         x: numpy vector, x-coordinate, [m]
@@ -26,16 +28,12 @@ class model():
         time_step: scalar, topographic model time step, [a]
         num_steps: scalar, total steps in simulation, i.e. duration, [1]
         out_steps: list, step numbers to write output, 0 is initial state, [1]
-        uplift_on: scalar bool, set True to enable uplift component model
-        uplift_start: grid, uplift rate at time_start [m / a]
-        uplift_end: grid uplift rate at time_end [m / a]
         verbose: Boolean, set True to show verbose messages
     """
 
-    def __init__(self, hillslope, 
+    def __init__(self, hillslope, uplift,
         x=None, y=None, zrx=None, time_start=None,
         time_step=None, num_steps=None, out_steps=None,
-        uplift_on=None, uplift_start=None, uplift_end=None,
         verbose=False):
 
         if verbose:
@@ -43,6 +41,7 @@ class model():
 
         # user-defined parameters
         self._model_hill = hillslope 
+        self._model_uplift = uplift
         self._x = np.copy(x)
         self._y = np.copy(y) 
         self._zrx = np.copy(zrx) 
@@ -119,14 +118,9 @@ class model():
         nc['zrx'].long_name = 'bedrock surface elevation' 
         nc['zrx'].units = 'm' 
 
-        if self._uplift_on:
-            nc.createVariable('uplift_rate', np.double, dimensions=('time', 'y', 'x'), 
-                zlib=zlib, complevel=complevel, shuffle=shuffle, chunksizes=chunksizes)
-            nc['uplift_rate'].long_name = 'tectonic rock uplift rate'
-            nc['uplift_rate'].units = 'm / a'
-
         # initialize output for component models
         self._model_hill.init_netcdf(nc, zlib, complevel, shuffle, chunksizes)
+        self._model_uplift.init_netcdf(nc, zlib, complevel, shuffle, chunksizes)
 
         # finalize
         nc.close()
@@ -154,20 +148,10 @@ class model():
 
         # write data for model components
         self._model_hill.to_netcdf(nc, ii)
+        self._model_uplift.to_netcdf(nc, ii)
 
         # finalize
         nc.close()
-
-    #TODO: this will soon become obsolete
-    def _initialize_component_models(self):
-        """Initialize component model objects"""
-
-        # uplift component
-        if self._uplift_on:
-            self._model_uplift = py_ice_cascade.uplift.linear(self._uplift_start, 
-                self._uplift_end, self._time_start, self._time_end)
-        else:
-            self._model_uplift = py_ice_cascade.uplift.null(self._zrx.shape)
 
     def run(self, file_name, verbose=False):
         """
@@ -184,7 +168,6 @@ class model():
         # init automatic parameters
         self._delta = np.abs(self._x[1]-self._x[0])
         self._time_end = self._time_start+self._time_step*(self._num_steps-1)
-        self._initialize_component_models() # TODO: this will soon become obsolete
         
         # TODO: test for a regular grid here
 
@@ -198,6 +181,7 @@ class model():
 
             # synchronize model components
             self._model_hill.set_height(self._zrx)
+            self._model_uplift.set_height(self._zrx)
 
             # run climate component simulations
 
@@ -207,15 +191,16 @@ class model():
             self._model_hill.run(self._time_step)
 
             # gather erosion-deposition-uplift component results
-            d_zrx_hill = self._model_hill.get_height() - self._zrx
-            d_zrx_uplift = self._model_uplift.get_uplift(self._time, self._time+self._time_step)
+            d_zrx = (self._model_hill.get_height()
+                + self._model_uplift.get_height()
+                - 2*self._zrx)
 
             # run isostasy component simulations
 
             # gather isostasy results
 
             # advance time step 
-            self._zrx += d_zrx_hill+d_zrx_uplift
+            self._zrx += d_zrx
             self._time += self._time_step
             self._step += 1
 

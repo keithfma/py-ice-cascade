@@ -26,7 +26,7 @@ class model():
         raise NotImplementedError
     def set_mask(self, new):
         raise NotImplementedError
-    def init_netcdf(self, file_name):
+    def init_netcdf(self, nc, zlib, complevel, shuffle, chunksizes):
         raise NotImplementedError
     def to_netcdf(self, file_name):
         raise NotImplementedError
@@ -46,6 +46,10 @@ class null(model):
     def get_height(self):
         return self._height
     def set_mask(self, new):
+        pass
+    def init_netcdf(self, nc, zlib, complevel, shuffle, chunksizes):
+        pass
+    def to_netcdf(self, nc):
         pass
     def run(self, run_time):
         pass
@@ -177,7 +181,7 @@ class ftcs(model):
         """Set height grid"""
         new_array = np.copy(np.double(new))
         self._check_dims(new_array)
-        self._height = np.ravel(new_array, order='C') # 
+        self._height = np.ravel(new_array, order='C') # stored as vector 
 
     def get_height(self):
         """Return height grid as 2D numpy array"""
@@ -337,7 +341,6 @@ class ftcs(model):
         """
 
         nc.createVariable('hill_model', str) # scalar
-        print(dir(self))
         nc['hill_model'][...] = self.__class__.__name__ 
         nc['hill_model'].kappa_active = self._kappa_active 
         nc['hill_model'].kappa_inactive = self._kappa_inactive 
@@ -350,8 +353,6 @@ class ftcs(model):
             zlib=zlib, complevel=complevel, shuffle=shuffle, chunksizes=chunksizes)
         nc['hill_kappa'].long_name = 'hillslope diffusivity'
         nc['hill_kappa'].units = 'm^2 / a'
-        nc['hill_kappa'].active = self._kappa_active
-        nc['hill_kappa'].inactive = self._kappa_inactive
 
     def to_netcdf(self, nc, time_idx):
         """
