@@ -47,9 +47,9 @@ def hill_only():
 
     uplift = py_ice_cascade.uplift.null()
     
-    mod = py_ice_cascade.ice_cascade.model(hill, uplift, x=x, y=y, zrx=zrx, time_start=time_start,
-        time_step=time_step, num_steps=num_steps, out_steps=out_steps, verbose=True)
-    mod.run('example.hill_only.out.nc', verbose=True)
+    mod = py_ice_cascade.ice_cascade.model(hill, uplift, 
+        x, y, zrx, time_start, time_step, num_steps, out_steps, verbose=True)
+    mod.run('example.hill_only.out.nc')
 
 def uplift_only():
     """uplift-only example"""
@@ -75,10 +75,8 @@ def uplift_only():
     uplift = py_ice_cascade.uplift.linear(zrx, uplift_start, uplift_end, time_start, time_end)
 
     mod = py_ice_cascade.ice_cascade.model(hill, uplift, 
-        x=x, y=y, zrx=zrx, time_start=time_start,
-        time_step=time_step, num_steps=num_steps, out_steps=out_steps,
-        verbose=True)
-    mod.run('example.uplift_only.out.nc', verbose=True)
+        x, y, zrx, time_start, time_step, num_steps, out_steps, verbose=True)
+    mod.run('example.uplift_only.out.nc')
 
 def hill_uplift():
     """hillslope diffusion with uplift example"""
@@ -95,7 +93,7 @@ def hill_uplift():
     time_step = 0.1
     num_steps = 10
     time_end = time_start + time_step*(num_steps-1)
-    out_steps = np.arange(0,num_steps)
+    out_steps = np.arange(1,num_steps)
     hill_mask = np.ones((ny, nx))
     hill_kappa_active = 0.01
     hill_kappa_inactive = 0.0
@@ -108,10 +106,9 @@ def hill_uplift():
 
     uplift = py_ice_cascade.uplift.linear(zrx, uplift_start, uplift_end, time_start, time_end)
 
-    mod = py_ice_cascade.ice_cascade.model(hill, uplift, x=x, y=y, zrx=zrx, time_start=time_start,
-        time_step=time_step, num_steps=num_steps, out_steps=out_steps,
-        verbose=True)
-    mod.run('example.hill_uplift.out.nc', verbose=True)
+    mod = py_ice_cascade.ice_cascade.model(hill, uplift, 
+        x, y, zrx, time_start, time_step, num_steps, out_steps, verbose=True)
+    mod.run('example.hill_uplift.out.nc')
 
 # command line interface
 if __name__ == '__main__':
@@ -121,13 +118,13 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Run example cases for for '
         'Python ICE-CASCADE glacial-fluvial-hillslope landscape evolution model',
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    parser.add_argument('-c', type=str, choices=valid_cases,
-        help='example case to generate', required=True)
+    parser.add_argument('case', type=str, choices=valid_cases,
+        help='example case to run')
     args = parser.parse_args()
 
-    if args.c == 'hill_only':
+    if args.case == 'hill_only':
         hill_only()
-    elif args.c == 'uplift_only':
+    elif args.case == 'uplift_only':
         uplift_only()
-    elif args.c == 'hill_uplift':
+    elif args.case == 'hill_uplift':
         hill_uplift()

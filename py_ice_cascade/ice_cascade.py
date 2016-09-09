@@ -23,7 +23,7 @@ class model():
         *OLD*
         x: numpy vector, x-coordinate, [m]
         y: numpy vector, y-coordinate, [m]
-        zrx: grid, initial bedrock elevation, [m]
+        z_rx: grid, initial bedrock elevation, [m]
         time_start: scalar, starting time, [a]
         time_step: scalar, topographic model time step, [a]
         num_steps: scalar, total steps in simulation, i.e. duration, [1]
@@ -32,41 +32,41 @@ class model():
     """
 
     def __init__(self, hillslope, uplift,
-        x=None, y=None, zrx=None, time_start=None,
-        time_step=None, num_steps=None, out_steps=None,
-        verbose=False):
+        x, y, z_rx, time_start, time_step, num_steps, out_steps, verbose=False):
 
         if verbose:
-            print("ice_cascade.model: setting model parameters")
+            print("ice_cascade.model.__init__: setting model parameters")
 
         # user-defined parameters
         self._model_hill = hillslope 
         self._model_uplift = uplift
         self._x = np.copy(x)
         self._y = np.copy(y) 
-        self._zrx = np.copy(zrx) 
+        self._z_rx = np.copy(z_rx) 
         self._time_start = time_start 
         self._time_step = time_step 
         self._num_steps = num_steps 
         self._out_steps = np.copy(out_steps) 
+        self._verbose = verbose
         # automatic parameters
         self._delta = None
         self._time = None
         self._step = None
 
-    def _create_netcdf(self, file_name, verbose=False):
+        # TODO: test for a regular grid here
+
+    def _create_netcdf(self, file_name):
         """
         Create new (empty) netCDF for model state and parameters
         
         Arguments:
             file_name: String, path to which file should be saved 
-            verbose: Bool, set True to enable verbose messages
         
         Model components are responsible for initializing thier own output
         variables, using the expected .init_netcdf method.
         """
 
-        if verbose:
+        if self._verbose:
             print("ice_cascade.model._create_netcdf : creating input file "+file_name)
         
         # compression/chunking parameters for time-dependant grid vars
@@ -79,7 +79,11 @@ class model():
         nc = netCDF4.Dataset(file_name, "w", format="NETCDF4", clobber=False)
        
         # global attributes
-        # TODO: add any core model init parameters here, or reference where they are defined.
+        nc.version = py_ice_cascade.__version__
+        nc.time_start = self._time_start
+        nc.time_step = self._time_step
+        nc.num_steps = self._num_steps
+        nc.out_steps = "see step variable"
 
         # create dimensions
         nc.createDimension('x', size=self._x.size)
@@ -109,10 +113,10 @@ class model():
         nc['step'].num_steps = self._num_steps
         nc['step'].out_steps = self._out_steps
         
-        nc.createVariable('zrx', np.double, dimensions=('time', 'y', 'x'),
+        nc.createVariable('z_rx', np.double, dimensions=('time', 'y', 'x'),
             zlib=zlib, complevel=complevel, shuffle=shuffle, chunksizes=chunksizes)
-        nc['zrx'].long_name = 'bedrock surface elevation' 
-        nc['zrx'].units = 'm' 
+        nc['z_rx'].long_name = 'bedrock surface elevation' 
+        nc['z_rx'].units = 'm' 
 
         # initialize output for component models
         self._model_hill.init_netcdf(nc, zlib, complevel, shuffle, chunksizes)
@@ -121,61 +125,58 @@ class model():
         # finalize
         nc.close()
 
-    def _to_netcdf(self, file_name, verbose=False):
+    def _to_netcdf(self, file_name):
         """
         Append model state and parameters to netCDF file
         
         Arguments:
             file_name: String, path to which file should be saved 
-            verbose: Bool, set True to enable verbose messages
         """
 
-        if verbose:
-            print("ice_cascade.model._to_netcdf: write time = {:.2f}, step = {}".format(
-                self._time, self._step))
+        if self._step in self._out_steps:
+            if self._verbose:
+                print("ice_cascade.model._to_netcdf: write time = {:.2f}, step = {}".format(
+                    self._time, self._step))
 
-        ii = list(self._out_steps).index(self._step) 
-        nc = netCDF4.Dataset(file_name, "a")
-        nc['time'][ii] = self._time
-        nc['step'][ii] = self._step
-        nc['zrx'][ii,:,:] = self._zrx
+            ii = list(self._out_steps).index(self._step) 
+            nc = netCDF4.Dataset(file_name, "a")
+            nc['time'][ii] = self._time
+            nc['step'][ii] = self._step
+            nc['z_rx'][ii,:,:] = self._z_rx
 
-        # write data for model components
-        self._model_hill.to_netcdf(nc, ii)
-        self._model_uplift.to_netcdf(nc, ii)
+            # write data for model components
+            self._model_hill.to_netcdf(nc, ii)
+            self._model_uplift.to_netcdf(nc, ii)
 
-        # finalize
-        nc.close()
+            # finalize
+            nc.close()
 
-    def run(self, file_name, verbose=False):
+    def run(self, file_name):
         """
         Run model simulation, save results to file
 
         Arguments:
             file_name: String, path to which results should be saved 
-            verbose: Bool, set True to show verbose messages
         """
 
-        if verbose:
+        if self._verbose:
             print("ice_cascade.model.run: initializing simulation")
 
         # init automatic parameters
         self._delta = np.abs(self._x[1]-self._x[0])
         self._time_end = self._time_start+self._time_step*(self._num_steps-1)
-        
-        # TODO: test for a regular grid here
 
         # init model integration loop
         self._time = self._time_start
         self._step = 0
         self._create_netcdf(file_name)
         self._to_netcdf(file_name)
-        
+
         while self._step < self._num_steps:
 
             # synchronize model components
-            self._model_hill.set_height(self._zrx)
-            self._model_uplift.set_height(self._zrx)
+            self._model_hill.set_height(self._z_rx)
+            self._model_uplift.set_height(self._z_rx)
 
             # run climate component simulations
 
@@ -186,22 +187,21 @@ class model():
             self._model_uplift.run(self._time, self._time+self._time_step)
 
             # gather erosion-deposition-uplift component results
-            d_zrx = (self._model_hill.get_height()
+            dzdt = (self._model_hill.get_height()
                 + self._model_uplift.get_height()
-                - 2*self._zrx)
+                - 2*self._z_rx)
 
             # run isostasy component simulations
 
             # gather isostasy results
 
             # advance time step 
-            self._zrx += d_zrx
+            self._z_rx += dzdt
             self._time += self._time_step
             self._step += 1
 
             # write output and/or display model state
-            if self._step in self._out_steps:
-                self._to_netcdf(file_name)
+            self._to_netcdf(file_name)
 
-        if verbose:
+        if self._verbose:
             print("ice_cascade.model.run: simulation complete")
