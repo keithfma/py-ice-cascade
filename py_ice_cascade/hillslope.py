@@ -340,8 +340,9 @@ class ftcs(model):
             chunksizes: " " 
         """
 
-        nc.createVariable('hill_model', str) # scalar
-        nc['hill_model'][...] = self.__class__.__name__ 
+        nc.createVariable('hill_model', np.dtype('i1')) # scalar
+        nc['hill_model'][...] = True
+        nc['hill_model'].type = self.__class__.__name__ 
         nc['hill_model'].kappa_active = self._kappa_active 
         nc['hill_model'].kappa_inactive = self._kappa_inactive 
         nc['hill_model'].bc_yi = self._bc[0]
