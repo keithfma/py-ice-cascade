@@ -151,23 +151,23 @@ class linear(model):
         nc['uplift_model'].type = self.__class__.__name__ 
         nc['uplift_model'].time_initial = self._ti
         nc['uplift_model'].time_final = self._tf
-        nc['uplift_model'].uplift_initial = 'see uplift_rate_initial variable'
-        nc['uplift_model'].uplift_final = 'see uplift_rate_final variable'
+        nc['uplift_model'].uplift_initial = 'see uplift_dzdt_initial variable'
+        nc['uplift_model'].uplift_final = 'see uplift_dzdt_final variable'
 
-        nc.createVariable('uplift_rate_initial', np.double, dimensions=('y', 'x'))
-        nc['uplift_rate_initial'].long_name = 'initial uplift rate'
-        nc['uplift_rate_initial'].units = 'm / a'
-        nc['uplift_rate_initial'][:,:] = self._ui
+        nc.createVariable('uplift_dzdt_initial', np.double, dimensions=('y', 'x'))
+        nc['uplift_dzdt_initial'].long_name = 'initial uplift rate'
+        nc['uplift_dzdt_initial'].units = 'm / a'
+        nc['uplift_dzdt_initial'][:,:] = self._ui
 
-        nc.createVariable('uplift_rate_final', np.double, dimensions=('y', 'x'))
-        nc['uplift_rate_final'].long_name = 'final uplift rate'
-        nc['uplift_rate_final'].units = 'm / a'
-        nc['uplift_rate_final'][:,:] = self._uf
+        nc.createVariable('uplift_dzdt_final', np.double, dimensions=('y', 'x'))
+        nc['uplift_dzdt_final'].long_name = 'final uplift rate'
+        nc['uplift_dzdt_final'].units = 'm / a'
+        nc['uplift_dzdt_final'][:,:] = self._uf
 
-        nc.createVariable('uplift_rate', np.double, dimensions=('time', 'y', 'x'), 
+        nc.createVariable('uplift_dzdt', np.double, dimensions=('time', 'y', 'x'), 
             zlib=zlib, complevel=complevel, shuffle=shuffle, chunksizes=chunksizes)
-        nc['uplift_rate'].long_name = 'average tectonic uplift rate'
-        nc['uplift_rate'].units = 'm / a'
+        nc['uplift_dzdt'].long_name = 'average tectonic uplift rate'
+        nc['uplift_dzdt'].units = 'm / a'
 
     def to_netcdf(self, nc, time_idx):
         """
@@ -178,56 +178,4 @@ class linear(model):
             time_idx: integer time index to write to
         """
 
-        nc['uplift_rate'][time_idx,:,:] = self._uplift_rate
-
-# TODO: move to examples and delete
-if __name__ == '__main__':
-
-    # Basic usage example and "smell test": 
-    # # linear transition between negative and positive ramp functions, "hinge"
-    # # is at x=0. The expected result is for the uplift rate to transition from
-    # # initial to final values, and the total erosion to decrease to a minimum
-    # # of -0.25, then return to 0.
-
-    ny = nx = 101 
-    u0 = -1.0*np.linspace(0.0, 1.0, nx).reshape(1,nx)*np.ones((ny,1))
-    u1 =  1.0*np.linspace(0.0, 1.0, nx).reshape(1,nx)*np.ones((ny,1))
-    t0 = 0.0
-    t1 = 1.0
-    model = linear(u0, u1, t0, t1)
-
-    plt.subplot(2,2,1)
-    plt.imshow(u0, interpolation='nearest', vmin=-1.0, vmax=1.0)
-    plt.title('u(x,y,t_i)')
-    plt.colorbar()
-
-    plt.subplot(2,2,2)
-    plt.imshow(u1, interpolation='nearest', vmin=-1.0, vmax=1.0)
-    plt.title('u(x,y,t_f)')
-    plt.colorbar()
-
-    plt.subplot(2,2,3)
-    plt.imshow(model.get_uplift_rate(t0), interpolation='nearest', vmin=-1.0, vmax=1.0)
-    plt.title("u(x,y,{:.2f})".format(t0))
-    plt.colorbar()
-    
-    plt.subplot(2,2,4)
-    plt.imshow(model.get_uplift(t0, t0), interpolation='nearest', vmin=-0.25, vmax=0.0)
-    plt.title("u_total(x,y,{:.2f})".format(t0))
-    plt.colorbar()
-    
-    for time in np.linspace(t0, t1, 20):
-    
-        plt.subplot(2,2,3)
-        plt.cla()
-        plt.imshow(model.get_uplift_rate(time), interpolation='nearest', vmin=-1.0, vmax=1.0)
-        plt.title("u(x,y,{:.2f})".format(time))
-        
-        plt.subplot(2,2,4)
-        plt.cla()
-        plt.imshow(model.get_uplift(t0, time), interpolation='nearest', vmin=-0.25, vmax=0.0)
-        plt.title("u_total(x,y,{:.2f})".format(time))
-        
-        plt.pause(0.20)
-
-    plt.show()
+        nc['uplift_dzdt'][time_idx,:,:] = self._uplift_rate

@@ -93,7 +93,7 @@ def hill_uplift():
     time_step = 0.1
     num_steps = 10
     time_end = time_start + time_step*(num_steps-1)
-    out_steps = np.arange(1,num_steps)
+    out_steps = np.arange(0,num_steps)
     hill_mask = np.ones((ny, nx))
     hill_kappa_active = 0.01
     hill_kappa_inactive = 0.0
