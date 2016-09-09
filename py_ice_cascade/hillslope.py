@@ -14,6 +14,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import scipy.sparse
 import sys
+import netCDF4
 
 class model():
     """Base class for hillslope model components"""
@@ -24,6 +25,10 @@ class model():
     def get_height(self):
         raise NotImplementedError
     def set_mask(self, new):
+        raise NotImplementedError
+    def init_netcdf(self, file_name):
+        raise NotImplementedError
+    def to_netcdf(self, file_name):
         raise NotImplementedError
     def run(self, run_time):
         raise NotImplementedError
@@ -186,14 +191,6 @@ class ftcs(model):
         self._kappa = np.where(self._mask, self._kappa_active, self._kappa_inactive)
         self._set_coeff_matrix()
 
-    def get_mask(self):
-        """Return mask grid as 2D numpy array"""
-        return np.copy(self._mask)
-
-    def get_diffusivity(self):
-        """Return diffusivity grid as 2D numpy array"""
-        return np.copy(self._kappa)
-
     def _set_coeff_matrix(self):
         """Define sparse coefficient matrix for dHdt stencil"""
 
@@ -327,6 +324,48 @@ class ftcs(model):
             self._height += step*self._A.dot(self._height)
             time += step
 
+    def init_netcdf(self, nc, zlib, complevel, shuffle, chunksizes):
+        """
+        Initialize model-specific variables and attributes in output file
+        
+        Arguments: 
+            nc: netCDF4 Dataset object, output file open for writing 
+            zlib: see http://unidata.github.io/netcdf4-python/#netCDF4.Dataset.createVariable
+            complevel: " " 
+            shuffle: " " 
+            chunksizes: " " 
+        """
+
+        nc.createVariable('hill_model', str) # scalar
+        print(dir(self))
+        nc['hill_model'][...] = self.__class__.__name__ 
+        nc['hill_model'].kappa_active = self._kappa_active 
+        nc['hill_model'].kappa_inactive = self._kappa_inactive 
+        nc['hill_model'].bc_yi = self._bc[0]
+        nc['hill_model'].bc_yf = self._bc[1]
+        nc['hill_model'].bc_xi = self._bc[2]
+        nc['hill_model'].bc_xf = self._bc[3]
+
+        nc.createVariable('hill_kappa', np.double, dimensions=('time', 'y', 'x'), 
+            zlib=zlib, complevel=complevel, shuffle=shuffle, chunksizes=chunksizes)
+        nc['hill_kappa'].long_name = 'hillslope diffusivity'
+        nc['hill_kappa'].units = 'm^2 / a'
+        nc['hill_kappa'].active = self._kappa_active
+        nc['hill_kappa'].inactive = self._kappa_inactive
+
+    def to_netcdf(self, nc, time_idx):
+        """
+        Write model-specific state variables to output file
+
+        Arguments:
+            nc: netCDF4 Dataset object, output file open for writing 
+            time_idx: integer time index to write to
+        """
+
+        nc['hill_kappa'][time_idx,:,:] = self._kappa
+
+
+#TODO: delete this sniz and rely on the examples module for the same
 if __name__ == '__main__':
     
     # basic usage example and "smell test": relaxation to height==0 steady state

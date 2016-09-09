@@ -15,6 +15,10 @@ class model():
     hillslope model components and handles input-output.
 
     Arguments:
+        hillslope = initialized hillslope model component, expect child of
+            py_ice_cascade.hillslope.model class 
+
+        *OLD*
         x: numpy vector, x-coordinate, [m]
         y: numpy vector, y-coordinate, [m]
         zrx: grid, initial bedrock elevation, [m]
@@ -22,20 +26,15 @@ class model():
         time_step: scalar, topographic model time step, [a]
         num_steps: scalar, total steps in simulation, i.e. duration, [1]
         out_steps: list, step numbers to write output, 0 is initial state, [1]
-        hill_on: scalar bool, set True to enable hillslope model
-        hill_kappa_active: scalar, hillslope diffusivity where active, [m^2 / a]
-        hill_kappa_inactive: scalar, hillslope diffusivity where inactive, [m^2 / a]
-        hill_bc: list, hillslope model boundary conditions at [y[0],
-            y[end], x[0], x[end]. See hilllslope.py for details.
         uplift_on: scalar bool, set True to enable uplift component model
         uplift_start: grid, uplift rate at time_start [m / a]
         uplift_end: grid uplift rate at time_end [m / a]
         verbose: Boolean, set True to show verbose messages
     """
 
-    def __init__(self, x=None, y=None, zrx=None, time_start=None,
-        time_step=None, num_steps=None, out_steps=None, hill_on=None,
-        hill_kappa_active=None, hill_kappa_inactive=None, hill_bc=None,
+    def __init__(self, hillslope, 
+        x=None, y=None, zrx=None, time_start=None,
+        time_step=None, num_steps=None, out_steps=None,
         uplift_on=None, uplift_start=None, uplift_end=None,
         verbose=False):
 
@@ -43,6 +42,7 @@ class model():
             print("ice_cascade.model: setting model parameters")
 
         # user-defined parameters
+        self._model_hill = hillslope 
         self._x = np.copy(x)
         self._y = np.copy(y) 
         self._zrx = np.copy(zrx) 
@@ -50,11 +50,6 @@ class model():
         self._time_step = time_step 
         self._num_steps = num_steps 
         self._out_steps = np.copy(out_steps) 
-        self._hill_on = bool(hill_on)
-        if self._hill_on:
-            self._hill_kappa_active = np.copy(hill_kappa_active)
-            self._hill_kappa_inactive = np.copy(hill_kappa_inactive)
-            self._hill_bc = list(hill_bc)
         self._uplift_on = bool(uplift_on)
         if self._uplift_on:
             self._uplift_start = uplift_start
@@ -63,18 +58,17 @@ class model():
         self._delta = None
         self._time = None
         self._step = None
-        self._model_hill = None
 
     def _create_netcdf(self, file_name, verbose=False):
         """
         Create new (empty) netCDF for model state and parameters
         
-        Includes an option to save as an input file (*as_input*), which sets
-        the length of the time dimension to 1.
-
         Arguments:
             file_name: String, path to which file should be saved 
             verbose: Bool, set True to enable verbose messages
+        
+        Model components are responsible for initializing thier own output
+        variables, using the expected .init_netcdf method.
         """
 
         if verbose:
@@ -90,14 +84,12 @@ class model():
         nc = netCDF4.Dataset(file_name, "w", format="NETCDF4", clobber=False)
        
         # global attributes: on/off switches for model components
-        nc.hillslope_on = int(self._hill_on)
         nc.uplift_on = int(self._uplift_on)
 
         # create dimensions
         nc.createDimension('x', size=self._x.size)
         nc.createDimension('y', size=self._y.size)
         nc.createDimension('time', size=self._out_steps.size)
-        nc.createDimension('bc', size=4)
 
         # create variables, populate constants
         nc.createVariable('x', np.double, dimensions=('x'))
@@ -127,23 +119,14 @@ class model():
         nc['zrx'].long_name = 'bedrock surface elevation' 
         nc['zrx'].units = 'm' 
 
-        if self._hill_on:        
-            nc.createVariable('hill_kappa', np.double, dimensions=('time', 'y', 'x'), 
-                zlib=zlib, complevel=complevel, shuffle=shuffle, chunksizes=chunksizes)
-            nc['hill_kappa'].long_name = 'hillslope diffusivity'
-            nc['hill_kappa'].units = 'm^2 / a'
-            nc['hill_kappa'].active = self._hill_kappa_active
-            nc['hill_kappa'].inactive = self._hill_kappa_inactive
-            
-            nc.createVariable('hill_bc', str, dimensions=('bc'))
-            for ii in range(4):
-                nc['hill_bc'][ii] = self._hill_bc[ii]
-
         if self._uplift_on:
             nc.createVariable('uplift_rate', np.double, dimensions=('time', 'y', 'x'), 
                 zlib=zlib, complevel=complevel, shuffle=shuffle, chunksizes=chunksizes)
             nc['uplift_rate'].long_name = 'tectonic rock uplift rate'
             nc['uplift_rate'].units = 'm / a'
+
+        # initialize output for component models
+        self._model_hill.init_netcdf(nc, zlib, complevel, shuffle, chunksizes)
 
         # finalize
         nc.close()
@@ -166,22 +149,18 @@ class model():
         nc['time'][ii] = self._time
         nc['step'][ii] = self._step
         nc['zrx'][ii,:,:] = self._zrx
-        if self._hill_on:
-            nc['hill_kappa'][ii,:,:] = self._hill_kappa
         if self._uplift_on:
             nc['uplift_rate'][ii,:,:] = self._model_uplift.get_uplift_rate(self._time)
+
+        # write data for model components
+        self._model_hill.to_netcdf(nc, ii)
+
+        # finalize
         nc.close()
 
+    #TODO: this will soon become obsolete
     def _initialize_component_models(self):
         """Initialize component model objects"""
-
-        # hillslope component
-        if self._hill_on:
-            self._hill_kappa = np.ones(self._zrx.shape)*self._hill_kappa_active
-            self._model_hill = py_ice_cascade.hillslope.ftcs(self._zrx, 
-                self._delta, self._hill_kappa, self._hill_bc)
-        else: 
-            self._model_hill = py_ice_cascade.hillslope.null()
 
         # uplift component
         if self._uplift_on:
@@ -205,7 +184,7 @@ class model():
         # init automatic parameters
         self._delta = np.abs(self._x[1]-self._x[0])
         self._time_end = self._time_start+self._time_step*(self._num_steps-1)
-        self._initialize_component_models()
+        self._initialize_component_models() # TODO: this will soon become obsolete
         
         # TODO: test for a regular grid here
 
@@ -246,6 +225,3 @@ class model():
 
         if verbose:
             print("ice_cascade.model.run: simulation complete")
-
-if __name__ == '__main__':
-    pass
