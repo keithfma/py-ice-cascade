@@ -33,11 +33,13 @@ class null(model):
         self._height = np.copy(np.double(new))
     def get_height(self):
         return np.copy(self._height)
-    def init_netcdf(self, nc, zlib, complevel, shuffle, chunksizes):
+    def init_netcdf(self, nc, *args):
+        nc.createVariable('uplift_model', np.dtype('i1')) # scalar
+        nc['uplift_model'][...] = False 
+        nc['uplift_model'].type = self.__class__.__name__ 
+    def to_netcdf(*args):
         pass
-    def to_netcdf(self, nc, time_idx):
-        pass
-    def run(self, t_start, t_end):
+    def run(*args):
         pass
 
 class linear(model):
@@ -144,12 +146,13 @@ class linear(model):
             chunksizes: " " 
         """
 
-        nc.createVariable('uplift_model', str) # scalar
-        nc['uplift_model'][...] = self.__class__.__name__ 
+        nc.createVariable('uplift_model', np.dtype('i1')) # scalar
+        nc['uplift_model'][...] = True
+        nc['uplift_model'].type = self.__class__.__name__ 
         nc['uplift_model'].time_initial = self._ti
         nc['uplift_model'].time_final = self._tf
-        nc['uplift_model'].uplift_initial = 'See variable uplift_rate_initial'
-        nc['uplift_model'].uplift_final = 'See variable uplift_rate_final'
+        nc['uplift_model'].uplift_initial = 'see uplift_rate_initial variable'
+        nc['uplift_model'].uplift_final = 'see uplift_rate_final variable'
 
         nc.createVariable('uplift_rate_initial', np.double, dimensions=('y', 'x'))
         nc['uplift_rate_initial'].long_name = 'initial uplift rate'

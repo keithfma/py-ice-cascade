@@ -45,15 +45,15 @@ class null(model):
         self._height = np.double(new) 
     def get_height(self):
         return self._height
-    def set_mask(self, new):
+    def set_mask(*args):
         pass
     def init_netcdf(self, nc, *args):
         nc.createVariable('hill_model', np.dtype('i1')) # scalar
         nc['hill_model'][...] = False 
         nc['hill_model'].type = self.__class__.__name__ 
-    def to_netcdf(self, *args):
+    def to_netcdf(*args):
         pass
-    def run(self, run_time):
+    def run(*args):
         pass
 
 class ftcs(model):
