@@ -94,20 +94,22 @@ def hill_uplift():
     time_start = 0.0
     time_step = 0.1
     num_steps = 10
+    time_end = time_start + time_step*(num_steps-1)
     out_steps = np.arange(0,num_steps)
-    hill_on = True 
+    hill_mask = np.ones((ny, nx))
     hill_kappa_active = 0.01
     hill_kappa_inactive = 0.0
     hill_bc = ['constant']*4
-    uplift_on = True 
     uplift_start = np.zeros((ny,nx), dtype=np.double)
     uplift_end = np.ones((ny,nx), dtype=np.double)
 
-    mod = py_ice_cascade.ice_cascade.model(x=x, y=y, zrx=zrx, time_start=time_start,
+    hill = py_ice_cascade.hillslope.ftcs(zrx, hill_mask, delta, hill_kappa_active,
+        hill_kappa_inactive, hill_bc)
+
+    uplift = py_ice_cascade.uplift.linear(zrx, uplift_start, uplift_end, time_start, time_end)
+
+    mod = py_ice_cascade.ice_cascade.model(hill, uplift, x=x, y=y, zrx=zrx, time_start=time_start,
         time_step=time_step, num_steps=num_steps, out_steps=out_steps,
-        hill_on=hill_on, hill_kappa_active=hill_kappa_active,
-        hill_kappa_inactive=hill_kappa_inactive, hill_bc=hill_bc,
-        uplift_on=uplift_on, uplift_start=uplift_start, uplift_end=uplift_end, 
         verbose=True)
     mod.run('example.hill_uplift.out.nc', verbose=True)
 
