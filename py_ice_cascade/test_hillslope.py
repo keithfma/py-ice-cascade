@@ -18,37 +18,41 @@ class ftcs_TestCase(unittest.TestCase):
     # arbitrary valid values for input arguments
     hh = np.random.rand(10,10)
     dd = 1.0
-    kk = np.ones((10,10))
+    mm = np.ones((10,10))
+    kon = 1.0
+    koff = 0.0
     bb = ['constant']*4
 
     def test_input_valid_bc(self):
         """Allow all supported BC names, and fail for others"""
-        hillslope.ftcs(self.hh, self.dd, self.kk, ['constant', 'closed', 'open', 'mirror'])
-        hillslope.ftcs(self.hh, self.dd, self.kk, ['cyclic', 'cyclic', 'constant', 'constant'])
-        self.assertRaises(ValueError, hillslope.ftcs, self.hh, self.dd, self.kk, 
+        hillslope.ftcs(self.hh, self.mm, self.dd, self.kon, self.koff, 
+            ['constant', 'closed', 'open', 'mirror'])
+        hillslope.ftcs(self.hh, self.mm, self.dd, self.kon, self.koff, 
+            ['cyclic', 'cyclic', 'constant', 'constant'])
+        self.assertRaises(ValueError, hillslope.ftcs, self.hh, self.mm, self.dd, self.kon, self.koff, 
             ['ooga_booga', 'cyclic', 'constant', 'constant'])
 
     def test_input_cyclic_bc(self):
         """Unmatched cyclic BCs should throw an error"""
-        self.assertRaises(ValueError, hillslope.ftcs, self.hh, self.dd, self.kk, 
+        self.assertRaises(ValueError, hillslope.ftcs, self.hh, self.mm, self.dd, self.kon, self.koff, 
             ['cyclic', 'constant', 'constant', 'constant'])
-        self.assertRaises(ValueError, hillslope.ftcs, self.hh, self.dd, self.kk, 
+        self.assertRaises(ValueError, hillslope.ftcs, self.hh, self.mm, self.dd, self.kon, self.koff, 
             ['constant', 'cyclic', 'constant', 'constant'])
-        self.assertRaises(ValueError, hillslope.ftcs, self.hh, self.dd, self.kk, 
+        self.assertRaises(ValueError, hillslope.ftcs, self.hh, self.mm, self.dd, self.kon, self.koff, 
             ['constant', 'constant', 'cyclic', 'constant'])
-        self.assertRaises(ValueError, hillslope.ftcs, self.hh, self.dd, self.kk, 
+        self.assertRaises(ValueError, hillslope.ftcs, self.hh, self.mm, self.dd, self.kon, self.koff, 
             ['constant', 'constant', 'constant', 'cyclic'])
 
     def test_consistent_dims(self):
-        """Unequal array dims for height and kappa throws error"""
-        self.assertRaises(ValueError, hillslope.ftcs, np.random.rand(11,11), self.dd, self.kk, self.bb)
-        self.assertRaises(ValueError, hillslope.ftcs, self.hh, self.dd, np.random.rand(11,11), self.bb)
+        """Unequal array dims for height and mask throws error"""
+        self.assertRaises(ValueError, hillslope.ftcs, np.random.rand(11,11), self.mm, self.dd, self.kon, self.koff, self.bb)
+        self.assertRaises(ValueError, hillslope.ftcs, self.hh, np.random.rand(11,11), self.dd, self.kon, self.koff, self.bb)
 
     def test_protect_model_dims(self):
         """Attempt to set model grid with incorrect size array throw error"""
-        model = hillslope.ftcs(self.hh, self.dd, self.kk, self.bb)
+        model = hillslope.ftcs(self.hh, self.mm, self.dd, self.kon, self.koff, self.bb)
         self.assertRaises(ValueError, model.set_height, np.random.rand(11,11))
-        self.assertRaises(ValueError, model.set_diffusivity, np.random.rand(11,11))
+        self.assertRaises(ValueError, model.set_mask, np.random.rand(11,11))
 
     def test_steady_bc_constant(self):
         """Compare against exact solution for sinusoid y=max and zero at other bnd"""
@@ -71,9 +75,10 @@ class ftcs_TestCase(unittest.TestCase):
         # # numerical solution
         h_init = np.zeros((ny, nx))
         h_init[-1,:] = h0*np.sin(np.pi*xx/lx)
-        kappa = np.ones((ny,nx))
+        kappa = 1.0
+        mask = np.ones((ny,nx))
         bcs = ['constant']*4
-        model = hillslope.ftcs(h_init, delta, kappa, bcs)
+        model = hillslope.ftcs(h_init, mask, delta, kappa, kappa, bcs)
         model.run(t_end)
         # # check errors
         h_error = np.abs(model.get_height()-h_exact)
@@ -84,9 +89,9 @@ class ftcs_TestCase(unittest.TestCase):
         h_exact = np.rot90(h_exact)
         # # numerical solution
         h_init = np.rot90(h_init)
-        kappa = np.rot90(kappa)
+        mask = np.rot90(mask)
         bcs = ['constant']*4
-        model = hillslope.ftcs(h_init, delta, kappa, bcs)
+        model = hillslope.ftcs(h_init, mask, delta, kappa, kappa, bcs)
         model.run(t_end)
         # # check errors
         h_error = np.abs(model.get_height()-h_exact)
@@ -120,9 +125,9 @@ class ftcs_TestCase(unittest.TestCase):
         h_init = np.zeros((ny, nx))
         h_init[:,0] = h0
         h_init[:,-1] = h1
-        kappa = np.where(xx <= l0, k0, k1)
+        mask = np.where(xx <= l0, True, False)
         bcs = ['closed', 'closed', 'constant', 'constant'] 
-        model = hillslope.ftcs(h_init, delta, kappa, bcs)
+        model = hillslope.ftcs(h_init, mask, delta, k0, k1, bcs)
         model.run(t_end)
         # # check errors
         h_error = np.abs(model.get_height()-h_exact)
@@ -133,9 +138,9 @@ class ftcs_TestCase(unittest.TestCase):
         h_exact = np.rot90(h_exact)
         # # numerical solution
         h_init = np.rot90(h_init)
-        kappa = np.rot90(kappa)
+        mask = np.rot90(mask)
         bcs = ['constant', 'constant', 'closed', 'closed']
-        model = hillslope.ftcs(h_init, delta, kappa, bcs)
+        model = hillslope.ftcs(h_init, mask, delta, k0, k1, bcs)
         model.run(t_end)
         # # check errors
         h_error = np.abs(model.get_height()-h_exact)
@@ -149,7 +154,9 @@ class ftcs_TestCase(unittest.TestCase):
         delta = 1.0/(nx-1)
         h_init = np.linspace(0.0, 1.0, nx).reshape(1,nx)*np.linspace(0.0, 1.0, ny).reshape(ny,1)
         h_init += 0.1*(np.random.rand(ny, nx)-0.5)
-        kappa = np.random.rand(ny, nx)
+        mask = np.where(np.random.rand(ny, nx)>0.5, True, False)
+        kappa1 = 1.0
+        kappa0 = 0.5
         t_end = 0.25
         epsilon = 0.0001
 
@@ -158,7 +165,7 @@ class ftcs_TestCase(unittest.TestCase):
         h_total = np.sum(h_init)
         # # numerical solution
         bcs = ['cyclic', 'cyclic', 'closed', 'closed']
-        model = hillslope.ftcs(h_init, delta, kappa, bcs)
+        model = hillslope.ftcs(h_init, mask, delta, kappa1, kappa0, bcs)
         model.run(t_end)
         # # check error
         h_error = np.abs(h_total-np.sum(model.get_height()))
@@ -168,9 +175,9 @@ class ftcs_TestCase(unittest.TestCase):
         # # exact solution
         # # numerical solution
         h_init = np.rot90(h_init)
-        kappa = np.rot90(kappa)
+        mask = np.rot90(mask)
         bcs = ['closed', 'closed', 'cyclic', 'cyclic']
-        model = hillslope.ftcs(h_init, delta, kappa, bcs)
+        model = hillslope.ftcs(h_init, mask, delta, kappa1, kappa0, bcs)
         model.run(t_end)
         # # check error
         h_error = np.abs(h_total-np.sum(model.get_height()))
