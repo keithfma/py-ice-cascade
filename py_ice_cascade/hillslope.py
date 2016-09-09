@@ -162,6 +162,7 @@ class ftcs(model):
         self._bc = list(bc)
         self.set_height(height)
         self.set_mask(mask)
+        self._dhdt = np.zeros((self._ny, self._nx), dtype=np.double)
 
     def _check_dims(self, array):
         """Check that array dims match model dims, or set model dims"""
@@ -324,11 +325,14 @@ class ftcs(model):
         run_time = np.double(run_time)
         time = np.double(0.0)    
         max_step = 0.95*self._delta*self._delta/(4.0*np.max(self._kappa)) # stable time step, note ref (1) has error
+        h0 = np.copy(self._height)
 
         while time < run_time:
             step = min(run_time-time, max_step)
             self._height += step*self._A.dot(self._height)
             time += step
+
+        self._dhdt = (self._height-h0)/run_time
 
     def init_netcdf(self, nc, zlib, complevel, shuffle, chunksizes):
         """
@@ -357,6 +361,11 @@ class ftcs(model):
         nc['hill_kappa'].long_name = 'hillslope diffusivity'
         nc['hill_kappa'].units = 'm^2 / a'
 
+        nc.createVariable('hill_dzdt', np.double, dimensions=('time', 'y', 'x'), 
+            zlib=zlib, complevel=complevel, shuffle=shuffle, chunksizes=chunksizes)
+        nc['hill_dzdt'].long_name = 'average hillslope bedrock elevation rate of change'
+        nc['hill_dzdt'].units = 'm / a'
+
     def to_netcdf(self, nc, time_idx):
         """
         Write model-specific state variables to output file
@@ -367,3 +376,4 @@ class ftcs(model):
         """
 
         nc['hill_kappa'][time_idx,:,:] = self._kappa
+        nc['hill_dzdt'][time_idx,:,:] = self._dhdt
