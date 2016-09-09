@@ -49,10 +49,6 @@ class model():
         self._time_step = time_step 
         self._num_steps = num_steps 
         self._out_steps = np.copy(out_steps) 
-        self._uplift_on = bool(uplift_on)
-        if self._uplift_on:
-            self._uplift_start = uplift_start
-            self._uplift_end = uplift_end
         # automatic parameters
         self._delta = None
         self._time = None
@@ -82,8 +78,8 @@ class model():
         # create file
         nc = netCDF4.Dataset(file_name, "w", format="NETCDF4", clobber=False)
        
-        # global attributes: on/off switches for model components
-        nc.uplift_on = int(self._uplift_on)
+        # global attributes
+        # TODO: add any core model init parameters here, or reference where they are defined.
 
         # create dimensions
         nc.createDimension('x', size=self._x.size)
@@ -143,8 +139,6 @@ class model():
         nc['time'][ii] = self._time
         nc['step'][ii] = self._step
         nc['zrx'][ii,:,:] = self._zrx
-        if self._uplift_on:
-            nc['uplift_rate'][ii,:,:] = self._model_uplift.get_uplift_rate(self._time)
 
         # write data for model components
         self._model_hill.to_netcdf(nc, ii)

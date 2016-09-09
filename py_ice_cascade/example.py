@@ -41,14 +41,14 @@ def hill_only():
     time_step = 0.1
     num_steps = 10
     out_steps = np.arange(0,num_steps)
-    uplift_on = False
 
     hill = py_ice_cascade.hillslope.ftcs(zrx, mask, delta, kappa_active,
         kappa_inactive, bcs)
+
+    uplift = py_ice_cascade.uplift.null()
     
-    mod = py_ice_cascade.ice_cascade.model(hill, x=x, y=y, zrx=zrx, time_start=time_start,
-        time_step=time_step, num_steps=num_steps, out_steps=out_steps, 
-        uplift_on=uplift_on, verbose=True)
+    mod = py_ice_cascade.ice_cascade.model(hill, uplift, x=x, y=y, zrx=zrx, time_start=time_start,
+        time_step=time_step, num_steps=num_steps, out_steps=out_steps, verbose=True)
     mod.run('example.hill_only.out.nc', verbose=True)
 
 def uplift_only():

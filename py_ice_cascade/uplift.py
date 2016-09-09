@@ -13,11 +13,11 @@ class model():
         raise NotImplementedError
     def get_height(self):
         raise NotImplementedError
-    def init_netcdf(self, file_name):
+    def init_netcdf(self, nc, zlib, complevel, shuffle, chunksizes):
         raise NotImplementedError
-    def to_netcdf(self, file_name):
+    def to_netcdf(self, nc, time_idx):
         raise NotImplementedError
-    def run(self, run_time):
+    def run(self, t_start, t_end):
         raise NotImplementedError
 
 class null(model):
@@ -35,9 +35,9 @@ class null(model):
         return np.copy(self._height)
     def init_netcdf(self, nc, zlib, complevel, shuffle, chunksizes):
         pass
-    def to_netcdf(self, nc):
+    def to_netcdf(self, nc, time_idx):
         pass
-    def run(self, run_time):
+    def run(self, t_start, t_end):
         pass
 
 class linear(model):
