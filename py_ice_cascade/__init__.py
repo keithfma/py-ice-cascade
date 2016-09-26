@@ -9,6 +9,6 @@ _author = 'Keith F. Ma'
 _author_email = 'keithfma@gmail.com'
 
 # load modules
-from . import main
+from .main import main_model
 from . import hillslope
 from . import uplift

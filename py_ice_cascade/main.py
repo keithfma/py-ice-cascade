@@ -9,7 +9,7 @@ import py_ice_cascade
 import netCDF4
 import sys
 
-class model():
+class main_model():
     """
     Composite landscape evolution model. Integrates glacial, fluvial, and
     hillslope model components and handles input-output.
