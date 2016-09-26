@@ -6,7 +6,9 @@ import py_ice_cascade
 import numpy as np
 
 def run_example():
-    """Run uplift-only example, save results to file"""
+    """
+    Run uplift-only example, save results to file, and return output file name
+    """
 
     ny = 50
     nx = 100
@@ -23,6 +25,7 @@ def run_example():
     out_steps = np.arange(0,num_steps)
     uplift_start = np.zeros((ny,nx), dtype=np.double)
     uplift_end = np.ones((ny,nx), dtype=np.double)
+    output_filename = 'example.uplift_only.out.nc'
 
     hill = py_ice_cascade.hillslope.null_model() 
 
@@ -30,7 +33,9 @@ def run_example():
 
     mod = py_ice_cascade.main_model(hill, uplift, 
         x, y, zrx, time_start, time_step, num_steps, out_steps, verbose=True)
-    mod.run('example.uplift_only.out.nc')
+    mod.run(output_filename, clobber=True)
+
+    return output_filename
 
 if __name__ == '__main__':
     run_example()

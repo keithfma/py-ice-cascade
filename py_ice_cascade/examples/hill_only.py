@@ -6,8 +6,11 @@ import py_ice_cascade
 import numpy as np
 
 def run_example():
-    """Run hillslope-diffusion-only example, and save results to file"""
-
+    """
+    Run hillslope-diffusion-only example, save results to file, and return
+    output file name
+    """
+ 
     ny = 50
     nx = 100
     lx = 1.0
@@ -24,6 +27,7 @@ def run_example():
     time_step = 0.1
     num_steps = 10
     out_steps = np.arange(0,num_steps)
+    output_file = 'example.hill_only.out.nc'
 
     hill = py_ice_cascade.hillslope.ftcs_model(zrx, mask, delta, kappa_active,
         kappa_inactive, bcs)
@@ -32,7 +36,9 @@ def run_example():
     
     mod = py_ice_cascade.main_model(hill, uplift, 
         x, y, zrx, time_start, time_step, num_steps, out_steps, verbose=True)
-    mod.run('example.hill_only.out.nc')
+    mod.run(output_file, clobber=True)
+
+    return output_file
 
 if __name__ == '__main__':
     run_example()

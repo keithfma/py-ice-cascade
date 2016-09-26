@@ -1,13 +1,15 @@
-
 """
-Hillslope-only example case for PY_ICE_CASCADE landscape evolution model
+Hillslope & uplift example case for PY_ICE_CASCADE landscape evolution model
 """
 
 import py_ice_cascade
 import numpy as np
 
 def run_example():
-    """Run hillslope diffusion with uplift example, save results to file"""
+    """
+    Run hillslope diffusion with uplift example, save results to file, and
+    return output file name
+    """
 
     ny = 50
     nx = 100
@@ -28,6 +30,7 @@ def run_example():
     hill_bc = ['constant']*4
     uplift_start = np.zeros((ny,nx), dtype=np.double)
     uplift_end = np.ones((ny,nx), dtype=np.double)
+    output_filename = 'example.hill_uplift.out.nc'
 
     hill = py_ice_cascade.hillslope.ftcs_model(zrx, hill_mask, delta, hill_kappa_active,
         hill_kappa_inactive, hill_bc)
@@ -36,7 +39,9 @@ def run_example():
 
     mod = py_ice_cascade.main_model(hill, uplift, 
         x, y, zrx, time_start, time_step, num_steps, out_steps, verbose=True)
-    mod.run('example.hill_uplift.out.nc')
+    mod.run(output_filename, clobber=True)
+
+    return output_filename
 
 if __name__ == '__main__':
     run_example()

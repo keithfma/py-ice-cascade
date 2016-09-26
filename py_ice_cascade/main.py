@@ -53,12 +53,13 @@ class main_model():
 
         # TODO: test for a regular grid here
 
-    def _create_netcdf(self, file_name):
+    def _create_netcdf(self, file_name, clobber):
         """
         Create new (empty) netCDF for model state and parameters
         
         Arguments:
             file_name: String, path to which file should be saved 
+            clobber: Boolean, enable/disable overwriting output file
         
         Model components are responsible for initializing thier own output
         variables, using the expected .init_netcdf method.
@@ -74,7 +75,7 @@ class main_model():
         chunksizes = (1, self._y.size, self._x.size)
         
         # create file
-        nc = netCDF4.Dataset(file_name, "w", format="NETCDF4", clobber=False)
+        nc = netCDF4.Dataset(file_name, "w", format="NETCDF4", clobber=clobber)
        
         # global attributes
         nc.version = py_ice_cascade.__version__
@@ -149,12 +150,13 @@ class main_model():
             # finalize
             nc.close()
 
-    def run(self, file_name):
+    def run(self, file_name, clobber=False):
         """
         Run model simulation, save results to file
 
         Arguments:
             file_name: String, path to which results should be saved 
+            clobber: Boolean, allow overwriting output file
         """
 
         if self._verbose:
@@ -167,7 +169,7 @@ class main_model():
         # init model integration loop
         self._time = self._time_start
         self._step = 0
-        self._create_netcdf(file_name)
+        self._create_netcdf(file_name, clobber)
         self._to_netcdf(file_name)
 
         while self._step < self._num_steps:
