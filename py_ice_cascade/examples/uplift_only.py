@@ -32,7 +32,7 @@ def run_example():
     uplift = py_ice_cascade.uplift.linear_model(zrx, uplift_start, uplift_end, time_start, time_end)
 
     mod = py_ice_cascade.main_model(hill, uplift, 
-        x, y, zrx, time_start, time_step, num_steps, out_steps, verbose=True)
+        x, y, zrx, time_start, time_step, num_steps, out_steps)
     mod.run(output_filename, clobber=True)
 
     return output_filename

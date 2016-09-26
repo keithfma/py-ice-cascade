@@ -5,9 +5,10 @@ Python ICE-CASCADE combined glacial-fluvial-hillslope landscape evolution model
 import argparse
 import numpy as np
 import matplotlib.pyplot as plt
-import py_ice_cascade
 import netCDF4
 import sys
+import logging
+from . import __version__ as py_ice_cascade_version
 
 class main_model():
     """
@@ -16,9 +17,9 @@ class main_model():
 
     Arguments:
         hillslope: initialized hillslope model component, expect child of
-            py_ice_cascade.hillslope.model class 
+            py_ice_cascade.hillslope.base_model class 
         uplift: initialized uplift model component, expect child of
-            py_ice_cascade.uplift.model class
+            py_ice_cascade.uplift.base_model class
         x: numpy vector, x-coordinate, [m]
         y: numpy vector, y-coordinate, [m]
         z_rx: grid, initial bedrock elevation, [m]
@@ -26,14 +27,14 @@ class main_model():
         time_step: scalar, topographic model time step, [a]
         num_steps: scalar, total steps in simulation, i.e. duration, [1]
         out_steps: list, step numbers to write output, 0 is initial state, [1]
-        verbose: Boolean, set True to show verbose messages
     """
 
     def __init__(self, hillslope, uplift,
-        x, y, z_rx, time_start, time_step, num_steps, out_steps, verbose=False):
+        x, y, z_rx, time_start, time_step, num_steps, out_steps):
 
-        if verbose:
-            print("ice_cascade.model.__init__: setting model parameters")
+        # setup logger
+        self._logger = logging.getLogger(__name__)
+        self._logger.info('Setting model parameters')
 
         # user-defined parameters
         self._model_hill = hillslope 
@@ -45,7 +46,6 @@ class main_model():
         self._time_step = time_step 
         self._num_steps = num_steps 
         self._out_steps = np.copy(out_steps) 
-        self._verbose = verbose
         # automatic parameters
         self._delta = None
         self._time = None
@@ -65,8 +65,7 @@ class main_model():
         variables, using the expected .init_netcdf method.
         """
 
-        if self._verbose:
-            print("ice_cascade.model._create_netcdf : creating input file "+file_name)
+        self._logger.info("Creating input file: {}".format(file_name))
         
         # compression/chunking parameters for time-dependant grid vars
         zlib = False
@@ -78,7 +77,7 @@ class main_model():
         nc = netCDF4.Dataset(file_name, "w", format="NETCDF4", clobber=clobber)
        
         # global attributes
-        nc.version = py_ice_cascade.__version__
+        nc.version = py_ice_cascade_version
         nc.time_start = self._time_start
         nc.time_step = self._time_step
         nc.num_steps = self._num_steps
@@ -133,10 +132,8 @@ class main_model():
         """
 
         if self._step in self._out_steps:
-            if self._verbose:
-                print("ice_cascade.model._to_netcdf: write time = {:.2f}, step = {}".format(
-                    self._time, self._step))
-
+            self._logger.info('Write output for time={:.2f}, step={}'.format(
+                self._time, self._step))
             ii = list(self._out_steps).index(self._step) 
             nc = netCDF4.Dataset(file_name, "a")
             nc['time'][ii] = self._time
@@ -159,8 +156,7 @@ class main_model():
             clobber: Boolean, allow overwriting output file
         """
 
-        if self._verbose:
-            print("ice_cascade.model.run: initializing simulation")
+        self._logger.info('Initialize simulation')
 
         # init automatic parameters
         self._delta = np.abs(self._x[1]-self._x[0])
@@ -202,6 +198,5 @@ class main_model():
 
             # write output and/or display model state
             self._to_netcdf(file_name)
-
-        if self._verbose:
-            print("ice_cascade.model.run: simulation complete")
+            
+        self._logger.info('Simulation complete')

@@ -35,7 +35,7 @@ def run_example():
     uplift = py_ice_cascade.uplift.null_model()
     
     mod = py_ice_cascade.main_model(hill, uplift, 
-        x, y, zrx, time_start, time_step, num_steps, out_steps, verbose=True)
+        x, y, zrx, time_start, time_step, num_steps, out_steps)
     mod.run(output_file, clobber=True)
 
     return output_file
