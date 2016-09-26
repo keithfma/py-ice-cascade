@@ -1,3 +1,10 @@
+"""
+Python ICE-CASCADE hillslope erosion-deposition model component
+
+Null model: defines do-nothing methods for required interface, used to disable
+the hillslope model component
+"""
+
 from .base import base_model
 import numpy as np
 

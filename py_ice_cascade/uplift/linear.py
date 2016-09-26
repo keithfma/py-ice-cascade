@@ -1,48 +1,14 @@
 """
 Python ICE-CASCADE tectonic uplift-subsidence model component
+
+Linear mode: Uplift rate is linearly interpolated between pre-defined initial
+and final states.
 """
 
+from .base import base_model
 import numpy as np
-import matplotlib.pyplot as plt
 
-class model():
-    """Base class for uplift model components"""
-    def __init__(self):
-        pass
-    def set_height(self, new):
-        raise NotImplementedError
-    def get_height(self):
-        raise NotImplementedError
-    def init_netcdf(self, nc, zlib, complevel, shuffle, chunksizes):
-        raise NotImplementedError
-    def to_netcdf(self, nc, time_idx):
-        raise NotImplementedError
-    def run(self, t_start, t_end):
-        raise NotImplementedError
-
-class null(model):
-    """
-    Do-nothing class to be used for disabled uplift component
-
-    Internal height grid is set and returned unchanged
-    """
-
-    def __init__(self):
-        pass
-    def set_height(self, new):
-        self._height = np.copy(np.double(new))
-    def get_height(self):
-        return np.copy(self._height)
-    def init_netcdf(self, nc, *args):
-        nc.createVariable('uplift_model', np.dtype('i1')) # scalar
-        nc['uplift_model'][...] = False 
-        nc['uplift_model'].type = self.__class__.__name__ 
-    def to_netcdf(*args):
-        pass
-    def run(*args):
-        pass
-
-class linear(model):
+class linear_model(base_model):
     r"""
     Tectonic uplift model in which uplift is linearly interpolated between a
     pre-defined initial and final state. 

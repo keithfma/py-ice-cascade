@@ -11,10 +11,4 @@ _author_email = 'keithfma@gmail.com'
 # load modules
 from . import main
 from . import hillslope
-#import py_ice_cascade.main as main
-#import py_ice_cascade.hillslope as hillslope
-
-# import py_ice_cascade.ice_cascade as ice_cascade
-# import py_ice_cascade.hillslope as hillslope
-# import py_ice_cascade.uplift as uplift
-# import py_ice_cascade.example as example
+from . import uplift
