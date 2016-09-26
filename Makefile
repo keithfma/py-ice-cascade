@@ -2,7 +2,9 @@
 
 SPHINXOPTS    =
 BUILDDIR      = docs
-SOURCEDIR     = docs_src
+DOCSOURCEDIR  = docs_src
+SOURCEDIR     = py_ice_cascade
+TESTDIRS      = `find $(SOURCEDIR) -type d -name tests`
 
 .PHONY: help
 help:
@@ -13,8 +15,8 @@ help:
 
 .PHONY: html
 html:
-	sphinx-apidoc --private -f -o $(SOURCEDIR) ./py_ice_cascade ./py_ice_cascade/test_*
-	sphinx-build -b html $(SPHINXOPTS) $(SOURCEDIR) $(BUILDDIR)
+	sphinx-apidoc --private -f -o $(DOCSOURCEDIR) $(SOURCEDIR) $(TESTDIRS)
+	sphinx-build -b html $(SPHINXOPTS) $(DOCSOURCEDIR) $(BUILDDIR)
 
 .PHONY: clean
 clean:

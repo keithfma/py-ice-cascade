@@ -1,0 +1,379 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>py_ice_cascade.hillslope.tests.test_ftcs &mdash; py_ice_cascade 0.0.1 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+    <link rel="top" title="py_ice_cascade 0.0.1 documentation" href="../../../../index.html"/>
+        <link rel="up" title="py_ice_cascade.hillslope" href="../../hillslope.html"/> 
+
+  
+  <script src="../../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../../index.html" class="icon icon-home"> py_ice_cascade
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.0.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../modules.html">py_ice_cascade</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../../../../index.html">py_ice_cascade</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../../../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="../../../index.html">Module code</a> &raquo;</li>
+      
+          <li><a href="../../hillslope.html">py_ice_cascade.hillslope</a> &raquo;</li>
+      
+    <li>py_ice_cascade.hillslope.tests.test_ftcs</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for py_ice_cascade.hillslope.tests.test_ftcs</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Unit tests for Python ICE-CASCADE hillslope erosion-deposition forward-time</span>
+<span class="sd">centered-space model component</span>
+
+<span class="sd">References:</span>
+
+<span class="sd">(1) Holman, J. P. (2002). Heat transfer (pp. 75) </span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">unittest</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">py_ice_cascade</span> <span class="k">import</span> <span class="n">hillslope</span>
+
+<div class="viewcode-block" id="ftcs_TestCase"><a class="viewcode-back" href="../../../../py_ice_cascade.hillslope.tests.html#py_ice_cascade.hillslope.tests.test_ftcs.ftcs_TestCase">[docs]</a><span class="k">class</span> <span class="nc">ftcs_TestCase</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Tests for hillslope ftcs model component&quot;&quot;&quot;</span>
+    
+    <span class="c1"># arbitrary valid values for input arguments</span>
+    <span class="n">hh</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="mi">10</span><span class="p">)</span>
+    <span class="n">dd</span> <span class="o">=</span> <span class="mf">1.0</span>
+    <span class="n">mm</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="mi">10</span><span class="p">,</span><span class="mi">10</span><span class="p">))</span>
+    <span class="n">kon</span> <span class="o">=</span> <span class="mf">1.0</span>
+    <span class="n">koff</span> <span class="o">=</span> <span class="mf">0.0</span>
+    <span class="n">bb</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;constant&#39;</span><span class="p">]</span><span class="o">*</span><span class="mi">4</span>
+
+<div class="viewcode-block" id="ftcs_TestCase.test_input_valid_bc"><a class="viewcode-back" href="../../../../py_ice_cascade.hillslope.tests.html#py_ice_cascade.hillslope.tests.test_ftcs.ftcs_TestCase.test_input_valid_bc">[docs]</a>    <span class="k">def</span> <span class="nf">test_input_valid_bc</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Allow all supported BC names, and fail for others&quot;&quot;&quot;</span>
+        <span class="n">hillslope</span><span class="o">.</span><span class="n">ftcs_model</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">hh</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dd</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">kon</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">koff</span><span class="p">,</span> 
+            <span class="p">[</span><span class="s1">&#39;constant&#39;</span><span class="p">,</span> <span class="s1">&#39;closed&#39;</span><span class="p">,</span> <span class="s1">&#39;open&#39;</span><span class="p">,</span> <span class="s1">&#39;mirror&#39;</span><span class="p">])</span>
+        <span class="n">hillslope</span><span class="o">.</span><span class="n">ftcs_model</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">hh</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dd</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">kon</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">koff</span><span class="p">,</span> 
+            <span class="p">[</span><span class="s1">&#39;cyclic&#39;</span><span class="p">,</span> <span class="s1">&#39;cyclic&#39;</span><span class="p">,</span> <span class="s1">&#39;constant&#39;</span><span class="p">,</span> <span class="s1">&#39;constant&#39;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="n">hillslope</span><span class="o">.</span><span class="n">ftcs_model</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">hh</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dd</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">kon</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">koff</span><span class="p">,</span> 
+            <span class="p">[</span><span class="s1">&#39;ooga_booga&#39;</span><span class="p">,</span> <span class="s1">&#39;cyclic&#39;</span><span class="p">,</span> <span class="s1">&#39;constant&#39;</span><span class="p">,</span> <span class="s1">&#39;constant&#39;</span><span class="p">])</span></div>
+
+<div class="viewcode-block" id="ftcs_TestCase.test_input_cyclic_bc"><a class="viewcode-back" href="../../../../py_ice_cascade.hillslope.tests.html#py_ice_cascade.hillslope.tests.test_ftcs.ftcs_TestCase.test_input_cyclic_bc">[docs]</a>    <span class="k">def</span> <span class="nf">test_input_cyclic_bc</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Unmatched cyclic BCs should throw an error&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="n">hillslope</span><span class="o">.</span><span class="n">ftcs_model</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">hh</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dd</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">kon</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">koff</span><span class="p">,</span> 
+            <span class="p">[</span><span class="s1">&#39;cyclic&#39;</span><span class="p">,</span> <span class="s1">&#39;constant&#39;</span><span class="p">,</span> <span class="s1">&#39;constant&#39;</span><span class="p">,</span> <span class="s1">&#39;constant&#39;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="n">hillslope</span><span class="o">.</span><span class="n">ftcs_model</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">hh</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dd</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">kon</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">koff</span><span class="p">,</span> 
+            <span class="p">[</span><span class="s1">&#39;constant&#39;</span><span class="p">,</span> <span class="s1">&#39;cyclic&#39;</span><span class="p">,</span> <span class="s1">&#39;constant&#39;</span><span class="p">,</span> <span class="s1">&#39;constant&#39;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="n">hillslope</span><span class="o">.</span><span class="n">ftcs_model</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">hh</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dd</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">kon</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">koff</span><span class="p">,</span> 
+            <span class="p">[</span><span class="s1">&#39;constant&#39;</span><span class="p">,</span> <span class="s1">&#39;constant&#39;</span><span class="p">,</span> <span class="s1">&#39;cyclic&#39;</span><span class="p">,</span> <span class="s1">&#39;constant&#39;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="n">hillslope</span><span class="o">.</span><span class="n">ftcs_model</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">hh</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dd</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">kon</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">koff</span><span class="p">,</span> 
+            <span class="p">[</span><span class="s1">&#39;constant&#39;</span><span class="p">,</span> <span class="s1">&#39;constant&#39;</span><span class="p">,</span> <span class="s1">&#39;constant&#39;</span><span class="p">,</span> <span class="s1">&#39;cyclic&#39;</span><span class="p">])</span></div>
+
+<div class="viewcode-block" id="ftcs_TestCase.test_consistent_dims"><a class="viewcode-back" href="../../../../py_ice_cascade.hillslope.tests.html#py_ice_cascade.hillslope.tests.test_ftcs.ftcs_TestCase.test_consistent_dims">[docs]</a>    <span class="k">def</span> <span class="nf">test_consistent_dims</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Unequal array dims for height and mask throws error&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="n">hillslope</span><span class="o">.</span><span class="n">ftcs_model</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">11</span><span class="p">,</span><span class="mi">11</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dd</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">kon</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">koff</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">bb</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="n">hillslope</span><span class="o">.</span><span class="n">ftcs_model</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">hh</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">11</span><span class="p">,</span><span class="mi">11</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">dd</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">kon</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">koff</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">bb</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ftcs_TestCase.test_protect_model_dims"><a class="viewcode-back" href="../../../../py_ice_cascade.hillslope.tests.html#py_ice_cascade.hillslope.tests.test_ftcs.ftcs_TestCase.test_protect_model_dims">[docs]</a>    <span class="k">def</span> <span class="nf">test_protect_model_dims</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Attempt to set model grid with incorrect size array throw error&quot;&quot;&quot;</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">hillslope</span><span class="o">.</span><span class="n">ftcs_model</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">hh</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dd</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">kon</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">koff</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">bb</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="n">model</span><span class="o">.</span><span class="n">set_height</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">11</span><span class="p">,</span><span class="mi">11</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="n">model</span><span class="o">.</span><span class="n">set_mask</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">11</span><span class="p">,</span><span class="mi">11</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="ftcs_TestCase.test_steady_bc_constant"><a class="viewcode-back" href="../../../../py_ice_cascade.hillslope.tests.html#py_ice_cascade.hillslope.tests.test_ftcs.ftcs_TestCase.test_steady_bc_constant">[docs]</a>    <span class="k">def</span> <span class="nf">test_steady_bc_constant</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Compare against exact solution for sinusoid y=max and zero at other bnd&quot;&quot;&quot;</span>
+        
+        <span class="c1"># parameters</span>
+        <span class="n">h0</span> <span class="o">=</span> <span class="mf">1.0</span>
+        <span class="n">nx</span> <span class="o">=</span> <span class="mi">100</span>
+        <span class="n">ny</span> <span class="o">=</span> <span class="mi">50</span>
+        <span class="n">lx</span> <span class="o">=</span> <span class="mf">1.0</span>
+        <span class="n">delta</span> <span class="o">=</span> <span class="n">lx</span><span class="o">/</span><span class="p">(</span><span class="n">nx</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">ly</span> <span class="o">=</span> <span class="n">delta</span><span class="o">*</span><span class="p">(</span><span class="n">ny</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">t_end</span> <span class="o">=</span> <span class="mf">0.25</span>
+        <span class="n">epsilon</span> <span class="o">=</span> <span class="mf">0.001</span>
+
+        <span class="c1"># Case 1:</span>
+        <span class="c1"># # exact solution</span>
+        <span class="n">xx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">lx</span><span class="p">,</span> <span class="n">nx</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">double</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span> <span class="mi">1</span><span class="p">,</span><span class="n">nx</span><span class="p">))</span>
+        <span class="n">yy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">ly</span><span class="p">,</span> <span class="n">ny</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">double</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="n">ny</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+        <span class="n">h_exact</span> <span class="o">=</span> <span class="n">h0</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">sinh</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="n">ly</span><span class="o">/</span><span class="n">lx</span><span class="p">)</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="n">xx</span><span class="o">/</span><span class="n">lx</span><span class="p">)</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sinh</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="n">yy</span><span class="o">/</span><span class="n">lx</span><span class="p">)</span>
+        <span class="c1"># # numerical solution</span>
+        <span class="n">h_init</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">ny</span><span class="p">,</span> <span class="n">nx</span><span class="p">))</span>
+        <span class="n">h_init</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,:]</span> <span class="o">=</span> <span class="n">h0</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="n">xx</span><span class="o">/</span><span class="n">lx</span><span class="p">)</span>
+        <span class="n">kappa</span> <span class="o">=</span> <span class="mf">1.0</span>
+        <span class="n">mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="n">ny</span><span class="p">,</span><span class="n">nx</span><span class="p">))</span>
+        <span class="n">bcs</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;constant&#39;</span><span class="p">]</span><span class="o">*</span><span class="mi">4</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">hillslope</span><span class="o">.</span><span class="n">ftcs_model</span><span class="p">(</span><span class="n">h_init</span><span class="p">,</span> <span class="n">mask</span><span class="p">,</span> <span class="n">delta</span><span class="p">,</span> <span class="n">kappa</span><span class="p">,</span> <span class="n">kappa</span><span class="p">,</span> <span class="n">bcs</span><span class="p">)</span>
+        <span class="n">model</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">t_end</span><span class="p">)</span>
+        <span class="c1"># # check errors</span>
+        <span class="n">h_error</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">get_height</span><span class="p">()</span><span class="o">-</span><span class="n">h_exact</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">h_error</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">epsilon</span><span class="p">)</span>
+
+        <span class="c1"># Case 2: rotate 90 degrees</span>
+        <span class="c1"># # exact solution</span>
+        <span class="n">h_exact</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">rot90</span><span class="p">(</span><span class="n">h_exact</span><span class="p">)</span>
+        <span class="c1"># # numerical solution</span>
+        <span class="n">h_init</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">rot90</span><span class="p">(</span><span class="n">h_init</span><span class="p">)</span>
+        <span class="n">mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">rot90</span><span class="p">(</span><span class="n">mask</span><span class="p">)</span>
+        <span class="n">bcs</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;constant&#39;</span><span class="p">]</span><span class="o">*</span><span class="mi">4</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">hillslope</span><span class="o">.</span><span class="n">ftcs_model</span><span class="p">(</span><span class="n">h_init</span><span class="p">,</span> <span class="n">mask</span><span class="p">,</span> <span class="n">delta</span><span class="p">,</span> <span class="n">kappa</span><span class="p">,</span> <span class="n">kappa</span><span class="p">,</span> <span class="n">bcs</span><span class="p">)</span>
+        <span class="n">model</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">t_end</span><span class="p">)</span>
+        <span class="c1"># # check errors</span>
+        <span class="n">h_error</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">get_height</span><span class="p">()</span><span class="o">-</span><span class="n">h_exact</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">h_error</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">epsilon</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ftcs_TestCase.test_steady_layered_kappa"><a class="viewcode-back" href="../../../../py_ice_cascade.hillslope.tests.html#py_ice_cascade.hillslope.tests.test_ftcs.ftcs_TestCase.test_steady_layered_kappa">[docs]</a>    <span class="k">def</span> <span class="nf">test_steady_layered_kappa</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Compare against exact solution for diffusion in 2 layered material&quot;&quot;&quot;</span>
+
+        <span class="c1"># parameters</span>
+        <span class="n">nx</span> <span class="o">=</span> <span class="mi">100</span>
+        <span class="n">ny</span> <span class="o">=</span> <span class="mi">5</span> 
+        <span class="n">lx</span> <span class="o">=</span> <span class="mf">1.0</span>
+        <span class="n">delta</span> <span class="o">=</span> <span class="n">lx</span><span class="o">/</span><span class="p">(</span><span class="n">nx</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">xx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">lx</span><span class="p">,</span> <span class="n">nx</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">double</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span><span class="n">nx</span><span class="p">))</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="n">ny</span><span class="p">,</span><span class="mi">1</span><span class="p">))</span>
+        <span class="n">l0</span> <span class="o">=</span> <span class="mf">0.5</span><span class="o">*</span><span class="p">(</span><span class="n">xx</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">50</span><span class="p">]</span><span class="o">+</span><span class="n">xx</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">51</span><span class="p">])</span> <span class="c1"># transition at midpoint</span>
+        <span class="n">l1</span> <span class="o">=</span> <span class="n">lx</span><span class="o">-</span><span class="n">l0</span>
+        <span class="n">h0</span> <span class="o">=</span> <span class="mf">1.0</span>
+        <span class="n">h1</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="n">k0</span> <span class="o">=</span> <span class="mf">1.0</span>
+        <span class="n">k1</span> <span class="o">=</span> <span class="mf">0.5</span>
+        <span class="n">t_end</span> <span class="o">=</span> <span class="mf">1.5</span>
+        <span class="n">epsilon</span> <span class="o">=</span> <span class="mf">0.001</span>
+
+        <span class="c1"># Case 1:</span>
+        <span class="c1"># # exact solution (resistance = l/k in series) </span>
+        <span class="n">qq</span> <span class="o">=</span> <span class="p">(</span><span class="n">h0</span><span class="o">-</span><span class="n">h1</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="n">l0</span><span class="o">/</span><span class="n">k0</span><span class="o">+</span><span class="n">l1</span><span class="o">/</span><span class="n">k1</span><span class="p">)</span>
+        <span class="n">hb</span> <span class="o">=</span> <span class="n">h0</span><span class="o">-</span><span class="n">qq</span><span class="o">*</span><span class="n">l0</span><span class="o">/</span><span class="n">k0</span> <span class="c1"># or: hb = qq*l1/k1-h1 </span>
+        <span class="n">xx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">lx</span><span class="p">,</span> <span class="n">nx</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">double</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span><span class="n">nx</span><span class="p">))</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="n">ny</span><span class="p">,</span><span class="mi">1</span><span class="p">))</span>
+        <span class="n">h_exact</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">xx</span> <span class="o">&lt;=</span> <span class="n">l0</span><span class="p">,</span> <span class="n">h0</span><span class="o">+</span><span class="p">(</span><span class="n">hb</span><span class="o">-</span><span class="n">h0</span><span class="p">)</span><span class="o">/</span><span class="n">l0</span><span class="o">*</span><span class="n">xx</span><span class="p">,</span> <span class="n">hb</span><span class="o">+</span><span class="p">(</span><span class="n">h1</span><span class="o">-</span><span class="n">hb</span><span class="p">)</span><span class="o">/</span><span class="n">l1</span><span class="o">*</span><span class="p">(</span><span class="n">xx</span><span class="o">-</span><span class="n">l0</span><span class="p">))</span>
+        <span class="c1"># # numerical solution</span>
+        <span class="n">h_init</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">ny</span><span class="p">,</span> <span class="n">nx</span><span class="p">))</span>
+        <span class="n">h_init</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">h0</span>
+        <span class="n">h_init</span><span class="p">[:,</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">h1</span>
+        <span class="n">mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">xx</span> <span class="o">&lt;=</span> <span class="n">l0</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+        <span class="n">bcs</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;closed&#39;</span><span class="p">,</span> <span class="s1">&#39;closed&#39;</span><span class="p">,</span> <span class="s1">&#39;constant&#39;</span><span class="p">,</span> <span class="s1">&#39;constant&#39;</span><span class="p">]</span> 
+        <span class="n">model</span> <span class="o">=</span> <span class="n">hillslope</span><span class="o">.</span><span class="n">ftcs_model</span><span class="p">(</span><span class="n">h_init</span><span class="p">,</span> <span class="n">mask</span><span class="p">,</span> <span class="n">delta</span><span class="p">,</span> <span class="n">k0</span><span class="p">,</span> <span class="n">k1</span><span class="p">,</span> <span class="n">bcs</span><span class="p">)</span>
+        <span class="n">model</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">t_end</span><span class="p">)</span>
+        <span class="c1"># # check errors</span>
+        <span class="n">h_error</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">get_height</span><span class="p">()</span><span class="o">-</span><span class="n">h_exact</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">h_error</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">epsilon</span><span class="p">)</span>
+
+        <span class="c1"># Case 2: rotate 90 degrees</span>
+        <span class="c1"># # exact solution</span>
+        <span class="n">h_exact</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">rot90</span><span class="p">(</span><span class="n">h_exact</span><span class="p">)</span>
+        <span class="c1"># # numerical solution</span>
+        <span class="n">h_init</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">rot90</span><span class="p">(</span><span class="n">h_init</span><span class="p">)</span>
+        <span class="n">mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">rot90</span><span class="p">(</span><span class="n">mask</span><span class="p">)</span>
+        <span class="n">bcs</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;constant&#39;</span><span class="p">,</span> <span class="s1">&#39;constant&#39;</span><span class="p">,</span> <span class="s1">&#39;closed&#39;</span><span class="p">,</span> <span class="s1">&#39;closed&#39;</span><span class="p">]</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">hillslope</span><span class="o">.</span><span class="n">ftcs_model</span><span class="p">(</span><span class="n">h_init</span><span class="p">,</span> <span class="n">mask</span><span class="p">,</span> <span class="n">delta</span><span class="p">,</span> <span class="n">k0</span><span class="p">,</span> <span class="n">k1</span><span class="p">,</span> <span class="n">bcs</span><span class="p">)</span>
+        <span class="n">model</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">t_end</span><span class="p">)</span>
+        <span class="c1"># # check errors</span>
+        <span class="n">h_error</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">get_height</span><span class="p">()</span><span class="o">-</span><span class="n">h_exact</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">h_error</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">epsilon</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ftcs_TestCase.test_mass_conservation"><a class="viewcode-back" href="../../../../py_ice_cascade.hillslope.tests.html#py_ice_cascade.hillslope.tests.test_ftcs.ftcs_TestCase.test_mass_conservation">[docs]</a>    <span class="k">def</span> <span class="nf">test_mass_conservation</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Confirm mass conservation with closed and cyclic BCs&quot;&quot;&quot;</span>
+
+        <span class="c1"># parameters</span>
+        <span class="n">nx</span> <span class="o">=</span> <span class="n">ny</span> <span class="o">=</span> <span class="mi">100</span>
+        <span class="n">delta</span> <span class="o">=</span> <span class="mf">1.0</span><span class="o">/</span><span class="p">(</span><span class="n">nx</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">h_init</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">nx</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">nx</span><span class="p">)</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">ny</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">ny</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">h_init</span> <span class="o">+=</span> <span class="mf">0.1</span><span class="o">*</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="n">ny</span><span class="p">,</span> <span class="n">nx</span><span class="p">)</span><span class="o">-</span><span class="mf">0.5</span><span class="p">)</span>
+        <span class="n">mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="n">ny</span><span class="p">,</span> <span class="n">nx</span><span class="p">)</span><span class="o">&gt;</span><span class="mf">0.5</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+        <span class="n">kappa1</span> <span class="o">=</span> <span class="mf">1.0</span>
+        <span class="n">kappa0</span> <span class="o">=</span> <span class="mf">0.5</span>
+        <span class="n">t_end</span> <span class="o">=</span> <span class="mf">0.25</span>
+        <span class="n">epsilon</span> <span class="o">=</span> <span class="mf">0.0001</span>
+
+        <span class="c1"># Case 1</span>
+        <span class="c1"># # exact solution</span>
+        <span class="n">h_total</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">h_init</span><span class="p">)</span>
+        <span class="c1"># # numerical solution</span>
+        <span class="n">bcs</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;cyclic&#39;</span><span class="p">,</span> <span class="s1">&#39;cyclic&#39;</span><span class="p">,</span> <span class="s1">&#39;closed&#39;</span><span class="p">,</span> <span class="s1">&#39;closed&#39;</span><span class="p">]</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">hillslope</span><span class="o">.</span><span class="n">ftcs_model</span><span class="p">(</span><span class="n">h_init</span><span class="p">,</span> <span class="n">mask</span><span class="p">,</span> <span class="n">delta</span><span class="p">,</span> <span class="n">kappa1</span><span class="p">,</span> <span class="n">kappa0</span><span class="p">,</span> <span class="n">bcs</span><span class="p">)</span>
+        <span class="n">model</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">t_end</span><span class="p">)</span>
+        <span class="c1"># # check error</span>
+        <span class="n">h_error</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">h_total</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">get_height</span><span class="p">()))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">h_error</span> <span class="o">&lt;</span> <span class="n">epsilon</span><span class="p">)</span>
+
+        <span class="c1"># Case 2: rotate 90 deg</span>
+        <span class="c1"># # exact solution</span>
+        <span class="c1"># # numerical solution</span>
+        <span class="n">h_init</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">rot90</span><span class="p">(</span><span class="n">h_init</span><span class="p">)</span>
+        <span class="n">mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">rot90</span><span class="p">(</span><span class="n">mask</span><span class="p">)</span>
+        <span class="n">bcs</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;closed&#39;</span><span class="p">,</span> <span class="s1">&#39;closed&#39;</span><span class="p">,</span> <span class="s1">&#39;cyclic&#39;</span><span class="p">,</span> <span class="s1">&#39;cyclic&#39;</span><span class="p">]</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">hillslope</span><span class="o">.</span><span class="n">ftcs_model</span><span class="p">(</span><span class="n">h_init</span><span class="p">,</span> <span class="n">mask</span><span class="p">,</span> <span class="n">delta</span><span class="p">,</span> <span class="n">kappa1</span><span class="p">,</span> <span class="n">kappa0</span><span class="p">,</span> <span class="n">bcs</span><span class="p">)</span>
+        <span class="n">model</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">t_end</span><span class="p">)</span>
+        <span class="c1"># # check error</span>
+        <span class="n">h_error</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">h_total</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">get_height</span><span class="p">()))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">h_error</span> <span class="o">&lt;</span> <span class="n">epsilon</span><span class="p">)</span></div></div>
+
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">unittest</span><span class="o">.</span><span class="n">main</span><span class="p">()</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, Keith F. Ma.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../../../',
+            VERSION:'0.0.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../../../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../../../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

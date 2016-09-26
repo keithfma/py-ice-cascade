@@ -1,0 +1,502 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>py_ice_cascade.hillslope package &mdash; py_ice_cascade 0.0.1 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+    <link rel="top" title="py_ice_cascade 0.0.1 documentation" href="index.html"/>
+        <link rel="up" title="py_ice_cascade package" href="py_ice_cascade.html"/>
+        <link rel="next" title="py_ice_cascade.uplift package" href="py_ice_cascade.uplift.html"/>
+        <link rel="prev" title="py_ice_cascade.examples package" href="py_ice_cascade.examples.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> py_ice_cascade
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.0.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">py_ice_cascade</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="py_ice_cascade.html">py_ice_cascade package</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="py_ice_cascade.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="py_ice_cascade.examples.html">py_ice_cascade.examples package</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">py_ice_cascade.hillslope package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="py_ice_cascade.uplift.html">py_ice_cascade.uplift package</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="py_ice_cascade.html#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="py_ice_cascade.html#module-py_ice_cascade.main">py_ice_cascade.main module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="py_ice_cascade.html#module-py_ice_cascade">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="index.html">py_ice_cascade</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="modules.html">py_ice_cascade</a> &raquo;</li>
+      
+          <li><a href="py_ice_cascade.html">py_ice_cascade package</a> &raquo;</li>
+      
+    <li>py_ice_cascade.hillslope package</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/py_ice_cascade.hillslope.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="py-ice-cascade-hillslope-package">
+<h1>py_ice_cascade.hillslope package<a class="headerlink" href="#py-ice-cascade-hillslope-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-py_ice_cascade.hillslope.base">
+<span id="py-ice-cascade-hillslope-base-module"></span><h2>py_ice_cascade.hillslope.base module<a class="headerlink" href="#module-py_ice_cascade.hillslope.base" title="Permalink to this headline">¶</a></h2>
+<p>Python ICE-CASCADE hillslope erosion-deposition model component base class</p>
+<p>Defines required interface methods such that a NotImplementedError exception is
+raised if they are not defined in the child class.</p>
+<dl class="class">
+<dt id="py_ice_cascade.hillslope.base.base_model">
+<em class="property">class </em><code class="descclassname">py_ice_cascade.hillslope.base.</code><code class="descname">base_model</code><a class="reference internal" href="_modules/py_ice_cascade/hillslope/base.html#base_model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#py_ice_cascade.hillslope.base.base_model" title="Permalink to this definition">¶</a></dt>
+<dd><p>Base class for hillslope model components</p>
+<dl class="method">
+<dt id="py_ice_cascade.hillslope.base.base_model.get_height">
+<code class="descname">get_height</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/py_ice_cascade/hillslope/base.html#base_model.get_height"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#py_ice_cascade.hillslope.base.base_model.get_height" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="py_ice_cascade.hillslope.base.base_model.init_netcdf">
+<code class="descname">init_netcdf</code><span class="sig-paren">(</span><em>nc</em>, <em>zlib</em>, <em>complevel</em>, <em>shuffle</em>, <em>chunksizes</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/py_ice_cascade/hillslope/base.html#base_model.init_netcdf"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#py_ice_cascade.hillslope.base.base_model.init_netcdf" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="py_ice_cascade.hillslope.base.base_model.run">
+<code class="descname">run</code><span class="sig-paren">(</span><em>run_time</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/py_ice_cascade/hillslope/base.html#base_model.run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#py_ice_cascade.hillslope.base.base_model.run" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="py_ice_cascade.hillslope.base.base_model.set_height">
+<code class="descname">set_height</code><span class="sig-paren">(</span><em>new</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/py_ice_cascade/hillslope/base.html#base_model.set_height"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#py_ice_cascade.hillslope.base.base_model.set_height" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="py_ice_cascade.hillslope.base.base_model.set_mask">
+<code class="descname">set_mask</code><span class="sig-paren">(</span><em>new</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/py_ice_cascade/hillslope/base.html#base_model.set_mask"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#py_ice_cascade.hillslope.base.base_model.set_mask" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="py_ice_cascade.hillslope.base.base_model.to_netcdf">
+<code class="descname">to_netcdf</code><span class="sig-paren">(</span><em>nc</em>, <em>time_idx</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/py_ice_cascade/hillslope/base.html#base_model.to_netcdf"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#py_ice_cascade.hillslope.base.base_model.to_netcdf" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-py_ice_cascade.hillslope.ftcs">
+<span id="py-ice-cascade-hillslope-ftcs-module"></span><h2>py_ice_cascade.hillslope.ftcs module<a class="headerlink" href="#module-py_ice_cascade.hillslope.ftcs" title="Permalink to this headline">¶</a></h2>
+<p>Python ICE-CASCADE hillslope erosion-deposition model component using
+forward-time centered-space finite difference scheme.</p>
+<p class="rubric">References</p>
+<p>(1) Becker, T. W., &amp; Kaus, B. J. P. (2016). Numerical Modeling of Earth
+Systems: Lecture Notes for USC GEOL557 (1.1.4)</p>
+<p>(2) Spiegelman, M. (2000). Myths &amp; Methods in Modeling. Columbia University
+Course Lecture Notes, 202. <a class="reference external" href="http://doi.org/10.1007/BF00763500">http://doi.org/10.1007/BF00763500</a></p>
+<dl class="class">
+<dt id="py_ice_cascade.hillslope.ftcs.ftcs_model">
+<em class="property">class </em><code class="descclassname">py_ice_cascade.hillslope.ftcs.</code><code class="descname">ftcs_model</code><span class="sig-paren">(</span><em>height</em>, <em>mask</em>, <em>delta</em>, <em>kappa_active</em>, <em>kappa_inactive</em>, <em>bc</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/py_ice_cascade/hillslope/ftcs.html#ftcs_model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#py_ice_cascade.hillslope.ftcs.ftcs_model" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#py_ice_cascade.hillslope.base.base_model" title="py_ice_cascade.hillslope.base.base_model"><code class="xref py py-class docutils literal"><span class="pre">py_ice_cascade.hillslope.base.base_model</span></code></a></p>
+<p>Hillslope diffusion model using forward-time center-space (FTCS) finite
+diffence scheme.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>height</strong> &#8211; 2D numpy array, surface elevation in model domain, [m]</li>
+<li><strong>mask</strong> &#8211; 2D numpy array, True where hillslope diffusion is active, False
+where inactive (e.g. under water or ice)</li>
+<li><strong>delta</strong> &#8211; Scalar double, grid spacing, assumed square, [m]</li>
+<li><strong>kappa_active</strong> &#8211; active diffusion coefficient, used where mask is
+True, [m**2/a]</li>
+<li><strong>kappa_inactive</strong> &#8211; inactive diffusion coefficient, used where mask is
+False, [m**2/a]</li>
+<li><strong>bc</strong> &#8211; List of boundary conditions names for [y=0, y=end, x=0, x=end]</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p>Supported boundary conditions are:</p>
+<ul class="simple">
+<li><em>constant</em>: <span class="math">\(\frac{\partial H}{\partial t} = 0\)</span></li>
+<li><em>closed</em>: no flux out of boundary (e.g. <span class="math">\((q_x)_{i,j+1/2} = 0\)</span> at
+<span class="math">\(x_{max}\)</span>)</li>
+<li><em>open</em>: no flux gradient normal to boundary, material passes through
+(e.g. <span class="math">\(\frac{\partial q_x}{\partial x} = 0\)</span> at <span class="math">\(x_{max}\)</span>)</li>
+<li><em>cyclic</em>: flux at opposing boundaries is equal (e.g.
+<span class="math">\((q_x)_{i,-1/2} = (q_x)_{i,\text{end}+1/2}\)</span>)</li>
+<li><em>mirror</em>: boundary flux is equal and opposite incoming flux (e.g.
+<span class="math">\((q_x)_{i,j+1/2} = -(q_x)_{i,j-1/2}\)</span> at <span class="math">\(x_{max}\)</span>)</li>
+</ul>
+<p>Overview of FTCS scheme with spatially variable diffusivity (see reference
+(1) and (2)). Starting with the basic diffusion equation:</p>
+<div class="math">
+\[\frac{\partial H}{\partial t} = \nabla \cdot q\]</div>
+<p>Discretize derivative terms using FTCS scheme:</p>
+<div class="math">
+\[\frac{H^{n+1}_{i,j} - H^{n}_{i,j}}{\Delta_t} =
+    \frac{(q_x)^{n}_{i,j+1/2} - (q_x)^{n}_{i,j-1/2}}{\Delta_x} +
+    \frac{(q_y)^{n}_{i+1/2,j} - (q_y)^{n}_{i-1/2,j}}{\Delta_y}\]</div>
+<p>Expand the fluxes in terms of height gradient:</p>
+<div class="math">
+\[\begin{split}\frac{1}{\Delta_t} \left( H^{n+1}_{i,j} - H^{n}_{i,j} \right) =
+    \frac{1}{\Delta_x} \left[
+    \kappa_{i,j+1/2} \frac{H^{n}_{i,j+1}-H^{n}_{i,j}}{\Delta_x} -
+    \kappa_{i,j-1/2} \frac{H^{n}_{i,j}-H^{n}_{i,j-1}}{\Delta_x}
+    \right] + \\
+    \frac{1}{\Delta_y} \left[
+    \kappa_{i+1/2,j} \frac{H^{n}_{i+1,j}-H^{n}_{i,j}}{\Delta_y} -
+    \kappa_{i-1/2,j} \frac{H^{n}_{i,j}-H^{n}_{i-1,j}}{\Delta_y}
+    \right]\end{split}\]</div>
+<p>Use the mean diffusivity at midpoints:</p>
+<div class="math">
+\[\begin{split}\frac{1}{\Delta_t} \left( H^{n+1}_{i,j} - H^{n}_{i,j} \right) =
+    \frac{1}{\Delta_x} \left[
+    \frac{\kappa_{i,j+1} + \kappa_{i,j}}{2} \frac{H^{n}_{i,j+1}-H^{n}_{i,j}}{\Delta_x} -
+    \frac{\kappa_{i,j} + \kappa_{i,j-1}}{2} \frac{H^{n}_{i,j}-H^{n}_{i,j-1}}{\Delta_x}
+    \right] + \\
+    \frac{1}{\Delta_y} \left[
+    \frac{\kappa_{i+1,j} + \kappa_{i,j}}{2} \frac{H^{n}_{i+1,j}-H^{n}_{i,j}}{\Delta_y} -
+    \frac{\kappa_{i,j} + \kappa_{i-1,j}}{2} \frac{H^{n}_{i,j}-H^{n}_{i-1,j}}{\Delta_y}
+    \right]\end{split}\]</div>
+<p>Assume equal x- and y- grid spacing and collect coefficients:</p>
+<div class="math">
+\[\begin{split}\frac{1}{\Delta_t} \left( H^{n+1}_{i,j} - H^{n}_{i,j} \right) =
+    \frac{1}{2 \Delta_{xy}^2} \left[
+    (\kappa_{i,j+1} + \kappa_{i,j}) (H^{n}_{i,j+1}-H^{n}_{i,j}) -
+    (\kappa_{i,j} + \kappa_{i,j-1}) (H^{n}_{i,j}-H^{n}_{i,j-1}) + \\
+    (\kappa_{i+1,j} + \kappa_{i,j}) (H^{n}_{i+1,j}-H^{n}_{i,j}) -
+    (\kappa_{i,j} + \kappa_{i-1,j}) (H^{n}_{i,j}-H^{n}_{i-1,j})
+    \right]\end{split}\]</div>
+<p>Expand and collect terms:</p>
+<div class="math">
+\[\begin{split}H^{n+1}_{i,j} =  H^{n}_{i,j} + \frac{\Delta_t}{2 \Delta_{xy}^2} \left[
+H^{n}_{i,j+1} (\kappa_{i,j+1} + \kappa_{i,j}) +
+H^{n}_{i,j-1} (\kappa_{i,j} + \kappa_{i,j-1}) +
+H^{n}_{i+1,j} (\kappa_{i+1,j} + \kappa_{i,j}) + \\
+H^{n}_{i-1,j} (\kappa_{i,j} + \kappa_{i-1,j}) -
+H^{n}_{i,j} (4 \kappa_{i,j} + \kappa_{i,j+1} + \kappa_{i,j-1} + \kappa_{i+1,j} + \kappa_{i-1,j})
+\right]\end{split}\]</div>
+<p>The above scheme is modified at boundary points.</p>
+<dl class="method">
+<dt id="py_ice_cascade.hillslope.ftcs.ftcs_model.get_height">
+<code class="descname">get_height</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/py_ice_cascade/hillslope/ftcs.html#ftcs_model.get_height"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#py_ice_cascade.hillslope.ftcs.ftcs_model.get_height" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return height grid as 2D numpy array</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="py_ice_cascade.hillslope.ftcs.ftcs_model.init_netcdf">
+<code class="descname">init_netcdf</code><span class="sig-paren">(</span><em>nc</em>, <em>zlib</em>, <em>complevel</em>, <em>shuffle</em>, <em>chunksizes</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/py_ice_cascade/hillslope/ftcs.html#ftcs_model.init_netcdf"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#py_ice_cascade.hillslope.ftcs.ftcs_model.init_netcdf" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize model-specific variables and attributes in output file</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>nc</strong> &#8211; netCDF4 Dataset object, output file open for writing</li>
+<li><strong>zlib</strong> &#8211; see <a class="reference external" href="http://unidata.github.io/netcdf4-python/#netCDF4.Dataset.createVariable">http://unidata.github.io/netcdf4-python/#netCDF4.Dataset.createVariable</a></li>
+<li><strong>complevel</strong> &#8211; &#8221; &#8220;</li>
+<li><strong>shuffle</strong> &#8211; &#8221; &#8220;</li>
+<li><strong>chunksizes</strong> &#8211; &#8221; &#8220;</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="py_ice_cascade.hillslope.ftcs.ftcs_model.run">
+<code class="descname">run</code><span class="sig-paren">(</span><em>run_time</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/py_ice_cascade/hillslope/ftcs.html#ftcs_model.run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#py_ice_cascade.hillslope.ftcs.ftcs_model.run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run numerical integration for specified time period</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>run_time</strong> &#8211; Scalar double, model run time, [a]</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="py_ice_cascade.hillslope.ftcs.ftcs_model.set_height">
+<code class="descname">set_height</code><span class="sig-paren">(</span><em>new</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/py_ice_cascade/hillslope/ftcs.html#ftcs_model.set_height"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#py_ice_cascade.hillslope.ftcs.ftcs_model.set_height" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set height grid</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="py_ice_cascade.hillslope.ftcs.ftcs_model.set_mask">
+<code class="descname">set_mask</code><span class="sig-paren">(</span><em>new</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/py_ice_cascade/hillslope/ftcs.html#ftcs_model.set_mask"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#py_ice_cascade.hillslope.ftcs.ftcs_model.set_mask" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set diffusivity grid from mask and update dheight/dt coeff matrix</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="py_ice_cascade.hillslope.ftcs.ftcs_model.to_netcdf">
+<code class="descname">to_netcdf</code><span class="sig-paren">(</span><em>nc</em>, <em>time_idx</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/py_ice_cascade/hillslope/ftcs.html#ftcs_model.to_netcdf"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#py_ice_cascade.hillslope.ftcs.ftcs_model.to_netcdf" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write model-specific state variables to output file</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>nc</strong> &#8211; netCDF4 Dataset object, output file open for writing</li>
+<li><strong>time_idx</strong> &#8211; integer time index to write to</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-py_ice_cascade.hillslope.null">
+<span id="py-ice-cascade-hillslope-null-module"></span><h2>py_ice_cascade.hillslope.null module<a class="headerlink" href="#module-py_ice_cascade.hillslope.null" title="Permalink to this headline">¶</a></h2>
+<p>Python ICE-CASCADE hillslope erosion-deposition model component</p>
+<p>Null model: defines do-nothing methods for required interface, used to disable
+the hillslope model component</p>
+<dl class="class">
+<dt id="py_ice_cascade.hillslope.null.null_model">
+<em class="property">class </em><code class="descclassname">py_ice_cascade.hillslope.null.</code><code class="descname">null_model</code><a class="reference internal" href="_modules/py_ice_cascade/hillslope/null.html#null_model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#py_ice_cascade.hillslope.null.null_model" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#py_ice_cascade.hillslope.base.base_model" title="py_ice_cascade.hillslope.base.base_model"><code class="xref py py-class docutils literal"><span class="pre">py_ice_cascade.hillslope.base.base_model</span></code></a></p>
+<p>Do-nothing class to be used for disabled hillslope component</p>
+<p>Internal height grid is set and returned unchanged</p>
+<dl class="method">
+<dt id="py_ice_cascade.hillslope.null.null_model.get_height">
+<code class="descname">get_height</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/py_ice_cascade/hillslope/null.html#null_model.get_height"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#py_ice_cascade.hillslope.null.null_model.get_height" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return height grid as numpy array</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="py_ice_cascade.hillslope.null.null_model.init_netcdf">
+<code class="descname">init_netcdf</code><span class="sig-paren">(</span><em>nc</em>, <em>*args</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/py_ice_cascade/hillslope/null.html#null_model.init_netcdf"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#py_ice_cascade.hillslope.null.null_model.init_netcdf" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set name, status of hillslope model component to False, Null</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>nc</strong> &#8211; netCDF Dataset object, open for writing</li>
+<li><strong>*args</strong> &#8211; other ignored arguments</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="py_ice_cascade.hillslope.null.null_model.run">
+<code class="descname">run</code><span class="sig-paren">(</span><em>*args</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/py_ice_cascade/hillslope/null.html#null_model.run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#py_ice_cascade.hillslope.null.null_model.run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Not used</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="py_ice_cascade.hillslope.null.null_model.set_height">
+<code class="descname">set_height</code><span class="sig-paren">(</span><em>new</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/py_ice_cascade/hillslope/null.html#null_model.set_height"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#py_ice_cascade.hillslope.null.null_model.set_height" title="Permalink to this definition">¶</a></dt>
+<dd><p>Store height grid as numpy array</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="py_ice_cascade.hillslope.null.null_model.set_mask">
+<code class="descname">set_mask</code><span class="sig-paren">(</span><em>*args</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/py_ice_cascade/hillslope/null.html#null_model.set_mask"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#py_ice_cascade.hillslope.null.null_model.set_mask" title="Permalink to this definition">¶</a></dt>
+<dd><p>Not used</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="py_ice_cascade.hillslope.null.null_model.to_netcdf">
+<code class="descname">to_netcdf</code><span class="sig-paren">(</span><em>*args</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/py_ice_cascade/hillslope/null.html#null_model.to_netcdf"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#py_ice_cascade.hillslope.null.null_model.to_netcdf" title="Permalink to this definition">¶</a></dt>
+<dd><p>Not used</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-py_ice_cascade.hillslope">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-py_ice_cascade.hillslope" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="py_ice_cascade.uplift.html" class="btn btn-neutral float-right" title="py_ice_cascade.uplift package" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="py_ice_cascade.examples.html" class="btn btn-neutral" title="py_ice_cascade.examples package" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, Keith F. Ma.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'0.0.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

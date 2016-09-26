@@ -1,37 +1,22 @@
 py_ice_cascade package
 ======================
 
+Subpackages
+-----------
+
+.. toctree::
+
+    py_ice_cascade.examples
+    py_ice_cascade.hillslope
+    py_ice_cascade.uplift
+
 Submodules
 ----------
 
-py_ice_cascade.example module
------------------------------
+py_ice_cascade.main module
+--------------------------
 
-.. automodule:: py_ice_cascade.example
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-py_ice_cascade.hillslope module
--------------------------------
-
-.. automodule:: py_ice_cascade.hillslope
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-py_ice_cascade.ice_cascade module
----------------------------------
-
-.. automodule:: py_ice_cascade.ice_cascade
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-py_ice_cascade.uplift module
-----------------------------
-
-.. automodule:: py_ice_cascade.uplift
+.. automodule:: py_ice_cascade.main
     :members:
     :undoc-members:
     :show-inheritance:
