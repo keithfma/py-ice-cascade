@@ -12,3 +12,14 @@ _author_email = 'keithfma@gmail.com'
 from .main import main_model
 from . import hillslope
 from . import uplift
+
+# setup package-level logger
+import logging
+import sys
+logger = logging.getLogger(name=__name__) 
+handler = logging.StreamHandler(stream=sys.stdout)
+formatter = logging.Formatter(
+    '%(name)s | %(levelname)s | %(message)s | %(asctime)s')
+handler.setFormatter(formatter)
+logger.addHandler(handler)
+logger.setLevel(logging.INFO)
