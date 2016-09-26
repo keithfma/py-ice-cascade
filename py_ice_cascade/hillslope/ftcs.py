@@ -1,5 +1,6 @@
 """
-Python ICE-CASCADE hillslope erosion-deposition model component
+Python ICE-CASCADE hillslope erosion-deposition model component using
+forward-time centered-space finite difference scheme.
 
 References:
 
@@ -10,53 +11,13 @@ References:
     Course Lecture Notes, 202. http://doi.org/10.1007/BF00763500
 """
 
+from .base import base_model
 import numpy as np
-import matplotlib.pyplot as plt
 import scipy.sparse
 import sys
 import netCDF4
 
-class model():
-    """Base class for hillslope model components"""
-    def __init__(self):
-        pass
-    def set_height(self, new):
-        raise NotImplementedError
-    def get_height(self):
-        raise NotImplementedError
-    def set_mask(self, new):
-        raise NotImplementedError
-    def init_netcdf(self, nc, zlib, complevel, shuffle, chunksizes):
-        raise NotImplementedError
-    def to_netcdf(self, nc, time_idx):
-        raise NotImplementedError
-    def run(self, run_time):
-        raise NotImplementedError
-
-class null(model):
-    """
-    Do-nothing class to be used for disabled hillslope component
-
-    Internal height grid is set and returned unchanged
-    """
-    def __init__(self):
-        pass
-    def set_height(self, new):
-        self._height = np.double(new) 
-    def get_height(self):
-        return self._height
-    def set_mask(*args):
-        pass
-    def init_netcdf(self, nc, *args):
-        nc.createVariable('hill_model', np.dtype('i1')) # scalar
-        nc['hill_model'][...] = False 
-        nc['hill_model'].type = self.__class__.__name__ 
-    def to_netcdf(*args):
-        pass
-    def run(*args):
-        pass
-
-class ftcs(model):
+class ftcs_model(base_model):
     r"""
     Hillslope diffusion model using forward-time center-space (FTCS) finite
     diffence scheme. 

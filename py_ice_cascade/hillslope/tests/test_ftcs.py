@@ -1,5 +1,6 @@
 """
-Unit tests for Python ICE-CASCADE hillslope erosion-deposition model component
+Unit tests for Python ICE-CASCADE hillslope erosion-deposition forward-time
+centered-space model component
 
 References:
 
