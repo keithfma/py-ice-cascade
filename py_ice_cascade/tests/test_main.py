@@ -4,7 +4,7 @@ Unit tests for Python ICE-CASCADE core model
 
 import unittest
 import numpy as np
-from py_ice_cascade import ice_cascade
+import py_ice_cascade
 
 class model_TestCase(unittest.TestCase):
 
